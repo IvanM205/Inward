@@ -1,0 +1,12 @@
+[
+  {
+    "path": "src/core/storage/",
+    "pattern": "reward",
+    "reason": "03-data-model: Thread.replacement_habit is a {cue, routine, reward, vow_text} loop — 'reward' is the habit-science term for what the old routine provided, not an engagement mechanic."
+  },
+  {
+    "path": "src/app/plan/",
+    "pattern": "reward",
+    "reason": "Habit-loop mapping UI (PLAN-02) names the loop's reward in the user's own words."
+  }
+]

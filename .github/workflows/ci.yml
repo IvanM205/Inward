@@ -1,0 +1,33 @@
+# CI — covenant gates run FIRST; nothing merges over a red invariant
+# (08-roadmap §Working agreements).
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  covenant:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # The gates are dependency-free on purpose: they judge the tree before
+      # any package is installed.
+      - run: node ci/covenant/run-all.mjs
+
+  test:
+    needs: covenant
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test -- --ci
