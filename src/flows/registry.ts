@@ -2,28 +2,90 @@
  * Registry of every primary flow in Inward. The route-graph test
  * (src/flows/__tests__/registry.test.ts) validates each entry against the
  * covenant rules (NFR-A3) — a flow that is not registered here must not be
- * navigable, and PR review enforces that navigation is only built from these
- * graphs.
+ * navigable, and navigation IS built from these graphs via FlowHost.
  *
- * M1 adds: THR-02 morning, THR-03 evening, THR-04 opening, QUIET-01 unplug,
- * JRN-03 widget capture. M0 ships the harness with the onboarding skeleton.
+ * ONB-04 intake (M2) will extend the onboarding graph between permissions and
+ * the terminal screen.
  */
 import { FlowGraph } from '../core/navigation/flowGraph';
 
+/** ONB-01..03 + ONB-05: breath → sentence → honest permissions → release. */
+export const ONBOARDING_FLOW: FlowGraph = {
+  name: 'ONB-01..03,05 first launch',
+  entry: 'breath',
+  screens: [
+    { id: 'breath', kind: 'screen' },
+    { id: 'sentence', kind: 'screen' },
+    { id: 'permissions', kind: 'screen' },
+    { id: 'enough-for-today', kind: 'terminal' },
+  ],
+  edges: [
+    { from: 'breath', to: 'sentence' },
+    { from: 'sentence', to: 'permissions' },
+    { from: 'permissions', to: 'enough-for-today' },
+  ],
+};
+
+/** THR-02: one question, the Opening, release. Target ≤ 60 s. */
+export const MORNING_FLOW: FlowGraph = {
+  name: 'THR-02 morning',
+  entry: 'question',
+  screens: [
+    { id: 'question', kind: 'screen' },
+    { id: 'opening', kind: 'screen' },
+    { id: 'go-live', kind: 'terminal' },
+  ],
+  edges: [
+    { from: 'question', to: 'opening' },
+    { from: 'opening', to: 'go-live' },
+  ],
+};
+
+/** THR-03: direction → gratitudes → evening fold (JRN-02) → the Needle → rest. */
+export const EVENING_FLOW: FlowGraph = {
+  name: 'THR-03 evening',
+  entry: 'direction',
+  screens: [
+    { id: 'direction', kind: 'screen' },
+    { id: 'gratitudes', kind: 'screen' },
+    { id: 'fold', kind: 'screen' },
+    { id: 'needle', kind: 'screen' },
+    { id: 'rest', kind: 'terminal' },
+  ],
+  edges: [
+    { from: 'direction', to: 'gratitudes' },
+    { from: 'gratitudes', to: 'fold' },
+    { from: 'fold', to: 'needle' },
+    { from: 'needle', to: 'rest' },
+  ],
+};
+
+/** JRN-03: one-line aliveness capture from the widget — in and back out. */
+export const WIDGET_CAPTURE_FLOW: FlowGraph = {
+  name: 'JRN-03 widget capture',
+  entry: 'capture',
+  screens: [
+    { id: 'capture', kind: 'screen' },
+    { id: 'kept', kind: 'terminal' },
+  ],
+  edges: [{ from: 'capture', to: 'kept' }],
+};
+
+/** QUIET-01: one tap chooses 1–4 h; the veil is the end state. */
+export const UNPLUG_FLOW: FlowGraph = {
+  name: 'QUIET-01 unplug',
+  entry: 'choose',
+  screens: [
+    { id: 'choose', kind: 'screen' },
+    { id: 'veil', kind: 'terminal' },
+  ],
+  edges: [{ from: 'choose', to: 'veil' }],
+};
+
 export const primaryFlows: FlowGraph[] = [
-  {
-    name: 'ONB-01..03 first launch (skeleton)',
-    entry: 'breath',
-    screens: [
-      { id: 'breath', kind: 'screen' },
-      { id: 'sentence', kind: 'screen' },
-      { id: 'permissions', kind: 'screen' },
-      { id: 'enough-for-today', kind: 'terminal' },
-    ],
-    edges: [
-      { from: 'breath', to: 'sentence' },
-      { from: 'sentence', to: 'permissions' },
-      { from: 'permissions', to: 'enough-for-today' },
-    ],
-  },
+  ONBOARDING_FLOW,
+  MORNING_FLOW,
+  EVENING_FLOW,
+  WIDGET_CAPTURE_FLOW,
+  UNPLUG_FLOW,
 ];

@@ -36,6 +36,53 @@ export const MIGRATIONS: Migration[] = [
       )`,
     ],
   },
+  {
+    version: 2,
+    statements: [
+      // Reflection — evening Compass (03 §Reflection); one per local date.
+      // direction: −1.0 matter … +1.0 spirit; feeds the Needle (90-day window).
+      `CREATE TABLE reflection (
+        id TEXT PRIMARY KEY,
+        date TEXT NOT NULL UNIQUE,
+        direction REAL NOT NULL CHECK (direction >= -1.0 AND direction <= 1.0),
+        line TEXT,
+        gratitudes TEXT NOT NULL DEFAULT '[]'
+      )`,
+      // JournalEntry — the Living Journal (03 §JournalEntry). repeat_index is a
+      // local implementation detail: the 0-based near-duplicate count (04 §2.2)
+      // so the scoring engine can rebuild exact per-channel weights at recalc.
+      `CREATE TABLE journal_entry (
+        id TEXT PRIMARY KEY,
+        created_at TEXT NOT NULL,
+        type TEXT NOT NULL CHECK (type IN (
+          'kindness','care','aliveness','dare_done','craving_decoded',
+          'path_reflection','gratitude')),
+        text TEXT NOT NULL,
+        channel_keys TEXT NOT NULL DEFAULT '[]',
+        counted INTEGER NOT NULL DEFAULT 0,
+        weight REAL NOT NULL DEFAULT 0,
+        repeat_index INTEGER NOT NULL DEFAULT 0,
+        origin TEXT NOT NULL CHECK (origin IN ('evening','widget','auto','companion'))
+      )`,
+      `CREATE INDEX journal_entry_created_at ON journal_entry (created_at)`,
+    ],
+  },
+  {
+    version: 3,
+    statements: [
+      // QuietState — singleton (03 §QuietState). M1 uses mode + unplug_until
+      // (QUIET-01); detox and stillness JSON blobs fill in at M3.
+      `CREATE TABLE quiet_state (
+        id INTEGER PRIMARY KEY CHECK (id = 1),
+        mode TEXT NOT NULL DEFAULT 'none'
+          CHECK (mode IN ('none','unplug','detox','stillness')),
+        unplug_until TEXT,
+        detox TEXT,
+        stillness TEXT
+      )`,
+      `INSERT INTO quiet_state (id, mode) VALUES (1, 'none')`,
+    ],
+  },
 ];
 
 /** The twelve channels — canonical list, order fixed (01-product-overview). */

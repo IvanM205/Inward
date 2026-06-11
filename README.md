@@ -17,7 +17,8 @@ is enforced by CI gates in this repo.
 | `docs/` | Product source documents (the three current PDFs; `docs/previous/` is out of scope) |
 | `decisions/` | Architecture Decision Records (start with ADR-001) |
 | `ci/covenant/` | The covenant gates — grep-gate, dependency lint, notification gate, list gate |
-| `src/core/` | scoring · storage · notifications · navigation · design |
+| `src/core/` | scoring · storage · notifications · navigation (incl. FlowHost) · design |
+| `src/app/` | The rooms — onboarding · threshold (compass flows) · journal · quiet |
 | `src/flows/` | Declarative flow graphs — every primary flow ends in a TerminalScreen |
 
 ## Commands

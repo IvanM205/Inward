@@ -1,5 +1,5 @@
 import { Storage } from '../Storage';
-import { CHANNELS } from '../migrations';
+import { CHANNELS, MIGRATIONS } from '../migrations';
 import {
   FakeDatabaseProvider,
   FakeKeyStore,
@@ -38,7 +38,7 @@ describe('Storage open & migrations', () => {
     const profiles = await db.execute('SELECT id FROM profile');
     expect(profiles.rows).toHaveLength(1);
     const versions = await db.execute('SELECT COUNT(*) AS n FROM schema_version');
-    expect(versions.rows[0].n).toBe(1);
+    expect(versions.rows[0].n).toBe(MIGRATIONS.length); // one row per migration, applied once
   });
 
   it('enforces the onboarding_state enum from 03-data-model', async () => {
