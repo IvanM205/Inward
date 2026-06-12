@@ -44,7 +44,7 @@ import { SettingsScreen } from './src/app/settings/SettingsScreen';
 import { DetoxCheckinFlow, DetoxStartFlow } from './src/app/quiet/DetoxFlows';
 import { ActiveDetox, activeDetox, isStillnessNow, isUnplugged } from './src/app/quiet/quietRepo';
 import { StillnessFlow } from './src/app/quiet/StillnessFlow';
-import { UnplugFlow, VEIL_LINE } from './src/app/quiet/UnplugFlow';
+import { UnplugFlow } from './src/app/quiet/UnplugFlow';
 import { EveningFlow } from './src/app/threshold/EveningFlow';
 import { MorningFlow } from './src/app/threshold/MorningFlow';
 import { CompassSlot, dueCompassToday } from './src/app/threshold/dueCompass';
@@ -83,8 +83,6 @@ type Route =
   | 'ask'
   | 'journal';
 
-const STILLNESS_LINE = 'Stillness, kept. The world can hold itself for an hour.';
-
 /** Where the Mirror door leads: the quiz until intake_done, then the Portrait. */
 function mirrorRouteFor(state: string | undefined): 'intake' | 'portrait' | null {
   if (state === 'permissions_done' || state === 'intake_in_progress') return 'intake';
@@ -104,7 +102,7 @@ function App(): React.JSX.Element {
   const [graduated, setGraduated] = useState<Thread | null>(null);
   const [realignDue, setRealignDue] = useState(false);
   const [detox, setDetox] = useState<ActiveDetox | null>(null);
-  const [veilLine, setVeilLine] = useState(VEIL_LINE);
+  const [veilLine, setVeilLine] = useState<'quiet.veil' | 'quiet.stillnessVeil'>('quiet.veil');
   const [redesignOpen, setRedesignOpen] = useState(false);
   const [buildOpen, setBuildOpen] = useState(false);
   const [path, setPath] = useState<PathState | null>(null);
@@ -129,7 +127,7 @@ function App(): React.JSX.Element {
         setPath(await activePath(opened, new Date()));
       }
       if ((await isUnplugged(opened, new Date())) || (await isStillnessNow(opened, new Date()))) {
-        setVeilLine((await isUnplugged(opened, new Date())) ? VEIL_LINE : STILLNESS_LINE);
+        setVeilLine((await isUnplugged(opened, new Date())) ? 'quiet.veil' : 'quiet.stillnessVeil');
         setRoute('veil'); // a running quiet window is defended (QUIET-01/03)
         return;
       }
@@ -193,7 +191,7 @@ function App(): React.JSX.Element {
     if (Platform.OS === 'android') BackHandler.exitApp();
     const unplugged = db !== null && (await isUnplugged(db, new Date()));
     const still = db !== null && (await isStillnessNow(db, new Date()));
-    if (unplugged || still) setVeilLine(unplugged ? VEIL_LINE : STILLNESS_LINE);
+    if (unplugged || still) setVeilLine(unplugged ? 'quiet.veil' : 'quiet.stillnessVeil');
     setRoute(unplugged || still ? 'veil' : 'threshold');
   }, [db]);
 
@@ -256,9 +254,9 @@ function App(): React.JSX.Element {
       ) : route === 'realign' ? (
         <RealignFlow db={db} onExit={release} />
       ) : route === 'detox-start' ? (
-        <DetoxStartFlow db={db} onExit={release} />
+        <DetoxStartFlow db={db} locale={locale} onExit={release} />
       ) : route === 'detox-checkin' ? (
-        <DetoxCheckinFlow db={db} onExit={release} />
+        <DetoxCheckinFlow db={db} locale={locale} onExit={release} />
       ) : route === 'graduated' && graduated ? (
         <TerminalScreen
           line={t('graduation.line', locale)}
@@ -269,9 +267,9 @@ function App(): React.JSX.Element {
           }}
         />
       ) : route === 'unplug' ? (
-        <UnplugFlow db={db} onExit={release} onDesignStillness={() => setRoute('stillness')} />
+        <UnplugFlow db={db} locale={locale} onExit={release} onDesignStillness={() => setRoute('stillness')} />
       ) : route === 'stillness' ? (
-        <StillnessFlow db={db} onExit={release} />
+        <StillnessFlow db={db} locale={locale} onExit={release} />
       ) : route === 'redesign' ? (
         <RedesignFlow db={db} locale={locale} onExit={release} />
       ) : route === 'build-name' ? (
@@ -296,7 +294,7 @@ function App(): React.JSX.Element {
       ) : route === 'journal' ? (
         <JournalScreen db={db} onClose={release} />
       ) : route === 'veil' ? (
-        <QuietVeil line={veilLine} onLeave={release} />
+        <QuietVeil line={t(veilLine, locale)} onLeave={release} />
       ) : (
         <ThresholdScreen
           locale={locale}

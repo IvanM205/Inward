@@ -16,6 +16,7 @@ import { ChannelKey } from '../../core/scoring/config';
 import { CHANNELS } from '../../core/storage/migrations';
 import { SqlDatabase } from '../../core/storage/ports';
 import { DETOX_CHECKIN_FLOW, DETOX_START_FLOW } from '../../flows/registry';
+import { t } from '../../core/content/strings';
 import {
   ActiveDetox,
   activeDetox,
@@ -28,10 +29,11 @@ import {
 
 export interface DetoxStartFlowProps {
   db: SqlDatabase;
+  locale?: string;
   onExit: () => void;
 }
 
-export function DetoxStartFlow({ db, onExit }: DetoxStartFlowProps): React.JSX.Element {
+export function DetoxStartFlow({ db, locale = 'en', onExit }: DetoxStartFlowProps): React.JSX.Element {
   const [program, setProgram] = useState<DetoxProgram>(7);
   const [redList, setRedList] = useState<ChannelKey[]>([]);
 
@@ -42,12 +44,12 @@ export function DetoxStartFlow({ db, onExit }: DetoxStartFlowProps): React.JSX.E
       renderers={{
         program: (api) => (
           <View style={styles.screen}>
-            <Text style={styles.question}>How long a clearing?</Text>
+            <Text style={styles.question}>{t('detox.howLong', locale)}</Text>
             {DETOX_PROGRAMS.map((days) =>
               days === 7 ? (
                 <PrimaryAction
                   key={days}
-                  label="seven days"
+                  label={t('detox.seven', locale)}
                   onPress={() => {
                     setProgram(days);
                     api.advance();
@@ -56,7 +58,7 @@ export function DetoxStartFlow({ db, onExit }: DetoxStartFlowProps): React.JSX.E
               ) : (
                 <QuietAction
                   key={days}
-                  label={days === 14 ? 'fourteen days' : 'thirty days'}
+                  label={days === 14 ? t('detox.fourteen', locale) : t('detox.thirty', locale)}
                   onPress={() => {
                     setProgram(days);
                     api.advance();
@@ -68,7 +70,7 @@ export function DetoxStartFlow({ db, onExit }: DetoxStartFlowProps): React.JSX.E
         ),
         'red-list': (api) => (
           <View style={styles.screen}>
-            <Text style={styles.question}>Which channels go on the red list?</Text>
+            <Text style={styles.question}>{t('detox.redList', locale)}</Text>
             {CHANNELS.slice(0, 8).map((c) => {
               const key = c.key as ChannelKey;
               const picked = redList.includes(key);
@@ -90,7 +92,7 @@ export function DetoxStartFlow({ db, onExit }: DetoxStartFlowProps): React.JSX.E
             })}
             <View style={styles.action}>
               <PrimaryAction
-                label="begin the clearing"
+                label={t('detox.begin', locale)}
                 disabled={redList.length === 0}
                 onPress={async () => {
                   await startDetox(db, program, redList, new Date());
@@ -102,7 +104,7 @@ export function DetoxStartFlow({ db, onExit }: DetoxStartFlowProps): React.JSX.E
         ),
         begun: (api) => (
           <TerminalScreen
-            line="The clearing has begun. Shorter feeds go first — one line a day is all it asks."
+            line={t('detox.begunTerminal', locale)}
             onExit={api.exit}
           />
         ),
@@ -113,10 +115,11 @@ export function DetoxStartFlow({ db, onExit }: DetoxStartFlowProps): React.JSX.E
 
 export interface DetoxCheckinFlowProps {
   db: SqlDatabase;
+  locale?: string;
   onExit: () => void;
 }
 
-export function DetoxCheckinFlow({ db, onExit }: DetoxCheckinFlowProps): React.JSX.Element {
+export function DetoxCheckinFlow({ db, locale = 'en', onExit }: DetoxCheckinFlowProps): React.JSX.Element {
   const [detox, setDetox] = useState<ActiveDetox | null | undefined>(undefined);
   const [line, setLine] = useState('');
   const [closingAnswer, setClosingAnswer] = useState('');
@@ -138,10 +141,10 @@ export function DetoxCheckinFlow({ db, onExit }: DetoxCheckinFlowProps): React.J
               <Text style={styles.dayLine}>
                 {`day ${detox.dayIndex} of ${detox.state.program} · clearing ${detox.focus.length} of ${detox.state.redList.length} channels`}
               </Text>
-              <JournalPrompt prompt="One line about today." value={line} onChange={setLine} />
+              <JournalPrompt prompt={t('detox.oneLine', locale)} value={line} onChange={setLine} />
               <View style={styles.action}>
                 <PrimaryAction
-                  label="keep it"
+                  label={t('detox.keepIt', locale)}
                   disabled={line.trim().length === 0}
                   onPress={async () => {
                     await detoxCheckin(db, line.trim(), new Date());
@@ -154,13 +157,13 @@ export function DetoxCheckinFlow({ db, onExit }: DetoxCheckinFlowProps): React.J
         closing: (api) => (
           <View style={styles.screen}>
             <JournalPrompt
-              prompt="The clearing is over. How does this feel, compared to before?"
+              prompt={t('detox.closing', locale)}
               value={closingAnswer}
               onChange={setClosingAnswer}
             />
             <View style={styles.action}>
               <PrimaryAction
-                label="finish"
+                label={t('detox.finish', locale)}
                 onPress={async () => {
                   await completeDetox(db, closingAnswer, new Date());
                   api.advance();
@@ -170,10 +173,10 @@ export function DetoxCheckinFlow({ db, onExit }: DetoxCheckinFlowProps): React.J
           </View>
         ),
         kept: (api) => (
-          <TerminalScreen line="Kept. The clearing holds — go live the rest of it." onExit={api.exit} />
+          <TerminalScreen line={t('detox.keptTerminal', locale)} onExit={api.exit} />
         ),
         done: (api) => (
-          <TerminalScreen line="The clearing is done. Keep what it gave you." onExit={api.exit} />
+          <TerminalScreen line={t('detox.doneTerminal', locale)} onExit={api.exit} />
         ),
       }}
     />

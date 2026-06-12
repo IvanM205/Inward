@@ -11,6 +11,7 @@ import { color, space, type } from '../../core/design/tokens';
 import { FlowHost } from '../../core/navigation/FlowHost';
 import { SqlDatabase } from '../../core/storage/ports';
 import { STILLNESS_FLOW } from '../../flows/registry';
+import { t } from '../../core/content/strings';
 import { setStillness } from './quietRepo';
 
 export const WEEKDAYS = [
@@ -25,10 +26,11 @@ export const WEEKDAYS = [
 
 export interface StillnessFlowProps {
   db: SqlDatabase;
+  locale?: string;
   onExit: () => void;
 }
 
-export function StillnessFlow({ db, onExit }: StillnessFlowProps): React.JSX.Element {
+export function StillnessFlow({ db, locale = 'en', onExit }: StillnessFlowProps): React.JSX.Element {
   const [weekday, setWeekday] = useState(0);
   const [startHour, setStartHour] = useState('8');
   const [hours, setHours] = useState('3');
@@ -41,7 +43,7 @@ export function StillnessFlow({ db, onExit }: StillnessFlowProps): React.JSX.Ele
         weekday: (api) => (
           <View style={styles.screen}>
             <Text style={styles.question}>
-              One window a week, kept for stillness. Which day?
+              {t('stillness.whichDay', locale)}
             </Text>
             {WEEKDAYS.map((name, i) =>
               i === 0 ? (
@@ -68,28 +70,28 @@ export function StillnessFlow({ db, onExit }: StillnessFlowProps): React.JSX.Ele
         ),
         window: (api) => (
           <View style={styles.screen}>
-            <Text style={styles.question}>From which hour, and for how long?</Text>
-            <Text style={styles.fieldLabel}>starting hour (0–23)</Text>
+            <Text style={styles.question}>{t('stillness.window', locale)}</Text>
+            <Text style={styles.fieldLabel}>{t('stillness.startHour', locale)}</Text>
             <TextInput
               style={styles.field}
               value={startHour}
               onChangeText={setStartHour}
               keyboardType="numeric"
-              accessibilityLabel="starting hour (0–23)"
+              accessibilityLabel={t('stillness.startHour', locale)}
               placeholderTextColor={color.stone}
             />
-            <Text style={styles.fieldLabel}>hours of stillness</Text>
+            <Text style={styles.fieldLabel}>{t('stillness.hoursOf', locale)}</Text>
             <TextInput
               style={styles.field}
               value={hours}
               onChangeText={setHours}
               keyboardType="numeric"
-              accessibilityLabel="hours of stillness"
+              accessibilityLabel={t('stillness.hoursOf', locale)}
               placeholderTextColor={color.stone}
             />
             <View style={styles.action}>
               <PrimaryAction
-                label="keep this window"
+                label={t('stillness.keep', locale)}
                 onPress={async () => {
                   await setStillness(db, {
                     weekday,
@@ -104,7 +106,7 @@ export function StillnessFlow({ db, onExit }: StillnessFlowProps): React.JSX.Ele
         ),
         kept: (api) => (
           <TerminalScreen
-            line="The window is kept. The app will defend it — you only have to arrive."
+            line={t('stillness.keptTerminal', locale)}
             onExit={api.exit}
           />
         ),

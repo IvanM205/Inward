@@ -12,20 +12,22 @@ import { color, space, type } from '../../core/design/tokens';
 import { FlowHost } from '../../core/navigation/FlowHost';
 import { SqlDatabase } from '../../core/storage/ports';
 import { UNPLUG_FLOW } from '../../flows/registry';
+import { t } from '../../core/content/strings';
 import { startUnplug, UNPLUG_DEFAULT_HOURS } from './quietRepo';
 
-export const VEIL_LINE = 'Unplugged. The world is on.';
+
 
 const CHOICES = [1, 2, 3, 4];
 
 export interface UnplugFlowProps {
   db: SqlDatabase;
+  locale?: string;
   onExit: () => void;
   /** Door to designing the weekly stillness window (QUIET-03). */
   onDesignStillness?: () => void;
 }
 
-export function UnplugFlow({ db, onExit, onDesignStillness }: UnplugFlowProps): React.JSX.Element {
+export function UnplugFlow({ db, locale = 'en', onExit, onDesignStillness }: UnplugFlowProps): React.JSX.Element {
   const choose = (api: { advance: () => void }) => async (hours: number) => {
     await startUnplug(db, hours, new Date());
     api.advance();
@@ -38,19 +40,19 @@ export function UnplugFlow({ db, onExit, onDesignStillness }: UnplugFlowProps): 
       renderers={{
         choose: (api) => (
           <View style={styles.screen}>
-            <Text style={styles.question}>How long do you want to be gone?</Text>
+            <Text style={styles.question}>{t('quiet.unplugQuestion', locale)}</Text>
             <View style={styles.choices}>
               {CHOICES.map((hours) =>
                 hours === UNPLUG_DEFAULT_HOURS ? (
                   <PrimaryAction
                     key={hours}
-                    label={`${hours} hours`}
+                    label={`${hours} ${t('quiet.hours', locale)}`}
                     onPress={() => choose(api)(hours)}
                   />
                 ) : (
                   <QuietAction
                     key={hours}
-                    label={hours === 1 ? '1 hour' : `${hours} hours`}
+                    label={hours === 1 ? t('quiet.oneHour', locale) : `${hours} ${t('quiet.hours', locale)}`}
                     onPress={() => choose(api)(hours)}
                   />
                 ),
@@ -58,12 +60,12 @@ export function UnplugFlow({ db, onExit, onDesignStillness }: UnplugFlowProps): 
             </View>
             {onDesignStillness && (
               <View style={styles.stillness}>
-                <QuietAction label="design the stillness window" onPress={onDesignStillness} />
+                <QuietAction label={t('quiet.designStillness', locale)} onPress={onDesignStillness} />
               </View>
             )}
           </View>
         ),
-        veil: (api) => <QuietVeil line={VEIL_LINE} onLeave={api.exit} />,
+        veil: (api) => <QuietVeil line={t('quiet.veil', locale)} onLeave={api.exit} />,
       }}
     />
   );

@@ -10,7 +10,8 @@ import {
   FakeWidgets,
 } from '../../../core/storage/testing/fakes';
 import { getQuietState, isUnplugged, startUnplug } from '../quietRepo';
-import { UnplugFlow, VEIL_LINE } from '../UnplugFlow';
+import { t } from '../../../core/content/strings';
+import { UnplugFlow } from '../UnplugFlow';
 
 beforeEach(() => {
   jest
@@ -62,7 +63,7 @@ describe('UnplugFlow — one tap to the veil', () => {
     );
     await ReactTestRenderer.act(async () => twoHours.props.onPress());
 
-    expect(JSON.stringify(tree.toJSON())).toContain(VEIL_LINE);
+    expect(JSON.stringify(tree.toJSON())).toContain(t('quiet.veil', 'en'));
     expect(await isUnplugged(db, new Date())).toBe(true);
     await ReactTestRenderer.act(async () => tree.unmount());
   });
