@@ -21,6 +21,9 @@ export interface ThresholdScreenProps {
   onOpenOpening?: () => void;
   /** The Quiet switch — a door (01 §IA chrome), not one of the 3 elements. */
   onOpenQuiet: () => void;
+  /** Dopamine Detox: start when none runs; the day's check-in while one does. */
+  onOpenDetox?: () => void;
+  detoxDoorLabel?: string;
   /** The Craving Button — always reachable from the Threshold (CRAVE-01). */
   onOpenCraving: () => void;
   /** One Deep Thing — today's reading (LIB-01). */
@@ -42,6 +45,8 @@ export function ThresholdScreen({
   opening,
   onOpenOpening,
   onOpenQuiet,
+  onOpenDetox,
+  detoxDoorLabel,
   onOpenCraving,
   onOpenReading,
   onOpenRealign,
@@ -74,6 +79,9 @@ export function ThresholdScreen({
         {onOpenMirror && <QuietAction label="the mirror" onPress={onOpenMirror} />}
         {onOpenVow && <QuietAction label="the untangling" onPress={onOpenVow} />}
         <QuietAction label="unplug" onPress={onOpenQuiet} />
+        {onOpenDetox && (
+          <QuietAction label={detoxDoorLabel ?? 'dopamine detox'} onPress={onOpenDetox} />
+        )}
         <QuietAction label="settings" onPress={onOpenSettings} />
       </View>
     </View>

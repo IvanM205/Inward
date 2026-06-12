@@ -29,7 +29,8 @@ import {
 import { TerminalScreen } from './src/core/design/TerminalScreen';
 import { VowWizardFlow } from './src/app/plan/VowWizardFlow';
 import { SettingsScreen } from './src/app/settings/SettingsScreen';
-import { isUnplugged } from './src/app/quiet/quietRepo';
+import { DetoxCheckinFlow, DetoxStartFlow } from './src/app/quiet/DetoxFlows';
+import { ActiveDetox, activeDetox, isUnplugged } from './src/app/quiet/quietRepo';
 import { UnplugFlow, VEIL_LINE } from './src/app/quiet/UnplugFlow';
 import { EveningFlow } from './src/app/threshold/EveningFlow';
 import { MorningFlow } from './src/app/threshold/MorningFlow';
@@ -54,7 +55,9 @@ type Route =
   | 'crave'
   | 'graduated'
   | 'reading'
-  | 'realign';
+  | 'realign'
+  | 'detox-start'
+  | 'detox-checkin';
 
 /** Where the Mirror door leads: the quiz until intake_done, then the Portrait. */
 function mirrorRouteFor(state: string | undefined): 'intake' | 'portrait' | null {
@@ -74,6 +77,7 @@ function App(): React.JSX.Element {
   const [thread, setThread] = useState<Thread | null>(null);
   const [graduated, setGraduated] = useState<Thread | null>(null);
   const [realignDue, setRealignDue] = useState(false);
+  const [detox, setDetox] = useState<ActiveDetox | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -86,6 +90,7 @@ function App(): React.JSX.Element {
       setThread(current);
       setVowOpen(current !== null && current.replacementHabit === null);
       setRealignDue(existing !== null && (await realignmentDue(opened, new Date())));
+      setDetox(await activeDetox(opened, new Date()));
       if (await isUnplugged(opened, new Date())) {
         setRoute('veil'); // a running unplug window is defended (QUIET-01)
         return;
@@ -107,6 +112,7 @@ function App(): React.JSX.Element {
       setThread(current);
       setVowOpen(current !== null && current.replacementHabit === null);
       setRealignDue(fresh !== null && (await realignmentDue(db, new Date())));
+      setDetox(await activeDetox(db, new Date()));
       const grad = await pendingGraduation(db);
       setGraduated(grad);
       if (grad) {
@@ -155,6 +161,10 @@ function App(): React.JSX.Element {
         <ReadingFlow db={db} reading={todaysReading(new Date())} onExit={release} />
       ) : route === 'realign' ? (
         <RealignFlow db={db} onExit={release} />
+      ) : route === 'detox-start' ? (
+        <DetoxStartFlow db={db} onExit={release} />
+      ) : route === 'detox-checkin' ? (
+        <DetoxCheckinFlow db={db} onExit={release} />
       ) : route === 'graduated' && graduated ? (
         <TerminalScreen
           line="Four weeks held. The thread is loosened — wear the season lightly."
@@ -179,6 +189,10 @@ function App(): React.JSX.Element {
           }
           onOpenOpening={() => setRoute('opening')}
           onOpenQuiet={() => setRoute('unplug')}
+          onOpenDetox={() => setRoute(detox ? 'detox-checkin' : 'detox-start')}
+          detoxDoorLabel={
+            detox ? `detox — day ${detox.dayIndex} of ${detox.state.program}` : 'dopamine detox'
+          }
           onOpenCraving={() => setRoute('crave')}
           onOpenReading={() => setRoute('reading')}
           onOpenRealign={realignDue ? () => setRoute('realign') : undefined}

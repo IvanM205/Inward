@@ -216,6 +216,38 @@ export const WIDGET_CAPTURE_FLOW: FlowGraph = {
   edges: [{ from: 'capture', to: 'kept' }],
 };
 
+/** QUIET-02: choose the program and the red list; the detox begins. */
+export const DETOX_START_FLOW: FlowGraph = {
+  name: 'QUIET-02 detox start',
+  entry: 'program',
+  screens: [
+    { id: 'program', kind: 'screen' },
+    { id: 'red-list', kind: 'screen' },
+    { id: 'begun', kind: 'terminal' },
+  ],
+  edges: [
+    { from: 'program', to: 'red-list' },
+    { from: 'red-list', to: 'begun' },
+  ],
+};
+
+/** QUIET-02: the daily one line; on the final day, the closing question. */
+export const DETOX_CHECKIN_FLOW: FlowGraph = {
+  name: 'QUIET-02 detox check-in',
+  entry: 'checkin',
+  screens: [
+    { id: 'checkin', kind: 'screen' },
+    { id: 'closing', kind: 'screen' },
+    { id: 'kept', kind: 'terminal' },
+    { id: 'done', kind: 'terminal' },
+  ],
+  edges: [
+    { from: 'checkin', to: 'kept' },
+    { from: 'checkin', to: 'closing' },
+    { from: 'closing', to: 'done' },
+  ],
+};
+
 /** QUIET-01: one tap chooses 1–4 h; the veil is the end state. */
 export const UNPLUG_FLOW: FlowGraph = {
   name: 'QUIET-01 unplug',
@@ -240,4 +272,6 @@ export const primaryFlows: FlowGraph[] = [
   EVENING_FLOW,
   WIDGET_CAPTURE_FLOW,
   UNPLUG_FLOW,
+  DETOX_START_FLOW,
+  DETOX_CHECKIN_FLOW,
 ];
