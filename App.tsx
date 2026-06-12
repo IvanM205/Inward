@@ -17,6 +17,8 @@ import { OnboardingFlow } from './src/app/onboarding/OnboardingFlow';
 import { CravingFlow } from './src/app/crave/CravingFlow';
 import { ReadingFlow } from './src/app/library/ReadingFlow';
 import { todaysReading } from './src/app/library/libraryRepo';
+import { PathDayFlow, PathStartFlow } from './src/app/library/PathFlows';
+import { activePath, PathState } from './src/app/library/pathRepo';
 import { OpeningFlow } from './src/app/plan/OpeningFlow';
 import { BuildNameFlow } from './src/app/plan/BuildNameFlow';
 import { buildThing } from './src/app/plan/buildRepo';
@@ -65,7 +67,9 @@ type Route =
   | 'detox-checkin'
   | 'stillness'
   | 'redesign'
-  | 'build-name';
+  | 'build-name'
+  | 'path-start'
+  | 'path-day';
 
 const STILLNESS_LINE = 'Stillness, kept. The world can hold itself for an hour.';
 
@@ -91,6 +95,7 @@ function App(): React.JSX.Element {
   const [veilLine, setVeilLine] = useState(VEIL_LINE);
   const [redesignOpen, setRedesignOpen] = useState(false);
   const [buildOpen, setBuildOpen] = useState(false);
+  const [path, setPath] = useState<PathState | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -107,6 +112,7 @@ function App(): React.JSX.Element {
       if (existing) {
         setRedesignOpen(!(await redesignState(opened)).retired && (await activeThread(opened)) !== null);
         setBuildOpen((await buildThing(opened)) === null);
+        setPath(await activePath(opened, new Date()));
       }
       if ((await isUnplugged(opened, new Date())) || (await isStillnessNow(opened, new Date()))) {
         setVeilLine((await isUnplugged(opened, new Date())) ? VEIL_LINE : STILLNESS_LINE);
@@ -134,6 +140,7 @@ function App(): React.JSX.Element {
       if (fresh) {
         setRedesignOpen(!(await redesignState(db)).retired && (await activeThread(db)) !== null);
         setBuildOpen((await buildThing(db)) === null);
+        setPath(await activePath(db, new Date()));
       }
       const grad = await pendingGraduation(db);
       setGraduated(grad);
@@ -207,6 +214,10 @@ function App(): React.JSX.Element {
         <RedesignFlow db={db} onExit={release} />
       ) : route === 'build-name' ? (
         <BuildNameFlow db={db} onExit={release} />
+      ) : route === 'path-start' ? (
+        <PathStartFlow db={db} onExit={release} />
+      ) : route === 'path-day' ? (
+        <PathDayFlow db={db} onExit={release} />
       ) : route === 'veil' ? (
         <QuietVeil line={veilLine} onLeave={release} />
       ) : (
@@ -226,6 +237,16 @@ function App(): React.JSX.Element {
           }
           onOpenCraving={() => setRoute('crave')}
           onOpenReading={() => setRoute('reading')}
+          onOpenPath={
+            path === null
+              ? () => setRoute('path-start')
+              : path.doneToday
+                ? undefined // today is walked; the door rests until tomorrow
+                : () => setRoute('path-day')
+          }
+          pathDoorLabel={
+            path ? `the path — day ${path.dayIndex} of ${path.path.days.length}` : 'a path'
+          }
           onOpenRealign={realignDue ? () => setRoute('realign') : undefined}
           onOpenMirror={mirrorRoute ? () => setRoute(mirrorRoute) : undefined}
           onOpenVow={vowOpen ? () => setRoute('vow') : undefined}

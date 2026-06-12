@@ -232,6 +232,41 @@ export const BUILD_NAME_FLOW: FlowGraph = {
   edges: [{ from: 'name', to: 'named' }],
 };
 
+/**
+ * LIB-02 path day: the day's reading, its question, its real-world act.
+ * Ordinary days end kept; the final day closes with a reflection and ends
+ * walked. Starting a path is its own two-screen moment.
+ */
+export const PATH_START_FLOW: FlowGraph = {
+  name: 'LIB-02 path start',
+  entry: 'invite',
+  screens: [
+    { id: 'invite', kind: 'screen' },
+    { id: 'begun', kind: 'terminal' },
+  ],
+  edges: [{ from: 'invite', to: 'begun' }],
+};
+
+export const PATH_DAY_FLOW: FlowGraph = {
+  name: 'LIB-02 path day',
+  entry: 'reading',
+  screens: [
+    { id: 'reading', kind: 'screen' },
+    { id: 'question', kind: 'screen' },
+    { id: 'act', kind: 'screen' },
+    { id: 'closing', kind: 'screen' },
+    { id: 'kept', kind: 'terminal' },
+    { id: 'walked', kind: 'terminal' },
+  ],
+  edges: [
+    { from: 'reading', to: 'question' },
+    { from: 'question', to: 'act' },
+    { from: 'act', to: 'kept' },
+    { from: 'act', to: 'closing' },
+    { from: 'closing', to: 'walked' },
+  ],
+};
+
 /** JRN-03: one-line aliveness capture from the widget — in and back out. */
 export const WIDGET_CAPTURE_FLOW: FlowGraph = {
   name: 'JRN-03 widget capture',
@@ -309,6 +344,8 @@ export const primaryFlows: FlowGraph[] = [
   OPENING_FLOW,
   CRAVING_FLOW,
   READING_FLOW,
+  PATH_START_FLOW,
+  PATH_DAY_FLOW,
   REALIGN_FLOW,
   REDESIGN_FLOW,
   BUILD_NAME_FLOW,

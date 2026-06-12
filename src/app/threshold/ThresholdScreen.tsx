@@ -28,6 +28,9 @@ export interface ThresholdScreenProps {
   onOpenCraving: () => void;
   /** One Deep Thing — today's reading (LIB-01). */
   onOpenReading: () => void;
+  /** A Path — start one, or walk today's day (LIB-02). */
+  onOpenPath?: () => void;
+  pathDoorLabel?: string;
   /** The weekly realignment — shown while this week's is unwritten (RLG-01). */
   onOpenRealign?: () => void;
   /** The Mirror door — shown while the intake is open or unfinished (ONB-04). */
@@ -53,6 +56,8 @@ export function ThresholdScreen({
   detoxDoorLabel,
   onOpenCraving,
   onOpenReading,
+  onOpenPath,
+  pathDoorLabel,
   onOpenRealign,
   onOpenMirror,
   onOpenVow,
@@ -80,6 +85,7 @@ export function ThresholdScreen({
       )}
       <View style={styles.quietSwitch}>
         <QuietAction label="one deep thing" onPress={onOpenReading} />
+        {onOpenPath && <QuietAction label={pathDoorLabel ?? 'a path'} onPress={onOpenPath} />}
         <QuietAction label="i feel the pull" onPress={onOpenCraving} />
         {onOpenRealign && <QuietAction label="the weekly realignment" onPress={onOpenRealign} />}
         {onOpenMirror && <QuietAction label="the mirror" onPress={onOpenMirror} />}

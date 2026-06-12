@@ -262,6 +262,22 @@ export const MIGRATIONS: Migration[] = [
       )`,
     ],
   },
+  {
+    version: 15,
+    statements: [
+      // PathProgress (03 §Path, LIB-02): a singleton — one active Path max,
+      // a database fact. One day per calendar day; acts_done keeps which
+      // days' acts actually happened.
+      `CREATE TABLE path_progress (
+        id INTEGER PRIMARY KEY CHECK (id = 1),
+        path_id TEXT NOT NULL,
+        day_index INTEGER NOT NULL DEFAULT 1,
+        started_on TEXT NOT NULL,
+        last_day_done_on TEXT,
+        acts_done TEXT NOT NULL DEFAULT '[]'
+      )`,
+    ],
+  },
 ];
 
 /** The twelve channels — canonical list, order fixed (01-product-overview). */
