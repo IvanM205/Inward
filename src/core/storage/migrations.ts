@@ -186,6 +186,27 @@ export const MIGRATIONS: Migration[] = [
       )`,
     ],
   },
+  {
+    version: 10,
+    statements: [
+      // Dare — the 7-rung ladder (03 §Dare, PLAN-02). A skipped dare stays
+      // skipped; nothing resets, the ladder waits (PLAN-04, INV-7).
+      `CREATE TABLE dare (
+        id TEXT PRIMARY KEY,
+        thread_id TEXT NOT NULL REFERENCES thread(id),
+        rung INTEGER NOT NULL CHECK (rung BETWEEN 1 AND 7),
+        text TEXT NOT NULL,
+        source TEXT NOT NULL DEFAULT 'template'
+          CHECK (source IN ('template','custom','circle')),
+        status TEXT NOT NULL DEFAULT 'waiting'
+          CHECK (status IN ('waiting','offered','done','skipped')),
+        offered_on TEXT,
+        done_on TEXT,
+        feeling_answer TEXT,
+        UNIQUE (thread_id, rung)
+      )`,
+    ],
+  },
 ];
 
 /** The twelve channels — canonical list, order fixed (01-product-overview). */

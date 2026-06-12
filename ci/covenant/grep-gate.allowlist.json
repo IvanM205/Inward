@@ -8,5 +8,10 @@
     "path": "src/app/plan/",
     "pattern": "reward",
     "reason": "Habit-loop mapping UI (PLAN-02) names the loop's reward in the user's own words."
+  },
+  {
+    "path": "src/core/content/dareTemplates.ts",
+    "pattern": "Turn off autoplay",
+    "reason": "The series dare ladder instructs the user to DISABLE autoplay — the covenant's spirit, not a violation of it."
   }
 ]

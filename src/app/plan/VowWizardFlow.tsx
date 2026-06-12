@@ -14,7 +14,8 @@ import { color, space, type } from '../../core/design/tokens';
 import { FlowHost, FlowScreenApi } from '../../core/navigation/FlowHost';
 import { SqlDatabase } from '../../core/storage/ports';
 import { VOW_FLOW } from '../../flows/registry';
-import { setMicroAct, setReplacementHabit } from './threadRepo';
+import { seedLadder } from './dareRepo';
+import { activeThread, setMicroAct, setReplacementHabit } from './threadRepo';
 
 export interface VowWizardFlowProps {
   db: SqlDatabase;
@@ -100,7 +101,13 @@ export function VowWizardFlow({ db, onExit }: VowWizardFlowProps): React.JSX.Ele
           </View>
         ),
         'micro-act': (api) =>
-          step('micro-act', api, async () => setMicroAct(db, answers['micro-act'].trim())),
+          step('micro-act', api, async () => {
+            await setMicroAct(db, answers['micro-act'].trim());
+            // PLAN-02: the 7-rung ladder, seeded from templates; editing and
+            // custom dares arrive with the Companion (M4).
+            const thread = await activeThread(db);
+            if (thread) await seedLadder(db, thread);
+          }),
         held: (api) => (
           <TerminalScreen line="The vow is made. Go live it once, today." onExit={api.exit} />
         ),
