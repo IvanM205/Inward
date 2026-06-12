@@ -94,10 +94,10 @@ describe('AskFlow (OPEN-03)', () => {
       tree = ReactTestRenderer.create(<AskFlow db={db} onExit={() => {}} />);
     });
     const json = JSON.stringify(tree.toJSON());
-    expect(json).toContain(askCopy.lead);
+    expect(json).toContain(askCopy.en.lead);
     for (const amount of askCopy.amounts) expect(json).toContain(amount);
 
-    await press(tree, askCopy.decline);
+    await press(tree, askCopy.en.decline);
     expect(JSON.stringify(tree.toJSON())).toContain('Everything stays exactly as it is.');
     expect((await openHandState(db)).declinedUntil).not.toBeNull();
     await ReactTestRenderer.act(async () => tree.unmount());

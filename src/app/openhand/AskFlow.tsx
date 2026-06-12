@@ -18,13 +18,16 @@ import { markContributed, markDeclined, SupporterCountSource } from './openHandR
 
 export interface AskFlowProps {
   db: SqlDatabase;
+  locale?: string;
   /** OPEN-04: the one anonymous counter; null renders no line at all. */
   supporterCount?: SupporterCountSource;
   onExit: () => void;
 }
 
-export function AskFlow({ db, supporterCount, onExit }: AskFlowProps): React.JSX.Element {
+export function AskFlow({ db, locale = 'en', supporterCount, onExit }: AskFlowProps): React.JSX.Element {
   const [supporters, setSupporters] = useState<number | null>(null);
+  const lang = locale.toLowerCase().startsWith('sk') ? 'sk' : 'en';
+  const copy = askCopy[lang];
 
   useEffect(() => {
     supporterCount
@@ -40,10 +43,10 @@ export function AskFlow({ db, supporterCount, onExit }: AskFlowProps): React.JSX
       renderers={{
         ask: (api) => (
           <View style={styles.screen}>
-            <Text style={styles.lead}>{askCopy.lead}</Text>
+            <Text style={styles.lead}>{copy.lead}</Text>
             {supporters !== null && (
               <Text style={styles.supporters}>
-                {askCopy.supporters.replace('{n}', String(supporters))}
+                {copy.supporters.replace('{n}', String(supporters))}
               </Text>
             )}
             {askCopy.amounts.map((amount) =>
@@ -69,7 +72,7 @@ export function AskFlow({ db, supporterCount, onExit }: AskFlowProps): React.JSX
             )}
             <View style={styles.decline}>
               <QuietAction
-                label={askCopy.decline}
+                label={copy.decline}
                 onPress={async () => {
                   await markDeclined(db, new Date()); // 30 quiet days, zero guilt
                   api.advance('kept');

@@ -276,7 +276,7 @@ function App(): React.JSX.Element {
       ) : route === 'build-name' ? (
         <BuildNameFlow db={db} locale={locale} onExit={release} />
       ) : route === 'path-start' ? (
-        <PathStartFlow db={db} onExit={release} />
+        <PathStartFlow db={db} locale={locale} onExit={release} />
       ) : route === 'path-day' ? (
         <PathDayFlow db={db} locale={locale} onExit={release} />
       ) : route === 'quizzes' ? (
@@ -291,7 +291,7 @@ function App(): React.JSX.Element {
       ) : route === 'funnel-quiz' ? (
         <FunnelQuizFlow locale={locale} onExit={release} />
       ) : route === 'ask' ? (
-        <AskFlow db={db} onExit={release} />
+        <AskFlow db={db} locale={locale} onExit={release} />
       ) : route === 'journal' ? (
         <JournalScreen db={db} locale={locale} onClose={release} />
       ) : route === 'veil' ? (

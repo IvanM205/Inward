@@ -42,13 +42,15 @@ async function openDb() {
 
 describe('the persuasion directory (NFR-P5)', () => {
   it('holds exactly the two neutral lines INV-4 allows', () => {
-    const slots = Object.keys(notificationLines).filter((k) => !k.startsWith('_'));
+    const slots = Object.keys(notificationLines.en);
     expect(slots.sort()).toEqual(['evening', 'morning']);
-    for (const slot of slots) {
-      const line = (notificationLines as Record<string, string>)[slot];
+    for (const locale of ['en', 'sk'] as const) {
+      for (const slot of slots) {
+      const line = (notificationLines[locale] as Record<string, string>)[slot];
       expect(line).not.toMatch(/!/);
       expect(line).not.toMatch(/\d/); // no deltas, no counts, no scores
       expect(line).not.toMatch(/miss|last|now\b|hurry|don.t/i);
+      }
     }
   });
 });
@@ -67,7 +69,7 @@ describe('enableCompassLines (NTF-01)', () => {
     expect(morning.schedule).toEqual({
       hour: 6,
       minute: 45,
-      line: notificationLines.morning,
+      line: notificationLines.en.morning,
       sound: false,
     });
     const evening = adapter.scheduled.find((s) => s.slot === 'evening')!;

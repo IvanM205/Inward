@@ -5,7 +5,7 @@
  */
 import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { PATHS, Path } from '../../core/content/paths';
+import { PATHS, Path, pathDayText, pathTitle } from '../../core/content/paths';
 import { readingById } from '../../core/content/readings';
 import { PrimaryAction, QuietAction } from '../../core/design/Buttons';
 import { JournalPrompt } from '../../core/design/JournalPrompt';
@@ -20,10 +20,11 @@ import { t } from '../../core/content/strings';
 
 export interface PathStartFlowProps {
   db: SqlDatabase;
+  locale?: string;
   onExit: () => void;
 }
 
-export function PathStartFlow({ db, onExit }: PathStartFlowProps): React.JSX.Element {
+export function PathStartFlow({ db, locale = 'en', onExit }: PathStartFlowProps): React.JSX.Element {
   const choose = (api: { advance: () => void }) => async (path: Path) => {
     await startPath(db, path.id, new Date());
     api.advance();
@@ -35,21 +36,18 @@ export function PathStartFlow({ db, onExit }: PathStartFlowProps): React.JSX.Ele
       renderers={{
         invite: (api) => (
           <View style={styles.screen}>
-            <Text style={styles.body}>
-              Seven days each. One short reading a day, one question, one act
-              in the world. One day at a time — the pace is the point.
-            </Text>
+            <Text style={styles.body}>{t('path.introBody', locale)}</Text>
             {PATHS.map((path, i) =>
               i === 0 ? (
-                <PrimaryAction key={path.id} label={path.title} onPress={() => choose(api)(path)} />
+                <PrimaryAction key={path.id} label={pathTitle(path, locale)} onPress={() => choose(api)(path)} />
               ) : (
-                <QuietAction key={path.id} label={path.title} onPress={() => choose(api)(path)} />
+                <QuietAction key={path.id} label={pathTitle(path, locale)} onPress={() => choose(api)(path)} />
               ),
             )}
           </View>
         ),
         begun: (api) => (
-          <TerminalScreen line="The path is open. Day one waits on the threshold." onExit={api.exit} />
+          <TerminalScreen line={t('path.begunTerminal', locale)} onExit={api.exit} />
         ),
       }}
     />
@@ -75,6 +73,7 @@ export function PathDayFlow({ db, locale = 'en', onExit }: PathDayFlowProps): Re
   if (state == null) return <View style={styles.screen} />;
 
   const day = state.path.days[state.dayIndex - 1];
+  const dayText = pathDayText(state.path, state.dayIndex, locale);
   const reading = readingById(day.readingId)!;
   const finalDay = state.dayIndex >= state.path.days.length;
 
@@ -115,10 +114,10 @@ export function PathDayFlow({ db, locale = 'en', onExit }: PathDayFlowProps): Re
           <View style={styles.screen}>
             {/* The answer stays with the person — nothing is stored here. */}
             <QuestionCard
-              question={day.question}
+              question={dayText.question}
               value={answer}
               onChange={setAnswer}
-              placeholder="for you, not for the app"
+              placeholder={t('path.questionHint', locale)}
             />
             <View style={styles.action}>
               <PrimaryAction label={t('common.goOn', locale)} onPress={() => api.advance()} />
@@ -128,7 +127,7 @@ export function PathDayFlow({ db, locale = 'en', onExit }: PathDayFlowProps): Re
         act: (api) => (
           <View style={styles.screen}>
             <Text style={styles.dayLabel}>{t('path.dayAct', locale)}</Text>
-            <Text style={styles.title}>{day.act}</Text>
+            <Text style={styles.title}>{dayText.act}</Text>
             <View style={styles.action}>
               <PrimaryAction label={t('path.dayDone', locale)} onPress={() => finishDay(api, true)} />
               <QuietAction label={t('path.carryIt', locale)} onPress={() => finishDay(api, false)} />
@@ -138,7 +137,7 @@ export function PathDayFlow({ db, locale = 'en', onExit }: PathDayFlowProps): Re
         closing: (api) => (
           <View style={styles.screen}>
             <JournalPrompt
-              prompt="Seven days walked. What did the path leave with you?"
+              prompt={t('path.closingPrompt', locale)}
               value={closingLine}
               onChange={setClosingLine}
             />

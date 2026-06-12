@@ -20,14 +20,16 @@ export async function enableCompassLines(
 ): Promise<void> {
   const profile = await getProfile(db);
   if (!profile) return;
+  const lang = profile.locale.toLowerCase().startsWith('sk') ? 'sk' : 'en';
+  const lines = notificationLines[lang];
   await scheduler.enable('morning', {
     ...parseHour(profile.morningHour),
-    line: notificationLines.morning,
+    line: lines.morning,
     sound: false,
   });
   await scheduler.enable('evening', {
     ...parseHour(profile.eveningHour),
-    line: notificationLines.evening,
+    line: lines.evening,
     sound: false,
   });
 }
