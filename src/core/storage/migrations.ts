@@ -93,6 +93,24 @@ export const MIGRATIONS: Migration[] = [
       `ALTER TABLE profile ADD COLUMN morning_done_date TEXT`,
     ],
   },
+  {
+    version: 5,
+    statements: [
+      // IntakeResponse (03 §IntakeResponse, ONB-04): one row per answered or
+      // skipped question; normalized 0–100 computed at save time. Skipped
+      // rows keep normalized at 0 and are excluded from scoring.
+      `CREATE TABLE intake_response (
+        id TEXT PRIMARY KEY,
+        created_at TEXT NOT NULL,
+        question_id TEXT NOT NULL UNIQUE,
+        channel_key TEXT NOT NULL REFERENCES channel(key),
+        dimension TEXT NOT NULL CHECK (dimension IN ('time','pull','displacement')),
+        raw_answer TEXT NOT NULL DEFAULT 'null',
+        normalized REAL NOT NULL DEFAULT 0 CHECK (normalized >= 0 AND normalized <= 100),
+        skipped INTEGER NOT NULL DEFAULT 0
+      )`,
+    ],
+  },
 ];
 
 /** The twelve channels — canonical list, order fixed (01-product-overview). */
