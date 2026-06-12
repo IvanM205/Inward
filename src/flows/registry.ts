@@ -267,6 +267,37 @@ export const PATH_DAY_FLOW: FlowGraph = {
   ],
 };
 
+/**
+ * LIB-04 quizzes. The values quiz holds stated against lived, with mercy
+ * and one next step. The funnel quiz gives a coarse phrase — the only
+ * shareable artifact in the product, opt-in, channel-free.
+ */
+export const VALUES_QUIZ_FLOW: FlowGraph = {
+  name: 'LIB-04 values quiz',
+  entry: 'stated',
+  screens: [
+    { id: 'stated', kind: 'screen' },
+    { id: 'lived', kind: 'screen' },
+    { id: 'gap', kind: 'screen' },
+    { id: 'step', kind: 'terminal' },
+  ],
+  edges: [
+    { from: 'stated', to: 'lived' },
+    { from: 'lived', to: 'gap' },
+    { from: 'gap', to: 'step' },
+  ],
+};
+
+export const FUNNEL_QUIZ_FLOW: FlowGraph = {
+  name: 'LIB-04 funnel quiz',
+  entry: 'questions',
+  screens: [
+    { id: 'questions', kind: 'screen' },
+    { id: 'result', kind: 'terminal' },
+  ],
+  edges: [{ from: 'questions', to: 'result' }],
+};
+
 /** JRN-03: one-line aliveness capture from the widget — in and back out. */
 export const WIDGET_CAPTURE_FLOW: FlowGraph = {
   name: 'JRN-03 widget capture',
@@ -346,6 +377,8 @@ export const primaryFlows: FlowGraph[] = [
   READING_FLOW,
   PATH_START_FLOW,
   PATH_DAY_FLOW,
+  VALUES_QUIZ_FLOW,
+  FUNNEL_QUIZ_FLOW,
   REALIGN_FLOW,
   REDESIGN_FLOW,
   BUILD_NAME_FLOW,

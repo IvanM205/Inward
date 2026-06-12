@@ -19,6 +19,8 @@ import { ReadingFlow } from './src/app/library/ReadingFlow';
 import { todaysReading } from './src/app/library/libraryRepo';
 import { PathDayFlow, PathStartFlow } from './src/app/library/PathFlows';
 import { activePath, PathState } from './src/app/library/pathRepo';
+import { FunnelQuizFlow, ValuesQuizFlow } from './src/app/library/QuizFlows';
+import { QuietAction } from './src/core/design/Buttons';
 import { OpeningFlow } from './src/app/plan/OpeningFlow';
 import { BuildNameFlow } from './src/app/plan/BuildNameFlow';
 import { buildThing } from './src/app/plan/buildRepo';
@@ -69,7 +71,10 @@ type Route =
   | 'redesign'
   | 'build-name'
   | 'path-start'
-  | 'path-day';
+  | 'path-day'
+  | 'quizzes'
+  | 'values-quiz'
+  | 'funnel-quiz';
 
 const STILLNESS_LINE = 'Stillness, kept. The world can hold itself for an hour.';
 
@@ -218,6 +223,17 @@ function App(): React.JSX.Element {
         <PathStartFlow db={db} onExit={release} />
       ) : route === 'path-day' ? (
         <PathDayFlow db={db} onExit={release} />
+      ) : route === 'quizzes' ? (
+        // Chooser chrome, like the Threshold's doors — not a flow of its own.
+        <View style={styles.chooser}>
+          <QuietAction label="the values quiz — said and lived" onPress={() => setRoute('values-quiz')} />
+          <QuietAction label="the attention audit" onPress={() => setRoute('funnel-quiz')} />
+          <QuietAction label="back to the threshold" onPress={release} />
+        </View>
+      ) : route === 'values-quiz' ? (
+        <ValuesQuizFlow db={db} onExit={release} />
+      ) : route === 'funnel-quiz' ? (
+        <FunnelQuizFlow onExit={release} />
       ) : route === 'veil' ? (
         <QuietVeil line={veilLine} onLeave={release} />
       ) : (
@@ -247,6 +263,7 @@ function App(): React.JSX.Element {
           pathDoorLabel={
             path ? `the path — day ${path.dayIndex} of ${path.path.days.length}` : 'a path'
           }
+          onOpenQuizzes={() => setRoute('quizzes')}
           onOpenRealign={realignDue ? () => setRoute('realign') : undefined}
           onOpenMirror={mirrorRoute ? () => setRoute(mirrorRoute) : undefined}
           onOpenVow={vowOpen ? () => setRoute('vow') : undefined}
@@ -261,6 +278,12 @@ function App(): React.JSX.Element {
 
 const styles = StyleSheet.create({
   blank: { flex: 1, backgroundColor: color.paper },
+  chooser: {
+    flex: 1,
+    backgroundColor: color.paper,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });
 
 export default App;
