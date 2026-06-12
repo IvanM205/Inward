@@ -115,3 +115,31 @@ describe('intakeRepo (ONB-04, 03 §IntakeResponse)', () => {
     expect(seen.has('q.feeds.pull.3')).toBe(false);
   });
 });
+
+describe('localized generation (NFR-X2)', () => {
+  const { casualtyLabel, channelDisplayName, questionText } = require('../../../core/content/questionBank');
+
+  it('regenerates all 84 questions in Slovak from the templates', () => {
+    for (const q of QUESTION_BANK) {
+      const sk = questionText(q, 'sk');
+      expect(sk.length).toBeGreaterThan(10);
+      expect(sk).not.toBe(q.text); // actually translated
+      expect(sk).not.toMatch(/!/); // copy voice holds in every locale
+    }
+    expect(questionText(questionById('q.feeds.time.1')!, 'sk')).toContain('Koľko hodín');
+    expect(questionText(questionById('q.feeds.pull.2')!, 'sk')).toContain('nevydržalo');
+    expect(questionText(questionById('q.feeds.displacement.1')!, 'sk')).toContain('Čo ti berie');
+  });
+
+  it('English stays the canonical text', () => {
+    const q = questionById('q.feeds.time.1')!;
+    expect(questionText(q, 'en')).toBe(q.text);
+  });
+
+  it('channel and casualty names localize, keys never do', () => {
+    expect(channelDisplayName('feeds', 'sk')).toBe('Feedy a krátke videá');
+    expect(channelDisplayName('feeds', 'en')).toBe('Feeds & shorts');
+    expect(casualtyLabel('sleep', 'sk')).toBe('spánok');
+    expect(casualtyLabel('sleep', 'en')).toBe('sleep');
+  });
+});

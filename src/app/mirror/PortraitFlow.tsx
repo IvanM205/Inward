@@ -13,14 +13,13 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { LIKERT_LABELS } from './IntakeQuizFlow';
 import { mechanismLine } from '../../core/content/mechanisms';
 import { t } from '../../core/content/strings';
-import { CASUALTY_OPTIONS, questionById } from '../../core/content/questionBank';
+import { casualtyLabel, channelDisplayName, questionById, questionText } from '../../core/content/questionBank';
 import { PrimaryAction, QuietAction } from '../../core/design/Buttons';
 import { BandRow } from '../../core/design/BandRow';
 import { TerminalScreen } from '../../core/design/TerminalScreen';
 import { color, space, type } from '../../core/design/tokens';
 import { FlowHost } from '../../core/navigation/FlowHost';
 import { Casualty } from '../../core/scoring/config';
-import { CHANNELS } from '../../core/storage/migrations';
 import { severityGate } from '../../core/safety/classifier';
 import { SqlDatabase } from '../../core/storage/ports';
 import { getProfile, setOnboardingState } from '../../core/storage/repos/profileRepo';
@@ -35,13 +34,13 @@ export interface PortraitFlowProps {
   onExit: () => void;
 }
 
-const channelName = (key: string): string =>
-  CHANNELS.find((c) => c.key === key)?.name ?? key;
+const channelName = (key: string, locale = 'en'): string =>
+  channelDisplayName(key as never, locale);
 
 /** A saved answer, rendered back in the person's own terms (MIR-03). */
-export function describeAnswer(response: IntakeResponse): string {
+export function describeAnswer(response: IntakeResponse, locale = 'en'): string {
   const question = questionById(response.questionId);
-  const text = question?.text ?? response.questionId;
+  const text = question ? questionText(question, locale) : response.questionId;
   const raw = response.rawAnswer as IntakeAnswer | null;
   if (response.skipped || raw === null) return `${text} — you let this one pass.`;
   switch (raw.kind) {
@@ -51,7 +50,7 @@ export function describeAnswer(response: IntakeResponse): string {
       return `${text} — ${LIKERT_LABELS[raw.value]}.`;
     case 'casualties': {
       const names = raw.casualties.map(
-        (c: Casualty) => CASUALTY_OPTIONS.find((o) => o.key === c)?.label ?? c,
+        (c: Casualty) => casualtyLabel(c, locale),
       );
       return names.length > 0 ? `${text} — ${names.join(', ')}.` : `${text} — nothing named.`;
     }
@@ -117,7 +116,7 @@ export function PortraitFlow({ db, onExit }: PortraitFlowProps): React.JSX.Eleme
                 {scores.map((score) => (
                   <View key={score.channelKey}>
                     <BandRow
-                      channelName={channelName(score.channelKey)}
+                      channelName={channelName(score.channelKey, locale)}
                       band={score.band}
                       expanded={expandedChannel === score.channelKey}
                       onPress={() => toggleExplanation(score)}
@@ -137,7 +136,7 @@ export function PortraitFlow({ db, onExit }: PortraitFlowProps): React.JSX.Eleme
                         </Text>
                         {explanation.map((r) => (
                           <Text key={r.id} style={styles.answer}>
-                            {describeAnswer(r)}
+                            {describeAnswer(r, locale)}
                           </Text>
                         ))}
                         {explanation.length === 0 && (
@@ -151,7 +150,7 @@ export function PortraitFlow({ db, onExit }: PortraitFlowProps): React.JSX.Eleme
                 ))}
                 <Text style={styles.orientation}>
                   {deepest
-                    ? `One thread holds most of the weight: ${channelName(deepest.channelKey).toLowerCase()}. When the Untangling opens, begin there.`
+                    ? `One thread holds most of the weight: ${channelName(deepest.channelKey, locale).toLowerCase()}. When the Untangling opens, begin there.`
                     : 'Nothing has you caught. Keep living the way the needle points.'}
                 </Text>
               </ScrollView>
@@ -193,7 +192,7 @@ export function PortraitFlow({ db, onExit }: PortraitFlowProps): React.JSX.Eleme
               </Text>
               {suggested && (
                 <PrimaryAction
-                  label={`${t('portrait.beginWith', locale)} ${channelName(suggested.channelKey).toLowerCase()}`}
+                  label={`${t('portrait.beginWith', locale)} ${channelName(suggested.channelKey, locale).toLowerCase()}`}
                   onPress={() => choose(suggested.channelKey)}
                 />
               )}

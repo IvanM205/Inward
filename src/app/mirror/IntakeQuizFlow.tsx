@@ -7,7 +7,7 @@
 import React, { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { IntakeQuestion } from '../../core/content/questionBank';
-import { CASUALTY_OPTIONS } from '../../core/content/questionBank';
+import { CASUALTY_OPTIONS, casualtyLabel, questionText } from '../../core/content/questionBank';
 import { PrimaryAction, QuietAction } from '../../core/design/Buttons';
 import { TerminalScreen } from '../../core/design/TerminalScreen';
 import { color, space, touchTarget, type } from '../../core/design/tokens';
@@ -77,7 +77,7 @@ export function IntakeQuizFlow({ db, locale = 'en', onExit }: IntakeQuizFlowProp
             ) : (
               <>
                 <Text style={styles.question} accessibilityRole="header">
-                  {question.text}
+                  {questionText(question, locale)}
                 </Text>
                 {question.type === 'hours' && (
                   <>
@@ -86,9 +86,9 @@ export function IntakeQuizFlow({ db, locale = 'en', onExit }: IntakeQuizFlowProp
                       value={hoursText}
                       onChangeText={setHoursText}
                       keyboardType="numeric"
-                      placeholder="hours in a week"
+                      placeholder={t('intake.hoursHint' as never, locale)}
                       placeholderTextColor={color.stone}
-                      accessibilityLabel={question.text}
+                      accessibilityLabel={questionText(question, locale)}
                     />
                     <PrimaryAction
                       label={t('common.goOn', locale)}
@@ -116,7 +116,7 @@ export function IntakeQuizFlow({ db, locale = 'en', onExit }: IntakeQuizFlowProp
                           key={option.key}
                           accessibilityRole="checkbox"
                           accessibilityState={{ checked: selected }}
-                          accessibilityLabel={option.label}
+                          accessibilityLabel={casualtyLabel(option.key, locale)}
                           onPress={() =>
                             setPicked(
                               selected
@@ -126,7 +126,7 @@ export function IntakeQuizFlow({ db, locale = 'en', onExit }: IntakeQuizFlowProp
                           }
                           style={styles.casualty}>
                           <Text style={[styles.casualtyText, selected && styles.casualtyPicked]}>
-                            {option.label}
+                            {casualtyLabel(option.key, locale)}
                           </Text>
                         </Pressable>
                       );

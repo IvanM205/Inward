@@ -13,6 +13,7 @@ import { TerminalScreen } from '../../core/design/TerminalScreen';
 import { color, space, touchTarget, type } from '../../core/design/tokens';
 import { FlowHost } from '../../core/navigation/FlowHost';
 import { ChannelKey } from '../../core/scoring/config';
+import { channelDisplayName } from '../../core/content/questionBank';
 import { CHANNELS } from '../../core/storage/migrations';
 import { SqlDatabase } from '../../core/storage/ports';
 import { DETOX_CHECKIN_FLOW, DETOX_START_FLOW } from '../../flows/registry';
@@ -79,13 +80,13 @@ export function DetoxStartFlow({ db, locale = 'en', onExit }: DetoxStartFlowProp
                   key={c.key}
                   accessibilityRole="checkbox"
                   accessibilityState={{ checked: picked }}
-                  accessibilityLabel={c.name.toLowerCase()}
+                  accessibilityLabel={channelDisplayName(key, locale).toLowerCase()}
                   onPress={() =>
                     setRedList(picked ? redList.filter((k) => k !== key) : [...redList, key])
                   }
                   style={styles.channel}>
                   <Text style={[styles.channelText, picked && styles.channelPicked]}>
-                    {c.name.toLowerCase()}
+                    {channelDisplayName(key, locale).toLowerCase()}
                   </Text>
                 </Pressable>
               );
