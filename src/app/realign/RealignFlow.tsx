@@ -4,9 +4,10 @@
  * reached what you love, the gap — shown plainly, without verdict — and one
  * written commitment. Completing it triggers the weekly recalculation.
  */
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 import { PrimaryAction } from '../../core/design/Buttons';
+import { JournalPrompt } from '../../core/design/JournalPrompt';
 import { QuestionCard } from '../../core/design/QuestionCard';
 import { TerminalScreen } from '../../core/design/TerminalScreen';
 import { color, space, type } from '../../core/design/tokens';
@@ -14,6 +15,7 @@ import { FlowHost } from '../../core/navigation/FlowHost';
 import { SqlDatabase } from '../../core/storage/ports';
 import { REALIGN_FLOW } from '../../flows/registry';
 import { weeklyRecalc } from '../mirror/recalc';
+import { buildCheckin, buildCheckinDue, buildThing } from '../plan/buildRepo';
 import { saveRealignment } from './realignRepo';
 
 export interface RealignFlowProps {
@@ -53,6 +55,17 @@ export function RealignFlow({ db, onExit }: RealignFlowProps): React.JSX.Element
   const [spending, setSpending] = useState('');
   const [lovedHours, setLovedHours] = useState('');
   const [commitment, setCommitment] = useState('');
+  // PLAN-05: the hands question rides this weekly moment when a thing exists.
+  const [handsDue, setHandsDue] = useState(false);
+  const [thingName, setThingName] = useState('');
+  const [handsLine, setHandsLine] = useState('');
+
+  useEffect(() => {
+    (async () => {
+      setHandsDue(await buildCheckinDue(db, new Date()));
+      setThingName((await buildThing(db))?.name ?? '');
+    })();
+  }, [db]);
 
   return (
     <FlowHost
@@ -118,6 +131,24 @@ export function RealignFlow({ db, onExit }: RealignFlowProps): React.JSX.Element
                     commitment,
                   );
                   await weeklyRecalc(db, now); // RLG-02
+                  api.advance(handsDue ? 'hands' : 'realigned');
+                }}
+              />
+            </View>
+          </View>
+        ),
+        hands: (api) => (
+          <View style={styles.screen}>
+            <JournalPrompt
+              prompt={`The ${thingName || 'one thing'} — did your hands learn something this week?`}
+              value={handsLine}
+              onChange={setHandsLine}
+            />
+            <View style={styles.action}>
+              <PrimaryAction
+                label="go on"
+                onPress={async () => {
+                  await buildCheckin(db, handsLine, new Date()); // empty = settled, unjudged
                   api.advance();
                 }}
               />

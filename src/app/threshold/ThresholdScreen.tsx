@@ -34,6 +34,10 @@ export interface ThresholdScreenProps {
   onOpenMirror?: () => void;
   /** The Plan door — shown while the active thread's vow is unwritten (PLAN-02). */
   onOpenVow?: () => void;
+  /** One-time phone redesign — retires forever once closed (PLAN-03). */
+  onOpenRedesign?: () => void;
+  /** Build One Thing — shown until the season's thing is named (PLAN-05). */
+  onOpenBuild?: () => void;
   onOpenSettings: () => void;
 }
 
@@ -52,6 +56,8 @@ export function ThresholdScreen({
   onOpenRealign,
   onOpenMirror,
   onOpenVow,
+  onOpenRedesign,
+  onOpenBuild,
   onOpenSettings,
 }: ThresholdScreenProps): React.JSX.Element {
   return (
@@ -78,6 +84,8 @@ export function ThresholdScreen({
         {onOpenRealign && <QuietAction label="the weekly realignment" onPress={onOpenRealign} />}
         {onOpenMirror && <QuietAction label="the mirror" onPress={onOpenMirror} />}
         {onOpenVow && <QuietAction label="the untangling" onPress={onOpenVow} />}
+        {onOpenRedesign && <QuietAction label="redesign the phone" onPress={onOpenRedesign} />}
+        {onOpenBuild && <QuietAction label="build one thing" onPress={onOpenBuild} />}
         <QuietAction label="unplug" onPress={onOpenQuiet} />
         {onOpenDetox && (
           <QuietAction label={detoxDoorLabel ?? 'dopamine detox'} onPress={onOpenDetox} />

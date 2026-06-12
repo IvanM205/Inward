@@ -18,6 +18,10 @@ import { CravingFlow } from './src/app/crave/CravingFlow';
 import { ReadingFlow } from './src/app/library/ReadingFlow';
 import { todaysReading } from './src/app/library/libraryRepo';
 import { OpeningFlow } from './src/app/plan/OpeningFlow';
+import { BuildNameFlow } from './src/app/plan/BuildNameFlow';
+import { buildThing } from './src/app/plan/buildRepo';
+import { RedesignFlow } from './src/app/plan/RedesignFlow';
+import { redesignState } from './src/app/plan/redesignRepo';
 import { RealignFlow } from './src/app/realign/RealignFlow';
 import { realignmentDue } from './src/app/realign/realignRepo';
 import {
@@ -59,7 +63,9 @@ type Route =
   | 'realign'
   | 'detox-start'
   | 'detox-checkin'
-  | 'stillness';
+  | 'stillness'
+  | 'redesign'
+  | 'build-name';
 
 const STILLNESS_LINE = 'Stillness, kept. The world can hold itself for an hour.';
 
@@ -83,6 +89,8 @@ function App(): React.JSX.Element {
   const [realignDue, setRealignDue] = useState(false);
   const [detox, setDetox] = useState<ActiveDetox | null>(null);
   const [veilLine, setVeilLine] = useState(VEIL_LINE);
+  const [redesignOpen, setRedesignOpen] = useState(false);
+  const [buildOpen, setBuildOpen] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -96,6 +104,10 @@ function App(): React.JSX.Element {
       setVowOpen(current !== null && current.replacementHabit === null);
       setRealignDue(existing !== null && (await realignmentDue(opened, new Date())));
       setDetox(await activeDetox(opened, new Date()));
+      if (existing) {
+        setRedesignOpen(!(await redesignState(opened)).retired && (await activeThread(opened)) !== null);
+        setBuildOpen((await buildThing(opened)) === null);
+      }
       if ((await isUnplugged(opened, new Date())) || (await isStillnessNow(opened, new Date()))) {
         setVeilLine((await isUnplugged(opened, new Date())) ? VEIL_LINE : STILLNESS_LINE);
         setRoute('veil'); // a running quiet window is defended (QUIET-01/03)
@@ -119,6 +131,10 @@ function App(): React.JSX.Element {
       setVowOpen(current !== null && current.replacementHabit === null);
       setRealignDue(fresh !== null && (await realignmentDue(db, new Date())));
       setDetox(await activeDetox(db, new Date()));
+      if (fresh) {
+        setRedesignOpen(!(await redesignState(db)).retired && (await activeThread(db)) !== null);
+        setBuildOpen((await buildThing(db)) === null);
+      }
       const grad = await pendingGraduation(db);
       setGraduated(grad);
       if (grad) {
@@ -187,6 +203,10 @@ function App(): React.JSX.Element {
         <UnplugFlow db={db} onExit={release} onDesignStillness={() => setRoute('stillness')} />
       ) : route === 'stillness' ? (
         <StillnessFlow db={db} onExit={release} />
+      ) : route === 'redesign' ? (
+        <RedesignFlow db={db} onExit={release} />
+      ) : route === 'build-name' ? (
+        <BuildNameFlow db={db} onExit={release} />
       ) : route === 'veil' ? (
         <QuietVeil line={veilLine} onLeave={release} />
       ) : (
@@ -209,6 +229,8 @@ function App(): React.JSX.Element {
           onOpenRealign={realignDue ? () => setRoute('realign') : undefined}
           onOpenMirror={mirrorRoute ? () => setRoute(mirrorRoute) : undefined}
           onOpenVow={vowOpen ? () => setRoute('vow') : undefined}
+          onOpenRedesign={redesignOpen ? () => setRoute('redesign') : undefined}
+          onOpenBuild={buildOpen ? () => setRoute('build-name') : undefined}
           onOpenSettings={() => setRoute('settings')}
         />
       )}

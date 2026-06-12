@@ -185,24 +185,51 @@ export const READING_FLOW: FlowGraph = {
 /**
  * RLG-01..02: the weekly realignment — ten bounded minutes: the ledger as
  * practiced ultimacy, the hours that reached what you love, the gap without
- * verdict, one written commitment. Completing it triggers the weekly recalc.
+ * verdict, one written commitment. When a thing is being built (PLAN-05),
+ * the hands question rides the same weekly moment. Completing triggers the
+ * weekly recalc.
  */
 export const REALIGN_FLOW: FlowGraph = {
-  name: 'RLG-01..02 weekly realignment',
+  name: 'RLG-01..02 weekly realignment (+PLAN-05 hands)',
   entry: 'ledger',
   screens: [
     { id: 'ledger', kind: 'screen' },
     { id: 'values', kind: 'screen' },
     { id: 'gap', kind: 'screen' },
     { id: 'commitment', kind: 'screen' },
+    { id: 'hands', kind: 'screen' },
     { id: 'realigned', kind: 'terminal' },
   ],
   edges: [
     { from: 'ledger', to: 'values' },
     { from: 'values', to: 'gap' },
     { from: 'gap', to: 'commitment' },
+    { from: 'commitment', to: 'hands' },
     { from: 'commitment', to: 'realigned' },
+    { from: 'hands', to: 'realigned' },
   ],
+};
+
+/** PLAN-03: the one-time phone redesign — four steps, then enough. */
+export const REDESIGN_FLOW: FlowGraph = {
+  name: 'PLAN-03 phone redesign',
+  entry: 'checklist',
+  screens: [
+    { id: 'checklist', kind: 'screen' },
+    { id: 'enough', kind: 'terminal' },
+  ],
+  edges: [{ from: 'checklist', to: 'enough' }],
+};
+
+/** PLAN-05: naming the season's one thing to build. */
+export const BUILD_NAME_FLOW: FlowGraph = {
+  name: 'PLAN-05 build one thing',
+  entry: 'name',
+  screens: [
+    { id: 'name', kind: 'screen' },
+    { id: 'named', kind: 'terminal' },
+  ],
+  edges: [{ from: 'name', to: 'named' }],
 };
 
 /** JRN-03: one-line aliveness capture from the widget — in and back out. */
@@ -283,6 +310,8 @@ export const primaryFlows: FlowGraph[] = [
   CRAVING_FLOW,
   READING_FLOW,
   REALIGN_FLOW,
+  REDESIGN_FLOW,
+  BUILD_NAME_FLOW,
   MORNING_FLOW,
   EVENING_FLOW,
   WIDGET_CAPTURE_FLOW,

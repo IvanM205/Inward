@@ -246,6 +246,22 @@ export const MIGRATIONS: Migration[] = [
       )`,
     ],
   },
+  {
+    version: 14,
+    statements: [
+      // PLAN-03: the one-time phone-redesign checklist — a json map of step →
+      // done, plus a retired flag. Stored, never nagged.
+      `ALTER TABLE profile ADD COLUMN phone_redesign TEXT NOT NULL DEFAULT '{}'`,
+      // PLAN-05: Build One Thing — one named skill per season, one weekly
+      // question. No minutes, no levels, no progress bars (by absence).
+      `CREATE TABLE build_thing (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        started_on TEXT NOT NULL,
+        last_checkin_week INTEGER
+      )`,
+    ],
+  },
 ];
 
 /** The twelve channels — canonical list, order fixed (01-product-overview). */
