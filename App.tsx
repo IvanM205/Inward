@@ -107,6 +107,7 @@ function App(): React.JSX.Element {
   const [redesignOpen, setRedesignOpen] = useState(false);
   const [buildOpen, setBuildOpen] = useState(false);
   const [path, setPath] = useState<PathState | null>(null);
+  const [locale, setLocale] = useState('en');
 
   useEffect(() => {
     (async () => {
@@ -114,6 +115,7 @@ function App(): React.JSX.Element {
       setDb(opened);
       const existing = await getProfile(opened);
       if (existing) setDue(await dueCompassToday(opened, existing, new Date()));
+      setLocale(existing?.locale ?? 'en');
       setMirrorRoute(mirrorRouteFor(existing?.onboardingState));
       const current = await activeThread(opened);
       setThread(current);
@@ -168,6 +170,7 @@ function App(): React.JSX.Element {
     if (db) {
       const fresh = await getProfile(db);
       setDue(fresh ? await dueCompassToday(db, fresh, new Date()) : null);
+      setLocale(fresh?.locale ?? 'en');
       setMirrorRoute(mirrorRouteFor(fresh?.onboardingState));
       const current = await activeThread(db);
       setThread(current);
@@ -294,6 +297,7 @@ function App(): React.JSX.Element {
         <QuietVeil line={veilLine} onLeave={release} />
       ) : (
         <ThresholdScreen
+          locale={locale}
           dueCompass={due}
           onOpenCompass={(slot) => setRoute(slot)}
           opening={

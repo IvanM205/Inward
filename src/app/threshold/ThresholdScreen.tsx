@@ -6,6 +6,7 @@
  */
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { t } from '../../core/content/strings';
 import { PrimaryAction, QuietAction } from '../../core/design/Buttons';
 import { color, space, type } from '../../core/design/tokens';
 import { CompassSlot } from './dueCompass';
@@ -13,6 +14,8 @@ import { CompassSlot } from './dueCompass';
 export type { CompassSlot };
 
 export interface ThresholdScreenProps {
+  /** Profile locale (NFR-X2); the catalog falls back to English. */
+  locale?: string;
   /** Which compass is due, if any — the dueCompass rule, applied by the host. */
   dueCompass: CompassSlot;
   onOpenCompass: (slot: 'morning' | 'evening') => void;
@@ -48,9 +51,8 @@ export interface ThresholdScreenProps {
   onOpenSettings: () => void;
 }
 
-const QUIET_LINE = 'The day is on the other side of this screen.';
-
 export function ThresholdScreen({
+  locale = 'en',
   dueCompass,
   onOpenCompass,
   opening,
@@ -74,37 +76,51 @@ export function ThresholdScreen({
   return (
     <View style={styles.screen}>
       <Text style={styles.quietLine} accessibilityRole="text">
-        {QUIET_LINE}
+        {t('threshold.quietLine', locale)}
       </Text>
       {dueCompass !== null && (
         <View style={styles.compass}>
           <PrimaryAction
-            label={dueCompass === 'morning' ? 'the morning compass' : 'the evening compass'}
+            label={
+              dueCompass === 'morning'
+                ? t('threshold.morningCompass', locale)
+                : t('threshold.eveningCompass', locale)
+            }
             onPress={() => onOpenCompass(dueCompass)}
           />
         </View>
       )}
       {opening != null && onOpenOpening && (
         <View style={styles.compass}>
-          <QuietAction label={`today’s opening — ${opening}`} onPress={onOpenOpening} />
+          <QuietAction
+            label={`${t('threshold.opening', locale)} — ${opening}`}
+            onPress={onOpenOpening}
+          />
         </View>
       )}
       <View style={styles.quietSwitch}>
-        <QuietAction label="one deep thing" onPress={onOpenReading} />
-        {onOpenPath && <QuietAction label={pathDoorLabel ?? 'a path'} onPress={onOpenPath} />}
-        <QuietAction label="the quizzes" onPress={onOpenQuizzes} />
-        <QuietAction label="i feel the pull" onPress={onOpenCraving} />
-        {onOpenRealign && <QuietAction label="the weekly realignment" onPress={onOpenRealign} />}
-        {onOpenMirror && <QuietAction label="the mirror" onPress={onOpenMirror} />}
-        {onOpenVow && <QuietAction label="the untangling" onPress={onOpenVow} />}
-        {onOpenRedesign && <QuietAction label="redesign the phone" onPress={onOpenRedesign} />}
-        {onOpenBuild && <QuietAction label="build one thing" onPress={onOpenBuild} />}
-        <QuietAction label="unplug" onPress={onOpenQuiet} />
-        {onOpenDetox && (
-          <QuietAction label={detoxDoorLabel ?? 'dopamine detox'} onPress={onOpenDetox} />
+        <QuietAction label={t('threshold.reading', locale)} onPress={onOpenReading} />
+        {onOpenPath && (
+          <QuietAction label={pathDoorLabel ?? t('threshold.path', locale)} onPress={onOpenPath} />
         )}
-        <QuietAction label="the journal" onPress={onOpenJournal} />
-        <QuietAction label="settings" onPress={onOpenSettings} />
+        <QuietAction label={t('threshold.quizzes', locale)} onPress={onOpenQuizzes} />
+        <QuietAction label={t('threshold.craving', locale)} onPress={onOpenCraving} />
+        {onOpenRealign && <QuietAction label={t('threshold.realign', locale)} onPress={onOpenRealign} />}
+        {onOpenMirror && <QuietAction label={t('threshold.mirror', locale)} onPress={onOpenMirror} />}
+        {onOpenVow && <QuietAction label={t('threshold.untangling', locale)} onPress={onOpenVow} />}
+        {onOpenRedesign && (
+          <QuietAction label={t('threshold.redesign', locale)} onPress={onOpenRedesign} />
+        )}
+        {onOpenBuild && <QuietAction label={t('threshold.build', locale)} onPress={onOpenBuild} />}
+        <QuietAction label={t('threshold.unplug', locale)} onPress={onOpenQuiet} />
+        {onOpenDetox && (
+          <QuietAction
+            label={detoxDoorLabel ?? t('threshold.detox', locale)}
+            onPress={onOpenDetox}
+          />
+        )}
+        <QuietAction label={t('threshold.journal', locale)} onPress={onOpenJournal} />
+        <QuietAction label={t('threshold.settings', locale)} onPress={onOpenSettings} />
       </View>
     </View>
   );
