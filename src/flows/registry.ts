@@ -68,6 +68,26 @@ export const EVENING_FLOW: FlowGraph = {
   ],
 };
 
+/**
+ * ONB-04 intake quiz: one question screen, re-asked with the adaptive
+ * cursor (src/app/mirror/adaptive.ts) until done or paused. Both exits are
+ * terminal: pausing loses nothing (resumable ≤ 14 days), and abandoning
+ * leaves the app fully usable — the Mirror simply waits.
+ */
+export const INTAKE_FLOW: FlowGraph = {
+  name: 'ONB-04 intake quiz',
+  entry: 'question',
+  screens: [
+    { id: 'question', kind: 'screen' },
+    { id: 'done', kind: 'terminal' },
+    { id: 'paused', kind: 'terminal' },
+  ],
+  edges: [
+    { from: 'question', to: 'done' },
+    { from: 'question', to: 'paused' },
+  ],
+};
+
 /** JRN-03: one-line aliveness capture from the widget — in and back out. */
 export const WIDGET_CAPTURE_FLOW: FlowGraph = {
   name: 'JRN-03 widget capture',
@@ -92,6 +112,7 @@ export const UNPLUG_FLOW: FlowGraph = {
 
 export const primaryFlows: FlowGraph[] = [
   ONBOARDING_FLOW,
+  INTAKE_FLOW,
   MORNING_FLOW,
   EVENING_FLOW,
   WIDGET_CAPTURE_FLOW,

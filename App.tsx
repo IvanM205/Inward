@@ -11,6 +11,7 @@ import { color } from './src/core/design/tokens';
 import { SqlDatabase } from './src/core/storage/ports';
 import { getProfile } from './src/core/storage/repos/profileRepo';
 import { permissionRequests, storage } from './src/app/bootstrap';
+import { IntakeQuizFlow } from './src/app/mirror/IntakeQuizFlow';
 import { OnboardingFlow } from './src/app/onboarding/OnboardingFlow';
 import { isUnplugged } from './src/app/quiet/quietRepo';
 import { UnplugFlow, VEIL_LINE } from './src/app/quiet/UnplugFlow';
@@ -20,12 +21,24 @@ import { CompassSlot, dueCompassToday } from './src/app/threshold/dueCompass';
 import { ThresholdScreen } from './src/app/threshold/ThresholdScreen';
 import { QuietVeil } from './src/core/design/QuietVeil';
 
-type Route = 'loading' | 'onboarding' | 'threshold' | 'morning' | 'evening' | 'unplug' | 'veil';
+type Route =
+  | 'loading'
+  | 'onboarding'
+  | 'threshold'
+  | 'morning'
+  | 'evening'
+  | 'intake'
+  | 'unplug'
+  | 'veil';
+
+/** The Mirror door stays open until the intake is finished (ONB-04). */
+const INTAKE_OPEN_STATES = ['permissions_done', 'intake_in_progress'];
 
 function App(): React.JSX.Element {
   const [route, setRoute] = useState<Route>('loading');
   const [db, setDb] = useState<SqlDatabase | null>(null);
   const [due, setDue] = useState<CompassSlot>(null);
+  const [intakeOpen, setIntakeOpen] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -33,6 +46,7 @@ function App(): React.JSX.Element {
       setDb(opened);
       const existing = await getProfile(opened);
       if (existing) setDue(await dueCompassToday(opened, existing, new Date()));
+      setIntakeOpen(existing !== null && INTAKE_OPEN_STATES.includes(existing.onboardingState));
       if (await isUnplugged(opened, new Date())) {
         setRoute('veil'); // a running unplug window is defended (QUIET-01)
         return;
@@ -49,6 +63,7 @@ function App(): React.JSX.Element {
     if (db) {
       const fresh = await getProfile(db);
       setDue(fresh ? await dueCompassToday(db, fresh, new Date()) : null);
+      setIntakeOpen(fresh !== null && INTAKE_OPEN_STATES.includes(fresh.onboardingState));
     }
     if (Platform.OS === 'android') BackHandler.exitApp();
     setRoute(db && (await isUnplugged(db, new Date())) ? 'veil' : 'threshold');
@@ -65,6 +80,8 @@ function App(): React.JSX.Element {
         <MorningFlow db={db} onExit={release} />
       ) : route === 'evening' ? (
         <EveningFlow db={db} onExit={release} />
+      ) : route === 'intake' ? (
+        <IntakeQuizFlow db={db} onExit={release} />
       ) : route === 'unplug' ? (
         <UnplugFlow db={db} onExit={release} />
       ) : route === 'veil' ? (
@@ -74,6 +91,7 @@ function App(): React.JSX.Element {
           dueCompass={due}
           onOpenCompass={(slot) => setRoute(slot)}
           onOpenQuiet={() => setRoute('unplug')}
+          onOpenMirror={intakeOpen ? () => setRoute('intake') : undefined}
         />
       )}
     </>

@@ -18,11 +18,18 @@ export interface ThresholdScreenProps {
   onOpenCompass: (slot: 'morning' | 'evening') => void;
   /** The Quiet switch — a door (01 §IA chrome), not one of the 3 elements. */
   onOpenQuiet: () => void;
+  /** The Mirror door — shown while the intake is open or unfinished (ONB-04). */
+  onOpenMirror?: () => void;
 }
 
 const QUIET_LINE = 'The day is on the other side of this screen.';
 
-export function ThresholdScreen({ dueCompass, onOpenCompass, onOpenQuiet }: ThresholdScreenProps): React.JSX.Element {
+export function ThresholdScreen({
+  dueCompass,
+  onOpenCompass,
+  onOpenQuiet,
+  onOpenMirror,
+}: ThresholdScreenProps): React.JSX.Element {
   return (
     <View style={styles.screen}>
       <Text style={styles.quietLine} accessibilityRole="text">
@@ -37,6 +44,7 @@ export function ThresholdScreen({ dueCompass, onOpenCompass, onOpenQuiet }: Thre
         </View>
       )}
       <View style={styles.quietSwitch}>
+        {onOpenMirror && <QuietAction label="the mirror" onPress={onOpenMirror} />}
         <QuietAction label="unplug" onPress={onOpenQuiet} />
       </View>
     </View>
