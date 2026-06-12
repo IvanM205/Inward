@@ -18,6 +18,8 @@ import { CravingFlow } from './src/app/crave/CravingFlow';
 import { ReadingFlow } from './src/app/library/ReadingFlow';
 import { todaysReading } from './src/app/library/libraryRepo';
 import { OpeningFlow } from './src/app/plan/OpeningFlow';
+import { RealignFlow } from './src/app/realign/RealignFlow';
+import { realignmentDue } from './src/app/realign/realignRepo';
 import {
   activeThread,
   markGraduationCelebrated,
@@ -51,7 +53,8 @@ type Route =
   | 'opening'
   | 'crave'
   | 'graduated'
-  | 'reading';
+  | 'reading'
+  | 'realign';
 
 /** Where the Mirror door leads: the quiz until intake_done, then the Portrait. */
 function mirrorRouteFor(state: string | undefined): 'intake' | 'portrait' | null {
@@ -70,6 +73,7 @@ function App(): React.JSX.Element {
   const [vowOpen, setVowOpen] = useState(false);
   const [thread, setThread] = useState<Thread | null>(null);
   const [graduated, setGraduated] = useState<Thread | null>(null);
+  const [realignDue, setRealignDue] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -81,6 +85,7 @@ function App(): React.JSX.Element {
       const current = await activeThread(opened);
       setThread(current);
       setVowOpen(current !== null && current.replacementHabit === null);
+      setRealignDue(existing !== null && (await realignmentDue(opened, new Date())));
       if (await isUnplugged(opened, new Date())) {
         setRoute('veil'); // a running unplug window is defended (QUIET-01)
         return;
@@ -101,6 +106,7 @@ function App(): React.JSX.Element {
       const current = await activeThread(db);
       setThread(current);
       setVowOpen(current !== null && current.replacementHabit === null);
+      setRealignDue(fresh !== null && (await realignmentDue(db, new Date())));
       const grad = await pendingGraduation(db);
       setGraduated(grad);
       if (grad) {
@@ -147,6 +153,8 @@ function App(): React.JSX.Element {
         <CravingFlow db={db} thread={thread} onExit={release} />
       ) : route === 'reading' ? (
         <ReadingFlow db={db} reading={todaysReading(new Date())} onExit={release} />
+      ) : route === 'realign' ? (
+        <RealignFlow db={db} onExit={release} />
       ) : route === 'graduated' && graduated ? (
         <TerminalScreen
           line="Four weeks held. The thread is loosened — wear the season lightly."
@@ -173,6 +181,7 @@ function App(): React.JSX.Element {
           onOpenQuiet={() => setRoute('unplug')}
           onOpenCraving={() => setRoute('crave')}
           onOpenReading={() => setRoute('reading')}
+          onOpenRealign={realignDue ? () => setRoute('realign') : undefined}
           onOpenMirror={mirrorRoute ? () => setRoute(mirrorRoute) : undefined}
           onOpenVow={vowOpen ? () => setRoute('vow') : undefined}
           onOpenSettings={() => setRoute('settings')}

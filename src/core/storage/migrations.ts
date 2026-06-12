@@ -230,6 +230,22 @@ export const MIGRATIONS: Migration[] = [
       )`,
     ],
   },
+  {
+    version: 13,
+    statements: [
+      // RealignmentWeek (03 §RealignmentWeek, RLG-01): one bounded review per
+      // week; the ledger and value hours are the person's own hand-tagged
+      // numbers, never harvested.
+      `CREATE TABLE realignment_week (
+        id TEXT PRIMARY KEY,
+        week_start TEXT NOT NULL UNIQUE,
+        ledger TEXT NOT NULL DEFAULT '{}',
+        value_hours TEXT NOT NULL DEFAULT '{}',
+        commitment TEXT NOT NULL,
+        circle_reflection_id TEXT
+      )`,
+    ],
+  },
 ];
 
 /** The twelve channels — canonical list, order fixed (01-product-overview). */

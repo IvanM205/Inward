@@ -25,6 +25,8 @@ export interface ThresholdScreenProps {
   onOpenCraving: () => void;
   /** One Deep Thing — today's reading (LIB-01). */
   onOpenReading: () => void;
+  /** The weekly realignment — shown while this week's is unwritten (RLG-01). */
+  onOpenRealign?: () => void;
   /** The Mirror door — shown while the intake is open or unfinished (ONB-04). */
   onOpenMirror?: () => void;
   /** The Plan door — shown while the active thread's vow is unwritten (PLAN-02). */
@@ -42,6 +44,7 @@ export function ThresholdScreen({
   onOpenQuiet,
   onOpenCraving,
   onOpenReading,
+  onOpenRealign,
   onOpenMirror,
   onOpenVow,
   onOpenSettings,
@@ -67,6 +70,7 @@ export function ThresholdScreen({
       <View style={styles.quietSwitch}>
         <QuietAction label="one deep thing" onPress={onOpenReading} />
         <QuietAction label="i feel the pull" onPress={onOpenCraving} />
+        {onOpenRealign && <QuietAction label="the weekly realignment" onPress={onOpenRealign} />}
         {onOpenMirror && <QuietAction label="the mirror" onPress={onOpenMirror} />}
         {onOpenVow && <QuietAction label="the untangling" onPress={onOpenVow} />}
         <QuietAction label="unplug" onPress={onOpenQuiet} />
