@@ -13,6 +13,7 @@ import {
 } from '../../../core/storage/testing/fakes';
 import { localDateKey } from '../../../core/storage/time';
 import { entriesOn } from '../../journal/journalRepo';
+import { BREATH_TOTAL_MS } from '../../onboarding/BreathScreen';
 import { EveningFlow } from '../EveningFlow';
 import { MorningFlow, MORNING_QUESTION } from '../MorningFlow';
 
@@ -123,6 +124,27 @@ describe('EveningFlow (THR-03, JRN-02)', () => {
 
     await press(tree, 'good night');
     expect(JSON.stringify(tree.toJSON())).toContain('That is enough for today. Rest now.');
+    await ReactTestRenderer.act(async () => tree.unmount());
+  });
+
+  it('hands off to the sleep wind-down: one breath, then sleep (QUIET-04)', async () => {
+    const db = await openDb();
+    let tree!: ReactTestRenderer.ReactTestRenderer;
+    await ReactTestRenderer.act(async () => {
+      tree = ReactTestRenderer.create(<EveningFlow db={db} onExit={() => {}} />);
+    });
+    await press(tree, 'level — neither way');
+    await press(tree, 'go on');
+    await press(tree, 'go on'); // no gratitudes tonight — 0 of 3 is fine
+    await press(tree, 'fold the day'); // no fold answers — any/all/none (JRN-02)
+
+    await press(tree, 'wind down first');
+    // The wind-down is the breath: 4 s in, 6 s out, skippable — then sleep.
+    await ReactTestRenderer.act(async () => {
+      jest.advanceTimersByTime(BREATH_TOTAL_MS);
+    });
+    await ReactTestRenderer.act(async () => {});
+    expect(JSON.stringify(tree.toJSON())).toContain('The day is folded. Now sleep.');
     await ReactTestRenderer.act(async () => tree.unmount());
   });
 

@@ -41,22 +41,30 @@ export const MORNING_FLOW: FlowGraph = {
   ],
 };
 
-/** THR-03: direction → gratitudes → evening fold (JRN-02) → the Needle → rest. */
+/**
+ * THR-03: direction → gratitudes → evening fold (JRN-02) → the Needle → rest,
+ * with the optional hand-off to the sleep wind-down (QUIET-04): one slow
+ * breath under the night sky, then sleep. No scores, no graphs.
+ */
 export const EVENING_FLOW: FlowGraph = {
-  name: 'THR-03 evening',
+  name: 'THR-03 evening (+QUIET-04 wind-down)',
   entry: 'direction',
   screens: [
     { id: 'direction', kind: 'screen' },
     { id: 'gratitudes', kind: 'screen' },
     { id: 'fold', kind: 'screen' },
     { id: 'needle', kind: 'screen' },
+    { id: 'winddown', kind: 'screen' },
     { id: 'rest', kind: 'terminal' },
+    { id: 'sleep', kind: 'terminal' },
   ],
   edges: [
     { from: 'direction', to: 'gratitudes' },
     { from: 'gratitudes', to: 'fold' },
     { from: 'fold', to: 'needle' },
     { from: 'needle', to: 'rest' },
+    { from: 'needle', to: 'winddown' },
+    { from: 'winddown', to: 'sleep' },
   ],
 };
 

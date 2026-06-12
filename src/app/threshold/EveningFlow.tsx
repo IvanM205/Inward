@@ -21,6 +21,7 @@ import { SqlDatabase } from '../../core/storage/ports';
 import { needleDirection, saveReflection } from '../../core/storage/repos/reflectionRepo';
 import { localDateKey } from '../../core/storage/time';
 import { addEntry } from '../journal/journalRepo';
+import { BreathScreen } from '../onboarding/BreathScreen';
 import { EVENING_FLOW } from '../../flows/registry';
 
 export const FOLD_PROMPTS = [
@@ -127,12 +128,19 @@ export function EveningFlow({ db, onExit }: EveningFlowProps): React.JSX.Element
               <NeedleView direction={needle} />
             </View>
             <View style={styles.action}>
-              <QuietAction label="good night" onPress={() => api.advance()} />
+              <QuietAction label="good night" onPress={() => api.advance('rest')} />
+              <QuietAction label="wind down first" onPress={() => api.advance('winddown')} />
             </View>
           </View>
         ),
+        // QUIET-04: screens already dim (night), one slow breath, optional by
+        // construction (the breath is skippable), then the closing line.
+        winddown: (api) => <BreathScreen onDone={() => api.advance()} />,
         rest: (api) => (
           <TerminalScreen line="That is enough for today. Rest now." onExit={api.exit} />
+        ),
+        sleep: (api) => (
+          <TerminalScreen line="The day is folded. Now sleep." onExit={api.exit} />
         ),
       }}
     />

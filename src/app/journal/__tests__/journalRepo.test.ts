@@ -11,6 +11,7 @@ import {
   addEntry,
   countedEntriesSince,
   entriesOn,
+  exportJournal,
   searchEntries,
 } from '../journalRepo';
 
@@ -161,5 +162,27 @@ describe('journal queries feed the score and the user — never a feed', () => {
     );
     expect(await searchEntries(db, 'Tomáš')).toHaveLength(1);
     expect(await searchEntries(db, 'sunset')).toHaveLength(0);
+  });
+
+  it('exportJournal renders the words, never the scores (JRN-05)', async () => {
+    const db = await openDb();
+    expect(await exportJournal(db)).toContain('still unwritten');
+
+    await addEntry(
+      db,
+      { type: 'kindness', text: SPECIFIC, channelKeys: ['relationships'], origin: 'evening' },
+      EVENING,
+    );
+    await addEntry(
+      db,
+      { type: 'aliveness', text: 'was nice', channelKeys: [], origin: 'widget' },
+      EVENING,
+    );
+    const text = await exportJournal(db);
+    expect(text).toContain('The Living Journal');
+    expect(text).toContain('2026-06-11 · kindness');
+    expect(text).toContain(SPECIFIC);
+    expect(text).toContain('was nice'); // non-counted entries are the user's too
+    expect(text).not.toMatch(/weight|counted|score/i); // words only
   });
 });

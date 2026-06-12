@@ -162,3 +162,19 @@ export async function entriesOn(db: SqlDatabase, date: string): Promise<JournalE
   );
   return result.rows.map(rowToEntry);
 }
+
+/**
+ * JRN-05 — local export: the whole journal as plain text, oldest first, for
+ * the OS share sheet. The user's words only — no scores, no weights, no
+ * counted markers; those belong to the Mirror, not to a keepsake.
+ */
+export async function exportJournal(db: SqlDatabase): Promise<string> {
+  const result = await db.execute('SELECT * FROM journal_entry ORDER BY created_at');
+  const lines = result.rows.map(rowToEntry).map((e) => {
+    const day = e.createdAt.slice(0, 10);
+    return `${day} · ${e.type.replace('_', ' ')}\n${e.text}\n`;
+  });
+  return lines.length === 0
+    ? 'The journal is still unwritten.\n'
+    : `The Living Journal\n\n${lines.join('\n')}`;
+}
