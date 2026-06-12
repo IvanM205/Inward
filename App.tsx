@@ -14,6 +14,7 @@ import { permissionRequests, storage } from './src/app/bootstrap';
 import { IntakeQuizFlow } from './src/app/mirror/IntakeQuizFlow';
 import { PortraitFlow } from './src/app/mirror/PortraitFlow';
 import { OnboardingFlow } from './src/app/onboarding/OnboardingFlow';
+import { SettingsScreen } from './src/app/settings/SettingsScreen';
 import { isUnplugged } from './src/app/quiet/quietRepo';
 import { UnplugFlow, VEIL_LINE } from './src/app/quiet/UnplugFlow';
 import { EveningFlow } from './src/app/threshold/EveningFlow';
@@ -31,7 +32,8 @@ type Route =
   | 'intake'
   | 'portrait'
   | 'unplug'
-  | 'veil';
+  | 'veil'
+  | 'settings';
 
 /** Where the Mirror door leads: the quiz until intake_done, then the Portrait. */
 function mirrorRouteFor(state: string | undefined): 'intake' | 'portrait' | null {
@@ -90,6 +92,18 @@ function App(): React.JSX.Element {
         <IntakeQuizFlow db={db} onExit={release} />
       ) : route === 'portrait' ? (
         <PortraitFlow db={db} onExit={release} />
+      ) : route === 'settings' ? (
+        <SettingsScreen
+          onClose={release}
+          onEraseAll={async () => {
+            // INV-6: immediate, irrecoverable; re-launch equals true first run.
+            await storage.eraseAll();
+            setDb(await storage.open());
+            setDue(null);
+            setMirrorRoute(null);
+            setRoute('onboarding');
+          }}
+        />
       ) : route === 'unplug' ? (
         <UnplugFlow db={db} onExit={release} />
       ) : route === 'veil' ? (
@@ -100,6 +114,7 @@ function App(): React.JSX.Element {
           onOpenCompass={(slot) => setRoute(slot)}
           onOpenQuiet={() => setRoute('unplug')}
           onOpenMirror={mirrorRoute ? () => setRoute(mirrorRoute) : undefined}
+          onOpenSettings={() => setRoute('settings')}
         />
       )}
     </>

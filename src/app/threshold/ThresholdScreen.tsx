@@ -20,6 +20,7 @@ export interface ThresholdScreenProps {
   onOpenQuiet: () => void;
   /** The Mirror door — shown while the intake is open or unfinished (ONB-04). */
   onOpenMirror?: () => void;
+  onOpenSettings: () => void;
 }
 
 const QUIET_LINE = 'The day is on the other side of this screen.';
@@ -29,6 +30,7 @@ export function ThresholdScreen({
   onOpenCompass,
   onOpenQuiet,
   onOpenMirror,
+  onOpenSettings,
 }: ThresholdScreenProps): React.JSX.Element {
   return (
     <View style={styles.screen}>
@@ -46,6 +48,7 @@ export function ThresholdScreen({
       <View style={styles.quietSwitch}>
         {onOpenMirror && <QuietAction label="the mirror" onPress={onOpenMirror} />}
         <QuietAction label="unplug" onPress={onOpenQuiet} />
+        <QuietAction label="settings" onPress={onOpenSettings} />
       </View>
     </View>
   );

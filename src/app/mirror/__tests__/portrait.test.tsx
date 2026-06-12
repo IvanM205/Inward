@@ -128,6 +128,25 @@ describe('PortraitFlow (MIR-01..03)', () => {
   });
 });
 
+describe('re-measure on demand (MIR-05)', () => {
+  it('"measure again" recalculates from today’s answers and evidence', async () => {
+    const db = await openDb();
+    await answerFeedsHot(db);
+    const tree = await mount(db);
+    expect(JSON.stringify(tree.toJSON())).toContain('— caught');
+
+    // The person re-answers cooler, then asks the Mirror to look again.
+    await saveAnswer(db, questionById('q.feeds.time.1')!, { kind: 'hours', hoursPerWeek: 2 }, new Date(2026, 5, 12, 10, 0));
+    for (let i = 1; i <= 5; i++) {
+      await saveAnswer(db, questionById(`q.feeds.pull.${i}`)!, { kind: 'likert', value: 0 }, new Date(2026, 5, 12, 10, 0));
+    }
+    await saveAnswer(db, questionById('q.feeds.displacement.1')!, { kind: 'casualties', casualties: [] }, new Date(2026, 5, 12, 10, 0));
+    await press(tree, 'measure again');
+    expect(JSON.stringify(tree.toJSON())).not.toContain('— caught');
+    await ReactTestRenderer.act(async () => tree.unmount());
+  });
+});
+
 describe('help-first gating (SAFE-03/04)', () => {
   async function answerSubstancesSevere(db: Awaited<ReturnType<typeof openDb>>) {
     const now = new Date(2026, 5, 12, 9, 30);

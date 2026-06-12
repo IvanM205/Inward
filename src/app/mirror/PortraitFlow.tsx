@@ -13,7 +13,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { LIKERT_LABELS } from './IntakeQuizFlow';
 import { mechanismLine } from '../../core/content/mechanisms';
 import { CASUALTY_OPTIONS, questionById } from '../../core/content/questionBank';
-import { PrimaryAction } from '../../core/design/Buttons';
+import { PrimaryAction, QuietAction } from '../../core/design/Buttons';
 import { BandRow } from '../../core/design/BandRow';
 import { TerminalScreen } from '../../core/design/TerminalScreen';
 import { color, space, type } from '../../core/design/tokens';
@@ -148,6 +148,16 @@ export function PortraitFlow({ db, onExit }: PortraitFlowProps): React.JSX.Eleme
               </ScrollView>
               <View style={styles.action}>
                 <PrimaryAction label="i have seen it" onPress={() => api.advance()} />
+                {/* MIR-05: re-measure on demand — recalc from today's answers
+                    and evidence; the short re-intake arrives with threads (M3). */}
+                <QuietAction
+                  label="measure again"
+                  onPress={async () => {
+                    await weeklyRecalc(db, new Date());
+                    setExpandedChannel(null);
+                    setScores(await latestScores(db));
+                  }}
+                />
               </View>
             </View>
           ),
