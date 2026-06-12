@@ -1,6 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- INV-4: the two compass lines; asked honestly in ONB-03, refusable. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
       android:name=".MainApplication"
@@ -23,5 +25,7 @@
             <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
       </activity>
+      <!-- NTF-01: posts the daily compass line; not exported, alarm-only. -->
+      <receiver android:name=".notifications.CompassLineReceiver" android:exported="false" />
     </application>
 </manifest>
