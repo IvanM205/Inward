@@ -209,9 +209,9 @@ function App(): React.JSX.Element {
           onExit={release}
         />
       ) : route === 'morning' ? (
-        <MorningFlow db={db} opening={thread?.microAct} onExit={release} />
+        <MorningFlow db={db} opening={thread?.microAct} locale={locale} onExit={release} />
       ) : route === 'evening' ? (
-        <EveningFlow db={db} onExit={release} />
+        <EveningFlow db={db} locale={locale} onExit={release} />
       ) : route === 'intake' ? (
         <IntakeQuizFlow db={db} onExit={release} />
       ) : route === 'portrait' ? (

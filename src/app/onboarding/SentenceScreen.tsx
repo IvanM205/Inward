@@ -11,29 +11,30 @@ import { StyleSheet, Text, View } from 'react-native';
 import { PrimaryAction } from '../../core/design/Buttons';
 import { QuestionCard } from '../../core/design/QuestionCard';
 import { color, space, type } from '../../core/design/tokens';
+import { t } from '../../core/content/strings';
 
 export const THE_SENTENCE = 'You were not made to be harvested.';
-export const THE_QUESTION = 'What would you give your attention to, if it were fully yours again?';
 
 export interface SentenceScreenProps {
+  locale?: string;
   onDone: () => void;
 }
 
-export function SentenceScreen({ onDone }: SentenceScreenProps): React.JSX.Element {
+export function SentenceScreen({ locale = 'en', onDone }: SentenceScreenProps): React.JSX.Element {
   const [answer, setAnswer] = useState('');
   return (
     <View style={styles.screen}>
       <Text style={styles.sentence} accessibilityRole="header">
-        {THE_SENTENCE}
+        {t('onb.sentence', locale)}
       </Text>
       <QuestionCard
-        question={THE_QUESTION}
+        question={t('onb.question', locale)}
         value={answer}
         onChange={setAnswer}
-        placeholder="one line is enough"
+        placeholder={t('onb.questionHint', locale)}
       />
       <View style={styles.action}>
-        <PrimaryAction label="go on" onPress={onDone} />
+        <PrimaryAction label={t('common.goOn', locale)} onPress={onDone} />
       </View>
     </View>
   );

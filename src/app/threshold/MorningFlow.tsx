@@ -12,6 +12,7 @@ import { PrimaryAction } from '../../core/design/Buttons';
 import { QuestionCard } from '../../core/design/QuestionCard';
 import { TerminalScreen } from '../../core/design/TerminalScreen';
 import { color, space, type } from '../../core/design/tokens';
+import { t } from '../../core/content/strings';
 import { FlowHost } from '../../core/navigation/FlowHost';
 import { SqlDatabase } from '../../core/storage/ports';
 import { markMorningDone } from '../../core/storage/repos/profileRepo';
@@ -24,10 +25,11 @@ export interface MorningFlowProps {
   db: SqlDatabase;
   /** Today's Opening text, when the active thread offers one (THR-02/04). */
   opening?: string | null;
+  locale?: string;
   onExit: () => void;
 }
 
-export function MorningFlow({ db, opening, onExit }: MorningFlowProps): React.JSX.Element {
+export function MorningFlow({ db, opening, locale = 'en', onExit }: MorningFlowProps): React.JSX.Element {
   const [answer, setAnswer] = useState('');
   return (
     <FlowHost
@@ -37,26 +39,23 @@ export function MorningFlow({ db, opening, onExit }: MorningFlowProps): React.JS
         question: (api) => (
           <View style={styles.screen}>
             <QuestionCard
-              question={MORNING_QUESTION}
+              question={t('morning.question', locale)}
               value={answer}
               onChange={setAnswer}
-              placeholder="one line, or one word"
+              placeholder={t('morning.questionHint', locale)}
             />
             <View style={styles.action}>
-              <PrimaryAction label="go on" onPress={() => api.advance()} />
+              <PrimaryAction label={t('common.goOn', locale)} onPress={() => api.advance()} />
             </View>
           </View>
         ),
         opening: (api) => (
           <View style={styles.screen}>
-            <Text style={styles.openingLabel}>today’s opening</Text>
-            <Text style={styles.openingLine}>
-              {opening ??
-                'No thread is being loosened yet. Today is open — give it to what you just named.'}
-            </Text>
+            <Text style={styles.openingLabel}>{t('morning.openingLabel', locale)}</Text>
+            <Text style={styles.openingLine}>{opening ?? t('morning.noThread', locale)}</Text>
             <View style={styles.action}>
               <PrimaryAction
-                label="i will"
+                label={t('morning.iWill', locale)}
                 onPress={async () => {
                   await markMorningDone(db, localDateKey(new Date()));
                   api.advance();
@@ -66,7 +65,7 @@ export function MorningFlow({ db, opening, onExit }: MorningFlowProps): React.JS
           </View>
         ),
         'go-live': (api) => (
-          <TerminalScreen line="Now go give it your attention." onExit={api.exit} />
+          <TerminalScreen line={t('morning.terminal', locale)} onExit={api.exit} />
         ),
       }}
     />

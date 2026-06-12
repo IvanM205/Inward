@@ -9,6 +9,7 @@ import { FlowHost } from '../../core/navigation/FlowHost';
 import { TerminalScreen } from '../../core/design/TerminalScreen';
 import { SqlDatabase } from '../../core/storage/ports';
 import { ensureProfile, setOnboardingState } from '../../core/storage/repos/profileRepo';
+import { t } from '../../core/content/strings';
 import { ONBOARDING_FLOW } from '../../flows/registry';
 import { BreathScreen } from './BreathScreen';
 import { PermissionsScreen, PermissionRequests } from './PermissionsScreen';
@@ -68,7 +69,7 @@ export function OnboardingFlow({
           />
         ),
         'enough-for-today': (api) => (
-          <TerminalScreen line="That is enough for today. Go live." onExit={api.exit} />
+          <TerminalScreen line={t('onb.terminal', 'en')} onExit={api.exit} />
         ),
       }}
     />

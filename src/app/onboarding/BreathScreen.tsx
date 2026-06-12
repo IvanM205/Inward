@@ -8,6 +8,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { AccessibilityInfo, Animated, Easing, StyleSheet, Text, View } from 'react-native';
 import { QuietAction } from '../../core/design/Buttons';
 import { color, motion, space, type } from '../../core/design/tokens';
+import { t } from '../../core/content/strings';
 
 export const BREATH_TOTAL_MS = motion.breathInMs + motion.breathOutMs;
 export const SKIP_AVAILABLE_AFTER_MS = 3000;
@@ -71,10 +72,10 @@ export function BreathScreen({ onDone, durationMs = BREATH_TOTAL_MS }: BreathScr
         accessibilityLabel="One slow breath — four seconds in, six seconds out"
       />
       <Text style={styles.invitation} accessibilityRole="text">
-        breathe in… and out
+        {t('breath.invitation', 'en')}
       </Text>
       <View style={styles.skipArea}>
-        {skippable && <QuietAction label="skip" onPress={onDone} />}
+        {skippable && <QuietAction label={t('common.skip', 'en')} onPress={onDone} />}
       </View>
     </View>
   );

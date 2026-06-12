@@ -20,23 +20,25 @@ import { FlowHost } from '../../core/navigation/FlowHost';
 import { SqlDatabase } from '../../core/storage/ports';
 import { needleDirection, saveReflection } from '../../core/storage/repos/reflectionRepo';
 import { localDateKey } from '../../core/storage/time';
+import { t } from '../../core/content/strings';
 import { suggestedChannels } from '../journal/channelSuggestion';
 import { addEntry } from '../journal/journalRepo';
 import { BreathScreen } from '../onboarding/BreathScreen';
 import { EVENING_FLOW } from '../../flows/registry';
 
 export const FOLD_PROMPTS = [
-  { type: 'kindness' as const, prompt: 'Was there a kindness in your day — given or received?' },
-  { type: 'care' as const, prompt: 'Did you take care of something that matters?' },
-  { type: 'aliveness' as const, prompt: 'When did you feel most alive?' },
+  { type: 'kindness' as const, promptKey: 'evening.foldKindness' as const },
+  { type: 'care' as const, promptKey: 'evening.foldCare' as const },
+  { type: 'aliveness' as const, promptKey: 'evening.foldAliveness' as const },
 ];
 
 export interface EveningFlowProps {
   db: SqlDatabase;
+  locale?: string;
   onExit: () => void;
 }
 
-export function EveningFlow({ db, onExit }: EveningFlowProps): React.JSX.Element {
+export function EveningFlow({ db, locale = 'en', onExit }: EveningFlowProps): React.JSX.Element {
   const [direction, setDirection] = useState<number | null>(null);
   const [line, setLine] = useState('');
   const [gratitudes, setGratitudes] = useState(['', '', '']);
@@ -80,14 +82,14 @@ export function EveningFlow({ db, onExit }: EveningFlowProps): React.JSX.Element
       renderers={{
         direction: (api) => (
           <View style={styles.screen}>
-            <Text style={styles.question}>Which way did today lean?</Text>
+            <Text style={styles.question}>{t('evening.lean', locale)}</Text>
             <View style={styles.spectrum}>
               <SpectrumSlider value={direction} onSelect={setDirection} />
             </View>
-            <JournalPrompt prompt="A line about it, if you wish." value={line} onChange={setLine} />
+            <JournalPrompt prompt={t('evening.linePrompt', locale)} value={line} onChange={setLine} />
             <View style={styles.action}>
               <PrimaryAction
-                label="go on"
+                label={t('common.goOn', locale)}
                 onPress={() => api.advance()}
                 disabled={direction === null}
               />
@@ -96,11 +98,11 @@ export function EveningFlow({ db, onExit }: EveningFlowProps): React.JSX.Element
         ),
         gratitudes: (api) => (
           <View style={styles.screen}>
-            <Text style={styles.question}>What were you given today?</Text>
+            <Text style={styles.question}>{t('evening.gratitudeQuestion', locale)}</Text>
             {gratitudes.map((g, i) => (
               <JournalPrompt
                 key={i}
-                prompt={i === 0 ? 'Up to three things — or none.' : ' '}
+                prompt={i === 0 ? t('evening.gratitudeHint', locale) : ' '}
                 value={g}
                 onChange={(text) =>
                   setGratitudes(gratitudes.map((prev, j) => (j === i ? text : prev)))
@@ -108,23 +110,23 @@ export function EveningFlow({ db, onExit }: EveningFlowProps): React.JSX.Element
               />
             ))}
             <View style={styles.action}>
-              <PrimaryAction label="go on" onPress={() => api.advance()} />
+              <PrimaryAction label={t('common.goOn', locale)} onPress={() => api.advance()} />
             </View>
           </View>
         ),
         fold: (api) => (
           <View style={styles.screen}>
-            {FOLD_PROMPTS.map(({ type, prompt }) => (
+            {FOLD_PROMPTS.map(({ type, promptKey }) => (
               <JournalPrompt
                 key={type}
-                prompt={prompt}
+                prompt={t(promptKey, locale)}
                 value={fold[type]}
                 onChange={(text) => setFold({ ...fold, [type]: text })}
               />
             ))}
             <View style={styles.action}>
               <PrimaryAction
-                label="fold the day"
+                label={t('evening.foldTheDay', locale)}
                 onPress={async () => {
                   await persistEvening();
                   api.advance();
@@ -139,8 +141,8 @@ export function EveningFlow({ db, onExit }: EveningFlowProps): React.JSX.Element
               <NeedleView direction={needle} />
             </View>
             <View style={styles.action}>
-              <QuietAction label="good night" onPress={() => api.advance('rest')} />
-              <QuietAction label="wind down first" onPress={() => api.advance('winddown')} />
+              <QuietAction label={t('evening.goodNight', locale)} onPress={() => api.advance('rest')} />
+              <QuietAction label={t('evening.windDownFirst', locale)} onPress={() => api.advance('winddown')} />
             </View>
           </View>
         ),
@@ -148,10 +150,10 @@ export function EveningFlow({ db, onExit }: EveningFlowProps): React.JSX.Element
         // construction (the breath is skippable), then the closing line.
         winddown: (api) => <BreathScreen onDone={() => api.advance()} />,
         rest: (api) => (
-          <TerminalScreen line="That is enough for today. Rest now." onExit={api.exit} />
+          <TerminalScreen line={t('evening.restTerminal', locale)} onExit={api.exit} />
         ),
         sleep: (api) => (
-          <TerminalScreen line="The day is folded. Now sleep." onExit={api.exit} />
+          <TerminalScreen line={t('evening.sleepTerminal', locale)} onExit={api.exit} />
         ),
       }}
     />
