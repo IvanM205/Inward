@@ -217,6 +217,7 @@ function App(): React.JSX.Element {
         <PortraitFlow db={db} onExit={release} />
       ) : route === 'settings' ? (
         <SettingsScreen
+          locale={locale}
           onClose={release}
           onEraseAll={async () => {
             // INV-6: immediate, irrecoverable; re-launch equals true first run —
@@ -248,9 +249,9 @@ function App(): React.JSX.Element {
           onExit={(completed) => (completed ? releaseAfter('dare') : release())}
         />
       ) : route === 'crave' ? (
-        <CravingFlow db={db} thread={thread} onExit={release} />
+        <CravingFlow db={db} thread={thread} locale={locale} onExit={release} />
       ) : route === 'reading' ? (
-        <ReadingFlow db={db} reading={todaysReading(new Date())} onExit={() => releaseAfter('reading')} />
+        <ReadingFlow db={db} reading={todaysReading(new Date())} locale={locale} onExit={() => releaseAfter('reading')} />
       ) : route === 'realign' ? (
         <RealignFlow db={db} onExit={release} />
       ) : route === 'detox-start' ? (
@@ -283,7 +284,7 @@ function App(): React.JSX.Element {
         <View style={styles.chooser}>
           <QuietAction label="the values quiz — said and lived" onPress={() => setRoute('values-quiz')} />
           <QuietAction label="the attention audit" onPress={() => setRoute('funnel-quiz')} />
-          <QuietAction label="back to the threshold" onPress={release} />
+          <QuietAction label={t('common.backToThreshold', locale)} onPress={release} />
         </View>
       ) : route === 'values-quiz' ? (
         <ValuesQuizFlow db={db} onExit={release} />
@@ -292,7 +293,7 @@ function App(): React.JSX.Element {
       ) : route === 'ask' ? (
         <AskFlow db={db} onExit={release} />
       ) : route === 'journal' ? (
-        <JournalScreen db={db} onClose={release} />
+        <JournalScreen db={db} locale={locale} onClose={release} />
       ) : route === 'veil' ? (
         <QuietVeil line={t(veilLine, locale)} onLeave={release} />
       ) : (

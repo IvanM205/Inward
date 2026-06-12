@@ -10,7 +10,10 @@ import {
   FakeWidgets,
 } from '../../../core/storage/testing/fakes';
 import { addEntry } from '../journalRepo';
-import { JournalScreen, SOUL_NOT_SCORE } from '../JournalScreen';
+import { t } from '../../../core/content/strings';
+import { JournalScreen } from '../JournalScreen';
+
+const SOUL_NOT_SCORE = t('journal.soulNotScore', 'en');
 
 beforeEach(() => {
   jest

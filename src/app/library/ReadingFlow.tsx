@@ -12,15 +12,17 @@ import { color, space, type } from '../../core/design/tokens';
 import { FlowHost } from '../../core/navigation/FlowHost';
 import { SqlDatabase } from '../../core/storage/ports';
 import { READING_FLOW } from '../../flows/registry';
+import { t } from '../../core/content/strings';
 import { logReadingRead } from './libraryRepo';
 
 export interface ReadingFlowProps {
   db: SqlDatabase;
   reading: Reading;
+  locale?: string;
   onExit: () => void;
 }
 
-export function ReadingFlow({ db, reading, onExit }: ReadingFlowProps): React.JSX.Element {
+export function ReadingFlow({ db, reading, locale = 'en', onExit }: ReadingFlowProps): React.JSX.Element {
   return (
     <FlowHost
       flow={READING_FLOW}
@@ -39,7 +41,7 @@ export function ReadingFlow({ db, reading, onExit }: ReadingFlowProps): React.JS
               <Text style={styles.closing}>{reading.closingQuestion}</Text>
               <View style={styles.action}>
                 <PrimaryAction
-                  label="i have read it"
+                  label={t('reading.read', locale)}
                   onPress={async () => {
                     await logReadingRead(db, reading, new Date());
                     api.advance();
@@ -49,7 +51,7 @@ export function ReadingFlow({ db, reading, onExit }: ReadingFlowProps): React.JS
             </ScrollView>
           </View>
         ),
-        'live-it': (api) => <TerminalScreen line="Now go live it." onExit={api.exit} />,
+        'live-it': (api) => <TerminalScreen line={t('reading.liveIt', locale)} onExit={api.exit} />,
       }}
     />
   );

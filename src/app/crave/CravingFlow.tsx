@@ -14,6 +14,7 @@ import { SqlDatabase } from '../../core/storage/ports';
 import { CRAVING_FLOW } from '../../flows/registry';
 import { BreathScreen } from '../onboarding/BreathScreen';
 import { Thread } from '../plan/threadRepo';
+import { t } from '../../core/content/strings';
 import { recordCraving } from './cravingRepo';
 import { Hunger, HUNGERS, suggestAction } from './suggestions';
 
@@ -22,12 +23,13 @@ export const CRAVING_BREATH_MS = 90_000;
 
 export interface CravingFlowProps {
   db: SqlDatabase;
+  locale?: string;
   /** The active thread, if any — names the channel the craving belongs to. */
   thread: Thread | null;
   onExit: () => void;
 }
 
-export function CravingFlow({ db, thread, onExit }: CravingFlowProps): React.JSX.Element {
+export function CravingFlow({ db, thread, locale = 'en', onExit }: CravingFlowProps): React.JSX.Element {
   const [hunger, setHunger] = useState<Hunger>('unsure');
   const [suggested, setSuggested] = useState('');
   const [actionTaken, setActionTaken] = useState(false);
@@ -64,9 +66,9 @@ export function CravingFlow({ db, thread, onExit }: CravingFlowProps): React.JSX
         ),
         hunger: (api) => (
           <View style={styles.screen}>
-            <Text style={styles.question}>What are you actually hungry for?</Text>
-            {HUNGERS.map(({ key, label }) => (
-              <QuietAction key={key} label={label} onPress={() => pickHunger(api)(key)} />
+            <Text style={styles.question}>{t('crave.hungerQuestion', locale)}</Text>
+            {HUNGERS.map(({ key }) => (
+              <QuietAction key={key} label={t(`crave.${key}` as never, locale)} onPress={() => pickHunger(api)(key)} />
             ))}
           </View>
         ),
@@ -75,30 +77,30 @@ export function CravingFlow({ db, thread, onExit }: CravingFlowProps): React.JSX
             <Text style={styles.suggestion}>{suggested}</Text>
             <View style={styles.actions}>
               <PrimaryAction
-                label="i’ll do it"
+                label={t('crave.illDoIt', locale)}
                 onPress={() => {
                   setActionTaken(true);
                   api.advance();
                 }}
               />
-              <QuietAction label="not this one" onPress={() => api.advance()} />
+              <QuietAction label={t('crave.notThisOne', locale)} onPress={() => api.advance()} />
             </View>
           </View>
         ),
         note: (api) => (
           <View style={styles.screen}>
             <JournalPrompt
-              prompt="A line about it, if you wish."
+              prompt={t('evening.linePrompt', locale)}
               value={note}
               onChange={setNote}
             />
             <View style={styles.actions}>
-              <PrimaryAction label="done" onPress={() => finish(api)} />
+              <PrimaryAction label={t('crave.done', locale)} onPress={() => finish(api)} />
             </View>
           </View>
         ),
         decoded: (api) => (
-          <TerminalScreen line="The hunger was real. The feed was not the food. Go." onExit={api.exit} />
+          <TerminalScreen line={t('crave.terminal', locale)} onExit={api.exit} />
         ),
       }}
     />

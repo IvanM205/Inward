@@ -7,19 +7,19 @@
  */
 import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { t } from '../../core/content/strings';
 import { QuietAction } from '../../core/design/Buttons';
 import { color, space, type } from '../../core/design/tokens';
 import { SqlDatabase } from '../../core/storage/ports';
 import { JournalEntry, recentEntries, searchEntries } from './journalRepo';
 
-export const SOUL_NOT_SCORE = 'written for the soul, not the score';
-
 export interface JournalScreenProps {
   db: SqlDatabase;
+  locale?: string;
   onClose: () => void;
 }
 
-export function JournalScreen({ db, onClose }: JournalScreenProps): React.JSX.Element {
+export function JournalScreen({ db, locale = 'en', onClose }: JournalScreenProps): React.JSX.Element {
   const [query, setQuery] = useState('');
   const [entries, setEntries] = useState<JournalEntry[]>([]);
 
@@ -34,9 +34,9 @@ export function JournalScreen({ db, onClose }: JournalScreenProps): React.JSX.El
         style={styles.search}
         value={query}
         onChangeText={setQuery}
-        placeholder="find your own words"
+        placeholder={t('journal.search', locale)}
         placeholderTextColor={color.stone}
-        accessibilityLabel="find your own words"
+        accessibilityLabel={t('journal.search', locale)}
       />
       <ScrollView bounces={false}>
         {entries.map((entry) => (
@@ -45,15 +45,15 @@ export function JournalScreen({ db, onClose }: JournalScreenProps): React.JSX.El
               {`${entry.createdAt.slice(0, 10)} · ${entry.type.replace('_', ' ')}`}
             </Text>
             <Text style={styles.text}>{entry.text}</Text>
-            {!entry.counted && <Text style={styles.soul}>{SOUL_NOT_SCORE}</Text>}
+            {!entry.counted && <Text style={styles.soul}>{t('journal.soulNotScore', locale)}</Text>}
           </View>
         ))}
         <Text style={styles.end}>
-          {entries.length === 0 ? 'nothing here yet — the evenings will fill it' : 'the beginning'}
+          {entries.length === 0 ? t('journal.empty', locale) : t('journal.beginning', locale)}
         </Text>
       </ScrollView>
       <View style={styles.close}>
-        <QuietAction label="back to the threshold" onPress={onClose} />
+        <QuietAction label={t('common.backToThreshold', locale)} onPress={onClose} />
       </View>
     </View>
   );

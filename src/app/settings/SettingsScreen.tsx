@@ -7,9 +7,11 @@ import React, { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { PrimaryAction, QuietAction } from '../../core/design/Buttons';
 import { color, space, type } from '../../core/design/tokens';
+import { t } from '../../core/content/strings';
 import { scoreDisclosure } from './scoreDisclosure';
 
 export interface SettingsScreenProps {
+  locale?: string;
   /** Performs the irrevocable erasure; the host then returns to first run. */
   onEraseAll: () => Promise<void>;
   onClose: () => void;
@@ -20,7 +22,7 @@ const ERASE_PLAIN_WORDS =
   'reflections, your scores — immediately and forever. Nothing is kept ' +
   'anywhere. There is no undo.';
 
-export function SettingsScreen({ onEraseAll, onClose }: SettingsScreenProps): React.JSX.Element {
+export function SettingsScreen({ locale = 'en', onEraseAll, onClose }: SettingsScreenProps): React.JSX.Element {
   const [showScore, setShowScore] = useState(false);
   const [confirmingErase, setConfirmingErase] = useState(false);
 
@@ -54,7 +56,7 @@ export function SettingsScreen({ onEraseAll, onClose }: SettingsScreenProps): Re
         )}
       </ScrollView>
       <View style={styles.close}>
-        <QuietAction label="back to the threshold" onPress={onClose} />
+        <QuietAction label={t('common.backToThreshold', locale)} onPress={onClose} />
       </View>
     </View>
   );
