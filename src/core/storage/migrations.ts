@@ -111,6 +111,37 @@ export const MIGRATIONS: Migration[] = [
       )`,
     ],
   },
+  {
+    version: 6,
+    statements: [
+      // ChannelScore — recomputed weekly, history kept (03 §ChannelScore).
+      // One row per channel per week_index; re-running a week replaces it
+      // (re-measure on demand, never more than 1×/week silently — 04 §4).
+      `CREATE TABLE channel_score (
+        id TEXT PRIMARY KEY,
+        computed_at TEXT NOT NULL,
+        week_index INTEGER NOT NULL,
+        channel_key TEXT NOT NULL REFERENCES channel(key),
+        time_score REAL NOT NULL,
+        pull_score REAL NOT NULL,
+        displacement_score REAL NOT NULL,
+        raw_capture REAL NOT NULL,
+        evidence_offset REAL NOT NULL CHECK (evidence_offset >= 0 AND evidence_offset <= 10),
+        effective_score REAL NOT NULL,
+        band TEXT NOT NULL CHECK (band IN ('free','leaking','caught')),
+        explanation_refs TEXT NOT NULL DEFAULT '[]',
+        UNIQUE (week_index, channel_key)
+      )`,
+      // ExtractionLevel — the headline, history kept (03 §ExtractionLevel).
+      `CREATE TABLE extraction_level (
+        id TEXT PRIMARY KEY,
+        computed_at TEXT NOT NULL,
+        week_index INTEGER NOT NULL UNIQUE,
+        level REAL NOT NULL,
+        band TEXT NOT NULL CHECK (band IN ('free','leaking','caught'))
+      )`,
+    ],
+  },
 ];
 
 /** The twelve channels — canonical list, order fixed (01-product-overview). */
