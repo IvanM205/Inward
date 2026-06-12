@@ -148,6 +148,29 @@ export const OPENING_FLOW: FlowGraph = {
   ],
 };
 
+/**
+ * CRAVE-01..03: ninety breathed seconds, the real hunger named, one
+ * real-world action, an optional line — under three minutes, every step
+ * skippable, and it never blocks the phone.
+ */
+export const CRAVING_FLOW: FlowGraph = {
+  name: 'CRAVE-01..03 craving button',
+  entry: 'breath',
+  screens: [
+    { id: 'breath', kind: 'screen' },
+    { id: 'hunger', kind: 'screen' },
+    { id: 'action', kind: 'screen' },
+    { id: 'note', kind: 'screen' },
+    { id: 'decoded', kind: 'terminal' },
+  ],
+  edges: [
+    { from: 'breath', to: 'hunger' },
+    { from: 'hunger', to: 'action' },
+    { from: 'action', to: 'note' },
+    { from: 'note', to: 'decoded' },
+  ],
+};
+
 /** JRN-03: one-line aliveness capture from the widget — in and back out. */
 export const WIDGET_CAPTURE_FLOW: FlowGraph = {
   name: 'JRN-03 widget capture',
@@ -176,6 +199,7 @@ export const primaryFlows: FlowGraph[] = [
   PORTRAIT_FLOW,
   VOW_FLOW,
   OPENING_FLOW,
+  CRAVING_FLOW,
   MORNING_FLOW,
   EVENING_FLOW,
   WIDGET_CAPTURE_FLOW,

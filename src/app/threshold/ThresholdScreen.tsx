@@ -21,6 +21,8 @@ export interface ThresholdScreenProps {
   onOpenOpening?: () => void;
   /** The Quiet switch — a door (01 §IA chrome), not one of the 3 elements. */
   onOpenQuiet: () => void;
+  /** The Craving Button — always reachable from the Threshold (CRAVE-01). */
+  onOpenCraving: () => void;
   /** The Mirror door — shown while the intake is open or unfinished (ONB-04). */
   onOpenMirror?: () => void;
   /** The Plan door — shown while the active thread's vow is unwritten (PLAN-02). */
@@ -36,6 +38,7 @@ export function ThresholdScreen({
   opening,
   onOpenOpening,
   onOpenQuiet,
+  onOpenCraving,
   onOpenMirror,
   onOpenVow,
   onOpenSettings,
@@ -59,6 +62,7 @@ export function ThresholdScreen({
         </View>
       )}
       <View style={styles.quietSwitch}>
+        <QuietAction label="i feel the pull" onPress={onOpenCraving} />
         {onOpenMirror && <QuietAction label="the mirror" onPress={onOpenMirror} />}
         {onOpenVow && <QuietAction label="the untangling" onPress={onOpenVow} />}
         <QuietAction label="unplug" onPress={onOpenQuiet} />

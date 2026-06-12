@@ -169,6 +169,23 @@ export const MIGRATIONS: Migration[] = [
       `ALTER TABLE thread ADD COLUMN opening_done_on TEXT`,
     ],
   },
+  {
+    version: 9,
+    statements: [
+      // CravingEvent (03 §CravingEvent, CRAVE-01..03). channel_key is null
+      // when no thread names the craving; the flow never demands one.
+      `CREATE TABLE craving_event (
+        id TEXT PRIMARY KEY,
+        created_at TEXT NOT NULL,
+        channel_key TEXT REFERENCES channel(key),
+        hunger TEXT NOT NULL
+          CHECK (hunger IN ('connection','rest','meaning','body','unsure')),
+        action_suggested TEXT NOT NULL,
+        action_taken INTEGER,
+        note TEXT
+      )`,
+    ],
+  },
 ];
 
 /** The twelve channels — canonical list, order fixed (01-product-overview). */

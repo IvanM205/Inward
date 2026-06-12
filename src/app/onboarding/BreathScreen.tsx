@@ -15,9 +15,14 @@ export const SKIP_AVAILABLE_AFTER_MS = 3000;
 export interface BreathScreenProps {
   /** The breath is complete (or skipped) — the flow may move on. */
   onDone: () => void;
+  /**
+   * Total breathing time; defaults to one cycle (ONB-01). The Craving Button
+   * passes 90 s — nine 4-6 cycles, animation only (CRAVE-02).
+   */
+  durationMs?: number;
 }
 
-export function BreathScreen({ onDone }: BreathScreenProps): React.JSX.Element {
+export function BreathScreen({ onDone, durationMs = BREATH_TOTAL_MS }: BreathScreenProps): React.JSX.Element {
   const scale = useRef(new Animated.Value(0.55)).current;
   const [skippable, setSkippable] = useState(false);
 
@@ -28,7 +33,7 @@ export function BreathScreen({ onDone }: BreathScreenProps): React.JSX.Element {
         scale.setValue(1); // stillness instead of motion (06 §Motion)
         return;
       }
-      animation = Animated.sequence([
+      const cycle = Animated.sequence([
         Animated.timing(scale, {
           toValue: 1,
           duration: motion.breathInMs,
@@ -42,19 +47,22 @@ export function BreathScreen({ onDone }: BreathScreenProps): React.JSX.Element {
           useNativeDriver: true,
         }),
       ]);
+      animation = Animated.loop(cycle, {
+        iterations: Math.max(1, Math.ceil(durationMs / BREATH_TOTAL_MS)),
+      });
       animation.start();
     });
     return () => animation?.stop();
-  }, [scale]);
+  }, [scale, durationMs]);
 
   useEffect(() => {
     const skipTimer = setTimeout(() => setSkippable(true), SKIP_AVAILABLE_AFTER_MS);
-    const doneTimer = setTimeout(onDone, BREATH_TOTAL_MS);
+    const doneTimer = setTimeout(onDone, durationMs);
     return () => {
       clearTimeout(skipTimer);
       clearTimeout(doneTimer);
     };
-  }, [onDone]);
+  }, [onDone, durationMs]);
 
   return (
     <View style={styles.screen}>

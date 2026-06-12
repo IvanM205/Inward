@@ -14,6 +14,7 @@ import { permissionRequests, storage } from './src/app/bootstrap';
 import { IntakeQuizFlow } from './src/app/mirror/IntakeQuizFlow';
 import { PortraitFlow } from './src/app/mirror/PortraitFlow';
 import { OnboardingFlow } from './src/app/onboarding/OnboardingFlow';
+import { CravingFlow } from './src/app/crave/CravingFlow';
 import { OpeningFlow } from './src/app/plan/OpeningFlow';
 import { activeThread, Thread } from './src/app/plan/threadRepo';
 import { VowWizardFlow } from './src/app/plan/VowWizardFlow';
@@ -39,7 +40,8 @@ type Route =
   | 'veil'
   | 'settings'
   | 'vow'
-  | 'opening';
+  | 'opening'
+  | 'crave';
 
 /** Where the Mirror door leads: the quiz until intake_done, then the Portrait. */
 function mirrorRouteFor(state: string | undefined): 'intake' | 'portrait' | null {
@@ -124,6 +126,8 @@ function App(): React.JSX.Element {
         <VowWizardFlow db={db} onExit={release} />
       ) : route === 'opening' && thread ? (
         <OpeningFlow db={db} thread={thread} onExit={release} />
+      ) : route === 'crave' ? (
+        <CravingFlow db={db} thread={thread} onExit={release} />
       ) : route === 'unplug' ? (
         <UnplugFlow db={db} onExit={release} />
       ) : route === 'veil' ? (
@@ -139,6 +143,7 @@ function App(): React.JSX.Element {
           }
           onOpenOpening={() => setRoute('opening')}
           onOpenQuiet={() => setRoute('unplug')}
+          onOpenCraving={() => setRoute('crave')}
           onOpenMirror={mirrorRoute ? () => setRoute(mirrorRoute) : undefined}
           onOpenVow={vowOpen ? () => setRoute('vow') : undefined}
           onOpenSettings={() => setRoute('settings')}
