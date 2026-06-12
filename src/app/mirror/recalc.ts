@@ -27,6 +27,7 @@ import { newId } from '../../core/storage/ids';
 import { SqlDatabase } from '../../core/storage/ports';
 import { toLocalIso } from '../../core/storage/time';
 import { countedEntriesSince } from '../journal/journalRepo';
+import { activeThread, advanceSeasonWeek } from '../plan/threadRepo';
 import { answeredFor, IntakeResponse } from './intakeRepo';
 
 export interface ChannelScoreRow {
@@ -134,6 +135,17 @@ export async function weeklyRecalc(db: SqlDatabase, now: Date): Promise<Extracti
         JSON.stringify(inputs.refs),
       ],
     );
+  }
+
+  // PLAN-04 season accounting rides the same weekly moment: a week is held
+  // when it produced counted evidence on the thread's channel.
+  const thread = await activeThread(db);
+  if (thread) {
+    // The week being settled: today plus the six trailing days — a 7-day
+    // cutoff would also catch the same weekday of the previous week.
+    const weekEvidence = await countedEntriesSince(db, now, 6);
+    const held = weekEvidence.some((e) => e.channelKeys.includes(thread.channelKey));
+    await advanceSeasonWeek(db, weekIndex, held);
   }
 
   const level = extractionLevel(effectives);

@@ -118,3 +118,59 @@ export async function markOpeningDone(db: SqlDatabase, date: string): Promise<vo
   const thread = await requireActive(db);
   await db.execute('UPDATE thread SET opening_done_on = ? WHERE id = ?', [date, thread.id]);
 }
+
+/** Graduation at this many held weeks (PLAN-04). */
+export const GRADUATION_WEEKS = 4;
+
+/**
+ * Season accounting (PLAN-04), called by the weekly recalc: a held week
+ * (lived evidence on the thread's channel) advances weeks_held; a week
+ * without evidence advances NOTHING — relapse resets nothing, the count
+ * simply waits (INV-7). Idempotent per week_index. At four held weeks the
+ * thread graduates, celebrated once by a terminal sentence.
+ */
+export async function advanceSeasonWeek(
+  db: SqlDatabase,
+  weekIndex: number,
+  held: boolean,
+): Promise<void> {
+  const thread = await activeThread(db);
+  if (!thread) return;
+  const row = await db.execute('SELECT last_week_advanced FROM thread WHERE id = ?', [thread.id]);
+  const last = row.rows[0]?.last_week_advanced;
+  if (last !== null && last !== undefined && Number(last) >= weekIndex) return; // this week is settled
+  if (!held) {
+    await db.execute('UPDATE thread SET last_week_advanced = ? WHERE id = ?', [
+      weekIndex,
+      thread.id,
+    ]);
+    return;
+  }
+  const weeksHeld = thread.weeksHeld + 1;
+  if (weeksHeld >= GRADUATION_WEEKS) {
+    await db.execute(
+      `UPDATE thread SET weeks_held = ?, last_week_advanced = ?, status = 'graduated',
+        celebrate_pending = 1 WHERE id = ?`,
+      [weeksHeld, weekIndex, thread.id],
+    );
+    return;
+  }
+  await db.execute('UPDATE thread SET weeks_held = ?, last_week_advanced = ? WHERE id = ?', [
+    weeksHeld,
+    weekIndex,
+    thread.id,
+  ]);
+}
+
+/** The graduated thread awaiting its one quiet sentence, if any (PLAN-04). */
+export async function pendingGraduation(db: SqlDatabase): Promise<Thread | null> {
+  const result = await db.execute(
+    "SELECT * FROM thread WHERE status = 'graduated' AND celebrate_pending = 1 LIMIT 1",
+  );
+  const row = result.rows[0];
+  return row ? rowToThread(row) : null;
+}
+
+export async function markGraduationCelebrated(db: SqlDatabase, threadId: string): Promise<void> {
+  await db.execute('UPDATE thread SET celebrate_pending = 0 WHERE id = ?', [threadId]);
+}

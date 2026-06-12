@@ -16,7 +16,13 @@ import { PortraitFlow } from './src/app/mirror/PortraitFlow';
 import { OnboardingFlow } from './src/app/onboarding/OnboardingFlow';
 import { CravingFlow } from './src/app/crave/CravingFlow';
 import { OpeningFlow } from './src/app/plan/OpeningFlow';
-import { activeThread, Thread } from './src/app/plan/threadRepo';
+import {
+  activeThread,
+  markGraduationCelebrated,
+  pendingGraduation,
+  Thread,
+} from './src/app/plan/threadRepo';
+import { TerminalScreen } from './src/core/design/TerminalScreen';
 import { VowWizardFlow } from './src/app/plan/VowWizardFlow';
 import { SettingsScreen } from './src/app/settings/SettingsScreen';
 import { isUnplugged } from './src/app/quiet/quietRepo';
@@ -41,7 +47,8 @@ type Route =
   | 'settings'
   | 'vow'
   | 'opening'
-  | 'crave';
+  | 'crave'
+  | 'graduated';
 
 /** Where the Mirror door leads: the quiz until intake_done, then the Portrait. */
 function mirrorRouteFor(state: string | undefined): 'intake' | 'portrait' | null {
@@ -59,6 +66,7 @@ function App(): React.JSX.Element {
   const [mirrorRoute, setMirrorRoute] = useState<'intake' | 'portrait' | null>(null);
   const [vowOpen, setVowOpen] = useState(false);
   const [thread, setThread] = useState<Thread | null>(null);
+  const [graduated, setGraduated] = useState<Thread | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -90,6 +98,12 @@ function App(): React.JSX.Element {
       const current = await activeThread(db);
       setThread(current);
       setVowOpen(current !== null && current.replacementHabit === null);
+      const grad = await pendingGraduation(db);
+      setGraduated(grad);
+      if (grad) {
+        setRoute('graduated'); // one quiet sentence, once (PLAN-04)
+        return;
+      }
     }
     if (Platform.OS === 'android') BackHandler.exitApp();
     setRoute(db && (await isUnplugged(db, new Date())) ? 'veil' : 'threshold');
@@ -128,6 +142,15 @@ function App(): React.JSX.Element {
         <OpeningFlow db={db} thread={thread} onExit={release} />
       ) : route === 'crave' ? (
         <CravingFlow db={db} thread={thread} onExit={release} />
+      ) : route === 'graduated' && graduated ? (
+        <TerminalScreen
+          line="Four weeks held. The thread is loosened — wear the season lightly."
+          onExit={async () => {
+            await markGraduationCelebrated(db, graduated.id);
+            setGraduated(null);
+            setRoute('threshold');
+          }}
+        />
       ) : route === 'unplug' ? (
         <UnplugFlow db={db} onExit={release} />
       ) : route === 'veil' ? (

@@ -207,6 +207,15 @@ export const MIGRATIONS: Migration[] = [
       )`,
     ],
   },
+  {
+    version: 11,
+    statements: [
+      // PLAN-04 season accounting: weeks advance at most once per week_index
+      // (idempotent weekly recalc), and graduation is celebrated exactly once.
+      `ALTER TABLE thread ADD COLUMN last_week_advanced INTEGER`,
+      `ALTER TABLE thread ADD COLUMN celebrate_pending INTEGER NOT NULL DEFAULT 0`,
+    ],
+  },
 ];
 
 /** The twelve channels — canonical list, order fixed (01-product-overview). */
