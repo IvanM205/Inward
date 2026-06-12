@@ -148,3 +148,10 @@ export async function seenQuestionIds(db: SqlDatabase): Promise<Set<string>> {
   const result = await db.execute('SELECT question_id FROM intake_response');
   return new Set(result.rows.map((r) => String(r.question_id)));
 }
+
+/** Responses by id — resolving a score's explanation_refs (MIR-03). */
+export async function responsesByIds(db: SqlDatabase, ids: string[]): Promise<IntakeResponse[]> {
+  const all = await allResponses(db);
+  const wanted = new Set(ids);
+  return all.filter((r) => wanted.has(r.id));
+}

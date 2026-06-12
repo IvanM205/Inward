@@ -88,6 +88,20 @@ export const INTAKE_FLOW: FlowGraph = {
   ],
 };
 
+/**
+ * MIR-01..03 portrait: one bounded page; band explanations expand in place
+ * (state, not navigation — no loops, only exits). Seeing it is the end.
+ */
+export const PORTRAIT_FLOW: FlowGraph = {
+  name: 'MIR-01..03 portrait',
+  entry: 'portrait',
+  screens: [
+    { id: 'portrait', kind: 'screen' },
+    { id: 'seen', kind: 'terminal' },
+  ],
+  edges: [{ from: 'portrait', to: 'seen' }],
+};
+
 /** JRN-03: one-line aliveness capture from the widget — in and back out. */
 export const WIDGET_CAPTURE_FLOW: FlowGraph = {
   name: 'JRN-03 widget capture',
@@ -113,6 +127,7 @@ export const UNPLUG_FLOW: FlowGraph = {
 export const primaryFlows: FlowGraph[] = [
   ONBOARDING_FLOW,
   INTAKE_FLOW,
+  PORTRAIT_FLOW,
   MORNING_FLOW,
   EVENING_FLOW,
   WIDGET_CAPTURE_FLOW,
