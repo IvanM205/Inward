@@ -20,10 +20,12 @@ import { color, space, type } from '../../core/design/tokens';
 import { FlowHost } from '../../core/navigation/FlowHost';
 import { Casualty } from '../../core/scoring/config';
 import { CHANNELS } from '../../core/storage/migrations';
+import { severityGate } from '../../core/safety/classifier';
 import { SqlDatabase } from '../../core/storage/ports';
 import { getProfile, setOnboardingState } from '../../core/storage/repos/profileRepo';
 import { PORTRAIT_FLOW } from '../../flows/registry';
-import { IntakeAnswer, IntakeResponse, responsesByIds } from './intakeRepo';
+import { HelpFirstScreen } from '../safety/HelpFirstScreen';
+import { allResponses, IntakeAnswer, IntakeResponse, responsesByIds } from './intakeRepo';
 import { ChannelScoreRow, latestScores, weeklyRecalc } from './recalc';
 
 export interface PortraitFlowProps {
@@ -58,9 +60,15 @@ export function PortraitFlow({ db, onExit }: PortraitFlowProps): React.JSX.Eleme
   const [scores, setScores] = useState<ChannelScoreRow[] | null>(null);
   const [expandedChannel, setExpandedChannel] = useState<string | null>(null);
   const [explanation, setExplanation] = useState<IntakeResponse[]>([]);
+  // SAFE-03: severity patterns hand the person on BEFORE the Mirror speaks.
+  const [helpFirst, setHelpFirst] = useState(false);
+  const [locale, setLocale] = useState('en');
 
   useEffect(() => {
     (async () => {
+      const responses = await allResponses(db);
+      setHelpFirst(severityGate(responses).triggered);
+      setLocale((await getProfile(db))?.locale ?? 'en');
       let latest = await latestScores(db);
       if (latest.length === 0) {
         await weeklyRecalc(db, new Date());
@@ -90,6 +98,9 @@ export function PortraitFlow({ db, onExit }: PortraitFlowProps): React.JSX.Eleme
         portrait: (api) =>
           scores === null ? (
             <View style={styles.screen} />
+          ) : helpFirst ? (
+            // Pause, help first, continue when ready — never withheld (SAFE-02/04).
+            <HelpFirstScreen locale={locale} onContinue={() => setHelpFirst(false)} />
           ) : (
             <View style={styles.screen}>
               {/* Bounded by construction: 12 rows, no feed (MIR-02, INV-1). */}

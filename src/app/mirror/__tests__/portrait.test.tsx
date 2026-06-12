@@ -128,6 +128,45 @@ describe('PortraitFlow (MIR-01..03)', () => {
   });
 });
 
+describe('help-first gating (SAFE-03/04)', () => {
+  async function answerSubstancesSevere(db: Awaited<ReturnType<typeof openDb>>) {
+    const now = new Date(2026, 5, 12, 9, 30);
+    for (let i = 1; i <= 5; i++) {
+      await saveAnswer(db, questionById(`q.substances.pull.${i}`)!, { kind: 'likert', value: 4 }, now);
+    }
+  }
+
+  it('severity patterns put the help screen before the Portrait', async () => {
+    const db = await openDb();
+    await answerSubstancesSevere(db);
+    const tree = await mount(db);
+    const json = JSON.stringify(tree.toJSON());
+    expect(json).toContain('a real person, not a screen');
+    expect(json).toContain('112'); // region resources (SAFE-02)
+    expect(json).not.toContain('One thread holds'); // the Mirror waits its turn
+    await ReactTestRenderer.act(async () => tree.unmount());
+  });
+
+  it('the person continues when ready — never blocked (SAFE-02)', async () => {
+    const db = await openDb();
+    await answerSubstancesSevere(db);
+    const tree = await mount(db);
+    await press(tree, 'i have what i need — go on');
+    const json = JSON.stringify(tree.toJSON());
+    expect(json).not.toContain('a real person, not a screen'); // help stepped aside
+    expect(json).toContain('i have seen it'); // the Portrait is now in front
+    await ReactTestRenderer.act(async () => tree.unmount());
+  });
+
+  it('an unremarkable intake sees no help screen', async () => {
+    const db = await openDb();
+    await answerFeedsHot(db); // feeds are loud, but not a severity channel
+    const tree = await mount(db);
+    expect(JSON.stringify(tree.toJSON())).not.toContain('a real person, not a screen');
+    await ReactTestRenderer.act(async () => tree.unmount());
+  });
+});
+
 describe('describeAnswer (MIR-03)', () => {
   it('renders each answer kind in the person’s own terms', () => {
     const base = {
