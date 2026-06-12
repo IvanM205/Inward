@@ -11,6 +11,7 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { PrimaryAction, QuietAction } from '../../core/design/Buttons';
 import { color, space, type } from '../../core/design/tokens';
+import { t } from '../../core/content/strings';
 
 /** Native permission requests — implemented over OS APIs by the host (M1). */
 export interface PermissionRequests {
@@ -20,6 +21,7 @@ export interface PermissionRequests {
 
 export interface PermissionsScreenProps {
   permissions: PermissionRequests;
+  locale?: string;
   onDone: () => void;
 }
 
@@ -42,7 +44,7 @@ const ASKS = [
   },
 ];
 
-export function PermissionsScreen({ permissions, onDone }: PermissionsScreenProps): React.JSX.Element {
+export function PermissionsScreen({ permissions, locale = 'en', onDone }: PermissionsScreenProps): React.JSX.Element {
   const [step, setStep] = useState(0);
   const ask = ASKS[step];
 
@@ -64,8 +66,8 @@ export function PermissionsScreen({ permissions, onDone }: PermissionsScreenProp
       </Text>
       <Text style={styles.body}>{ask.body}</Text>
       <View style={styles.actions}>
-        <PrimaryAction label="yes" onPress={accept} />
-        <QuietAction label="not now" onPress={next} />
+        <PrimaryAction label={t('perm.yes', locale)} onPress={accept} />
+        <QuietAction label={t('perm.notNow', locale)} onPress={next} />
       </View>
     </View>
   );

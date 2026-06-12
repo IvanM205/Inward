@@ -13,6 +13,7 @@ import { color, space } from '../../core/design/tokens';
 import { FlowHost } from '../../core/navigation/FlowHost';
 import { SqlDatabase } from '../../core/storage/ports';
 import { WIDGET_CAPTURE_FLOW } from '../../flows/registry';
+import { t } from '../../core/content/strings';
 import { suggestedChannels } from './channelSuggestion';
 import { addEntry } from './journalRepo';
 
@@ -20,10 +21,11 @@ export const CAPTURE_PROMPT = 'What is alive right now?';
 
 export interface WidgetCaptureFlowProps {
   db: SqlDatabase;
+  locale?: string;
   onExit: () => void;
 }
 
-export function WidgetCaptureFlow({ db, onExit }: WidgetCaptureFlowProps): React.JSX.Element {
+export function WidgetCaptureFlow({ db, locale = 'en', onExit }: WidgetCaptureFlowProps): React.JSX.Element {
   const [text, setText] = useState('');
   return (
     <FlowHost
@@ -32,10 +34,10 @@ export function WidgetCaptureFlow({ db, onExit }: WidgetCaptureFlowProps): React
       renderers={{
         capture: (api) => (
           <View style={styles.screen}>
-            <JournalPrompt prompt={CAPTURE_PROMPT} value={text} onChange={setText} />
+            <JournalPrompt prompt={t('widget.prompt', locale)} value={text} onChange={setText} />
             <View style={styles.action}>
               <PrimaryAction
-                label="keep it"
+                label={t('widget.keepIt', locale)}
                 onPress={async () => {
                   const line = text.trim();
                   if (line.length > 0) {
@@ -56,7 +58,7 @@ export function WidgetCaptureFlow({ db, onExit }: WidgetCaptureFlowProps): React
             </View>
           </View>
         ),
-        kept: (api) => <TerminalScreen line="Kept. Now stay with it." onExit={api.exit} />,
+        kept: (api) => <TerminalScreen line={t('widget.terminal', locale)} onExit={api.exit} />,
       }}
     />
   );

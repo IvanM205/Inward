@@ -15,6 +15,7 @@ import { SqlDatabase } from '../../core/storage/ports';
 import { setChosenValues } from '../../core/storage/repos/profileRepo';
 import { FUNNEL_QUIZ_FLOW, VALUES_QUIZ_FLOW } from '../../flows/registry';
 import { FUNNEL_QUESTIONS, funnelResultCopy, funnelVerdict } from './funnel';
+import { t } from '../../core/content/strings';
 
 /** The canonical values list (03 §Profile). */
 export const CANONICAL_VALUES = [
@@ -64,10 +65,11 @@ function PickList({
 
 export interface ValuesQuizFlowProps {
   db: SqlDatabase;
+  locale?: string;
   onExit: () => void;
 }
 
-export function ValuesQuizFlow({ db, onExit }: ValuesQuizFlowProps): React.JSX.Element {
+export function ValuesQuizFlow({ db, locale = 'en', onExit }: ValuesQuizFlowProps): React.JSX.Element {
   const [stated, setStated] = useState<string[]>([]);
   const [lived, setLived] = useState<string[]>([]);
   const toggle = (list: string[], set: (v: string[]) => void) => (value: string) =>
@@ -82,11 +84,11 @@ export function ValuesQuizFlow({ db, onExit }: ValuesQuizFlowProps): React.JSX.E
       renderers={{
         stated: (api) => (
           <View style={styles.screen}>
-            <Text style={styles.question}>What do you say matters most? Pick a few.</Text>
+            <Text style={styles.question}>{t('quiz.statedQuestion', locale)}</Text>
             <PickList options={CANONICAL_VALUES} picked={stated} onToggle={toggle(stated, setStated)} />
             <View style={styles.action}>
               <PrimaryAction
-                label="that is what i say"
+                label={t('quiz.statedDone', locale)}
                 disabled={stated.length === 0}
                 onPress={async () => {
                   await setChosenValues(db, stated); // 03 §Profile.chosen_values
@@ -99,11 +101,11 @@ export function ValuesQuizFlow({ db, onExit }: ValuesQuizFlowProps): React.JSX.E
         lived: (api) => (
           <View style={styles.screen}>
             <Text style={styles.question}>
-              And which of them received an unhurried hour this week?
+              {t('quiz.livedQuestion', locale)}
             </Text>
             <PickList options={stated} picked={lived} onToggle={toggle(lived, setLived)} />
             <View style={styles.action}>
-              <PrimaryAction label="honestly, that" onPress={() => api.advance()} />
+              <PrimaryAction label={t('quiz.livedDone', locale)} onPress={() => api.advance()} />
             </View>
           </View>
         ),
@@ -116,7 +118,7 @@ export function ValuesQuizFlow({ db, onExit }: ValuesQuizFlowProps): React.JSX.E
                 : `Some of what you love waited this week: ${unlived.join(', ')}. Not a failing — a direction.`}
             </Text>
             <View style={styles.action}>
-              <PrimaryAction label="i see it" onPress={() => api.advance()} />
+              <PrimaryAction label={t('common.iSeeIt', locale)} onPress={() => api.advance()} />
             </View>
           </View>
         ),

@@ -17,9 +17,11 @@ import { REALIGN_FLOW } from '../../flows/registry';
 import { weeklyRecalc } from '../mirror/recalc';
 import { buildCheckin, buildCheckinDue, buildThing } from '../plan/buildRepo';
 import { saveRealignment } from './realignRepo';
+import { t } from '../../core/content/strings';
 
 export interface RealignFlowProps {
   db: SqlDatabase;
+  locale?: string;
   onExit: () => void;
 }
 
@@ -50,7 +52,7 @@ function NumberLine({
 
 const num = (s: string) => (Number.isFinite(Number(s)) && s.trim() !== '' ? Number(s) : 0);
 
-export function RealignFlow({ db, onExit }: RealignFlowProps): React.JSX.Element {
+export function RealignFlow({ db, locale = 'en', onExit }: RealignFlowProps): React.JSX.Element {
   const [screenHours, setScreenHours] = useState('');
   const [spending, setSpending] = useState('');
   const [lovedHours, setLovedHours] = useState('');
@@ -75,23 +77,23 @@ export function RealignFlow({ db, onExit }: RealignFlowProps): React.JSX.Element
         ledger: (api) => (
           <View style={styles.screen}>
             <Text style={styles.question}>
-              The ledger: what did you treat as ultimate, in practice?
+              {t('realign.ledgerQuestion', locale)}
             </Text>
-            <NumberLine label="hours to screens, your honest guess" value={screenHours} onChange={setScreenHours} />
-            <NumberLine label="money to wanting, not needing" value={spending} onChange={setSpending} />
+            <NumberLine label={t('realign.screens', locale)} value={screenHours} onChange={setScreenHours} />
+            <NumberLine label={t('realign.wanting', locale)} value={spending} onChange={setSpending} />
             <View style={styles.action}>
-              <PrimaryAction label="go on" onPress={() => api.advance()} />
+              <PrimaryAction label={t('common.goOn', locale)} onPress={() => api.advance()} />
             </View>
           </View>
         ),
         values: (api) => (
           <View style={styles.screen}>
             <Text style={styles.question}>
-              And the hours that reached what you say you love?
+              {t('realign.lovedQuestion', locale)}
             </Text>
-            <NumberLine label="hours to what you love" value={lovedHours} onChange={setLovedHours} />
+            <NumberLine label={t('realign.loved', locale)} value={lovedHours} onChange={setLovedHours} />
             <View style={styles.action}>
-              <PrimaryAction label="go on" onPress={() => api.advance()} />
+              <PrimaryAction label={t('common.goOn', locale)} onPress={() => api.advance()} />
             </View>
           </View>
         ),
@@ -105,21 +107,21 @@ export function RealignFlow({ db, onExit }: RealignFlowProps): React.JSX.Element
               {num(lovedHours)} hours reached what you love.
             </Text>
             <View style={styles.action}>
-              <PrimaryAction label="i see it" onPress={() => api.advance()} />
+              <PrimaryAction label={t('common.iSeeIt', locale)} onPress={() => api.advance()} />
             </View>
           </View>
         ),
         commitment: (api) => (
           <View style={styles.screen}>
             <QuestionCard
-              question="One commitment for the week ahead — yours, in your words."
+              question={t('realign.commitQuestion', locale)}
               value={commitment}
               onChange={setCommitment}
               placeholder="this week I will…"
             />
             <View style={styles.action}>
               <PrimaryAction
-                label="commit"
+                label={t('realign.commit', locale)}
                 disabled={commitment.trim().length === 0}
                 onPress={async () => {
                   const now = new Date();
@@ -146,7 +148,7 @@ export function RealignFlow({ db, onExit }: RealignFlowProps): React.JSX.Element
             />
             <View style={styles.action}>
               <PrimaryAction
-                label="go on"
+                label={t('common.goOn', locale)}
                 onPress={async () => {
                   await buildCheckin(db, handsLine, new Date()); // empty = settled, unjudged
                   api.advance();
@@ -156,7 +158,7 @@ export function RealignFlow({ db, onExit }: RealignFlowProps): React.JSX.Element
           </View>
         ),
         realigned: (api) => (
-          <TerminalScreen line="The week is read. Now go write the next one." onExit={api.exit} />
+          <TerminalScreen line={t('realign.terminal', locale)} onExit={api.exit} />
         ),
       }}
     />

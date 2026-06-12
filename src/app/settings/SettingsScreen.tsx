@@ -30,7 +30,7 @@ export function SettingsScreen({ locale = 'en', onEraseAll, onClose }: SettingsS
     <View style={styles.screen}>
       <ScrollView bounces={false}>
         <QuietAction
-          label={showScore ? 'how the score works — close' : 'how the score works'}
+          label={showScore ? t('settings.howScoreClose', locale) : t('settings.howScore', locale)}
           onPress={() => setShowScore(!showScore)}
         />
         {showScore &&
@@ -42,15 +42,15 @@ export function SettingsScreen({ locale = 'en', onEraseAll, onClose }: SettingsS
           ))}
 
         <QuietAction
-          label="erase everything"
+          label={t('settings.erase', locale)}
           onPress={() => setConfirmingErase(!confirmingErase)}
         />
         {confirmingErase && (
           <View style={styles.section}>
             <Text style={styles.sectionBody}>{ERASE_PLAIN_WORDS}</Text>
             <View style={styles.eraseAction}>
-              <PrimaryAction label="erase it all now" onPress={() => onEraseAll()} />
-              <QuietAction label="keep my things" onPress={() => setConfirmingErase(false)} />
+              <PrimaryAction label={t('settings.eraseNow', locale)} onPress={() => onEraseAll()} />
+              <QuietAction label={t('settings.keepThings', locale)} onPress={() => setConfirmingErase(false)} />
             </View>
           </View>
         )}

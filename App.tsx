@@ -253,7 +253,7 @@ function App(): React.JSX.Element {
       ) : route === 'reading' ? (
         <ReadingFlow db={db} reading={todaysReading(new Date())} locale={locale} onExit={() => releaseAfter('reading')} />
       ) : route === 'realign' ? (
-        <RealignFlow db={db} onExit={release} />
+        <RealignFlow db={db} locale={locale} onExit={release} />
       ) : route === 'detox-start' ? (
         <DetoxStartFlow db={db} locale={locale} onExit={release} />
       ) : route === 'detox-checkin' ? (
@@ -278,7 +278,7 @@ function App(): React.JSX.Element {
       ) : route === 'path-start' ? (
         <PathStartFlow db={db} onExit={release} />
       ) : route === 'path-day' ? (
-        <PathDayFlow db={db} onExit={release} />
+        <PathDayFlow db={db} locale={locale} onExit={release} />
       ) : route === 'quizzes' ? (
         // Chooser chrome, like the Threshold's doors — not a flow of its own.
         <View style={styles.chooser}>
@@ -287,7 +287,7 @@ function App(): React.JSX.Element {
           <QuietAction label={t('common.backToThreshold', locale)} onPress={release} />
         </View>
       ) : route === 'values-quiz' ? (
-        <ValuesQuizFlow db={db} onExit={release} />
+        <ValuesQuizFlow db={db} locale={locale} onExit={release} />
       ) : route === 'funnel-quiz' ? (
         <FunnelQuizFlow onExit={release} />
       ) : route === 'ask' ? (

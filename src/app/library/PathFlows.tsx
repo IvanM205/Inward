@@ -16,6 +16,7 @@ import { FlowHost } from '../../core/navigation/FlowHost';
 import { SqlDatabase } from '../../core/storage/ports';
 import { PATH_DAY_FLOW, PATH_START_FLOW } from '../../flows/registry';
 import { activePath, completePathDay, PathState, startPath } from './pathRepo';
+import { t } from '../../core/content/strings';
 
 export interface PathStartFlowProps {
   db: SqlDatabase;
@@ -57,10 +58,11 @@ export function PathStartFlow({ db, onExit }: PathStartFlowProps): React.JSX.Ele
 
 export interface PathDayFlowProps {
   db: SqlDatabase;
+  locale?: string;
   onExit: () => void;
 }
 
-export function PathDayFlow({ db, onExit }: PathDayFlowProps): React.JSX.Element {
+export function PathDayFlow({ db, locale = 'en', onExit }: PathDayFlowProps): React.JSX.Element {
   const [state, setState] = useState<PathState | null | undefined>(undefined);
   const [answer, setAnswer] = useState('');
   const [actDone, setActDone] = useState(false);
@@ -104,7 +106,7 @@ export function PathDayFlow({ db, onExit }: PathDayFlowProps): React.JSX.Element
                 </Text>
               ))}
               <View style={styles.action}>
-                <PrimaryAction label="i have read it" onPress={() => api.advance()} />
+                <PrimaryAction label={t('reading.read', locale)} onPress={() => api.advance()} />
               </View>
             </ScrollView>
           </View>
@@ -119,17 +121,17 @@ export function PathDayFlow({ db, onExit }: PathDayFlowProps): React.JSX.Element
               placeholder="for you, not for the app"
             />
             <View style={styles.action}>
-              <PrimaryAction label="go on" onPress={() => api.advance()} />
+              <PrimaryAction label={t('common.goOn', locale)} onPress={() => api.advance()} />
             </View>
           </View>
         ),
         act: (api) => (
           <View style={styles.screen}>
-            <Text style={styles.dayLabel}>the day’s act</Text>
+            <Text style={styles.dayLabel}>{t('path.dayAct', locale)}</Text>
             <Text style={styles.title}>{day.act}</Text>
             <View style={styles.action}>
-              <PrimaryAction label="done — it happened" onPress={() => finishDay(api, true)} />
-              <QuietAction label="i will carry it into the day" onPress={() => finishDay(api, false)} />
+              <PrimaryAction label={t('path.dayDone', locale)} onPress={() => finishDay(api, true)} />
+              <QuietAction label={t('path.carryIt', locale)} onPress={() => finishDay(api, false)} />
             </View>
           </View>
         ),
@@ -142,7 +144,7 @@ export function PathDayFlow({ db, onExit }: PathDayFlowProps): React.JSX.Element
             />
             <View style={styles.action}>
               <PrimaryAction
-                label="finish the path"
+                label={t('path.finish', locale)}
                 onPress={async () => {
                   await completePathDay(db, actDone, closingLine, new Date());
                   api.advance();
@@ -152,10 +154,10 @@ export function PathDayFlow({ db, onExit }: PathDayFlowProps): React.JSX.Element
           </View>
         ),
         kept: (api) => (
-          <TerminalScreen line="The day is walked. The next opens tomorrow." onExit={api.exit} />
+          <TerminalScreen line={t('path.keptTerminal', locale)} onExit={api.exit} />
         ),
         walked: (api) => (
-          <TerminalScreen line="The path is walked. Keep walking without it." onExit={api.exit} />
+          <TerminalScreen line={t('path.walkedTerminal', locale)} onExit={api.exit} />
         ),
       }}
     />
