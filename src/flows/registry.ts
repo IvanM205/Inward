@@ -248,6 +248,21 @@ export const DETOX_CHECKIN_FLOW: FlowGraph = {
   ],
 };
 
+/** QUIET-03: the stillness window — designed once: day, hour, length. */
+export const STILLNESS_FLOW: FlowGraph = {
+  name: 'QUIET-03 stillness switch',
+  entry: 'weekday',
+  screens: [
+    { id: 'weekday', kind: 'screen' },
+    { id: 'window', kind: 'screen' },
+    { id: 'kept', kind: 'terminal' },
+  ],
+  edges: [
+    { from: 'weekday', to: 'window' },
+    { from: 'window', to: 'kept' },
+  ],
+};
+
 /** QUIET-01: one tap chooses 1–4 h; the veil is the end state. */
 export const UNPLUG_FLOW: FlowGraph = {
   name: 'QUIET-01 unplug',
@@ -274,4 +289,5 @@ export const primaryFlows: FlowGraph[] = [
   UNPLUG_FLOW,
   DETOX_START_FLOW,
   DETOX_CHECKIN_FLOW,
+  STILLNESS_FLOW,
 ];

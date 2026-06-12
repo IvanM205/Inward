@@ -30,7 +30,8 @@ import { TerminalScreen } from './src/core/design/TerminalScreen';
 import { VowWizardFlow } from './src/app/plan/VowWizardFlow';
 import { SettingsScreen } from './src/app/settings/SettingsScreen';
 import { DetoxCheckinFlow, DetoxStartFlow } from './src/app/quiet/DetoxFlows';
-import { ActiveDetox, activeDetox, isUnplugged } from './src/app/quiet/quietRepo';
+import { ActiveDetox, activeDetox, isStillnessNow, isUnplugged } from './src/app/quiet/quietRepo';
+import { StillnessFlow } from './src/app/quiet/StillnessFlow';
 import { UnplugFlow, VEIL_LINE } from './src/app/quiet/UnplugFlow';
 import { EveningFlow } from './src/app/threshold/EveningFlow';
 import { MorningFlow } from './src/app/threshold/MorningFlow';
@@ -57,7 +58,10 @@ type Route =
   | 'reading'
   | 'realign'
   | 'detox-start'
-  | 'detox-checkin';
+  | 'detox-checkin'
+  | 'stillness';
+
+const STILLNESS_LINE = 'Stillness, kept. The world can hold itself for an hour.';
 
 /** Where the Mirror door leads: the quiz until intake_done, then the Portrait. */
 function mirrorRouteFor(state: string | undefined): 'intake' | 'portrait' | null {
@@ -78,6 +82,7 @@ function App(): React.JSX.Element {
   const [graduated, setGraduated] = useState<Thread | null>(null);
   const [realignDue, setRealignDue] = useState(false);
   const [detox, setDetox] = useState<ActiveDetox | null>(null);
+  const [veilLine, setVeilLine] = useState(VEIL_LINE);
 
   useEffect(() => {
     (async () => {
@@ -91,8 +96,9 @@ function App(): React.JSX.Element {
       setVowOpen(current !== null && current.replacementHabit === null);
       setRealignDue(existing !== null && (await realignmentDue(opened, new Date())));
       setDetox(await activeDetox(opened, new Date()));
-      if (await isUnplugged(opened, new Date())) {
-        setRoute('veil'); // a running unplug window is defended (QUIET-01)
+      if ((await isUnplugged(opened, new Date())) || (await isStillnessNow(opened, new Date()))) {
+        setVeilLine((await isUnplugged(opened, new Date())) ? VEIL_LINE : STILLNESS_LINE);
+        setRoute('veil'); // a running quiet window is defended (QUIET-01/03)
         return;
       }
       const onboarded =
@@ -121,7 +127,10 @@ function App(): React.JSX.Element {
       }
     }
     if (Platform.OS === 'android') BackHandler.exitApp();
-    setRoute(db && (await isUnplugged(db, new Date())) ? 'veil' : 'threshold');
+    const unplugged = db !== null && (await isUnplugged(db, new Date()));
+    const still = db !== null && (await isStillnessNow(db, new Date()));
+    if (unplugged || still) setVeilLine(unplugged ? VEIL_LINE : STILLNESS_LINE);
+    setRoute(unplugged || still ? 'veil' : 'threshold');
   }, [db]);
 
   return (
@@ -175,9 +184,11 @@ function App(): React.JSX.Element {
           }}
         />
       ) : route === 'unplug' ? (
-        <UnplugFlow db={db} onExit={release} />
+        <UnplugFlow db={db} onExit={release} onDesignStillness={() => setRoute('stillness')} />
+      ) : route === 'stillness' ? (
+        <StillnessFlow db={db} onExit={release} />
       ) : route === 'veil' ? (
-        <QuietVeil line={VEIL_LINE} onLeave={release} />
+        <QuietVeil line={veilLine} onLeave={release} />
       ) : (
         <ThresholdScreen
           dueCompass={due}

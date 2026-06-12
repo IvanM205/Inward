@@ -137,6 +137,57 @@ export async function detoxCheckin(db: SqlDatabase, line: string, now: Date): Pr
 }
 
 /**
+ * QUIET-03 — the Stillness Switch: one weekly protected window, designed
+ * once. Stored as a tiny weekly recurrence (weekday + start hour + length);
+ * whether stillness holds right now is computed, never scheduled — nothing
+ * to notify, nothing to miss. While it holds, the app is dark except one
+ * line, and the monthly ask is suppressed (wired when OPEN lands, M4).
+ */
+export interface StillnessConfig {
+  /** 0 = Sunday … 6 = Saturday (JS Date.getDay()). */
+  weekday: number;
+  /** Local start hour, 0–23. */
+  startHour: number;
+  /** Window length in whole hours; same-day windows only. */
+  hours: number;
+}
+
+export async function setStillness(db: SqlDatabase, config: StillnessConfig): Promise<void> {
+  if (
+    !Number.isInteger(config.weekday) || config.weekday < 0 || config.weekday > 6 ||
+    !Number.isInteger(config.startHour) || config.startHour < 0 || config.startHour > 23 ||
+    !Number.isInteger(config.hours) || config.hours < 1 || config.startHour + config.hours > 24
+  ) {
+    throw new Error('Stillness window must fit within one day.');
+  }
+  await db.execute('UPDATE quiet_state SET stillness = ? WHERE id = 1', [
+    JSON.stringify(config),
+  ]);
+}
+
+export async function getStillness(db: SqlDatabase): Promise<StillnessConfig | null> {
+  const result = await db.execute('SELECT stillness FROM quiet_state WHERE id = 1');
+  const raw = result.rows[0]?.stillness;
+  return raw ? (JSON.parse(String(raw)) as StillnessConfig) : null;
+}
+
+export async function clearStillness(db: SqlDatabase): Promise<void> {
+  await db.execute('UPDATE quiet_state SET stillness = NULL WHERE id = 1');
+}
+
+/** Does the designed window hold right now? Pure recurrence math. */
+export function stillnessHolds(config: StillnessConfig | null, now: Date): boolean {
+  if (!config) return false;
+  if (now.getDay() !== config.weekday) return false;
+  const hour = now.getHours() + now.getMinutes() / 60;
+  return hour >= config.startHour && hour < config.startHour + config.hours;
+}
+
+export async function isStillnessNow(db: SqlDatabase, now: Date): Promise<boolean> {
+  return stillnessHolds(await getStillness(db), now);
+}
+
+/**
  * The closing question — "how does this feel compared to before?" — ends the
  * program; the answer is kept as an unscored-leaning reflection (04 §2.1).
  */

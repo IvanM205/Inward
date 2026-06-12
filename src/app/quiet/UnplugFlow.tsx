@@ -21,9 +21,11 @@ const CHOICES = [1, 2, 3, 4];
 export interface UnplugFlowProps {
   db: SqlDatabase;
   onExit: () => void;
+  /** Door to designing the weekly stillness window (QUIET-03). */
+  onDesignStillness?: () => void;
 }
 
-export function UnplugFlow({ db, onExit }: UnplugFlowProps): React.JSX.Element {
+export function UnplugFlow({ db, onExit, onDesignStillness }: UnplugFlowProps): React.JSX.Element {
   const choose = (api: { advance: () => void }) => async (hours: number) => {
     await startUnplug(db, hours, new Date());
     api.advance();
@@ -54,6 +56,11 @@ export function UnplugFlow({ db, onExit }: UnplugFlowProps): React.JSX.Element {
                 ),
               )}
             </View>
+            {onDesignStillness && (
+              <View style={styles.stillness}>
+                <QuietAction label="design the stillness window" onPress={onDesignStillness} />
+              </View>
+            )}
           </View>
         ),
         veil: (api) => <QuietVeil line={VEIL_LINE} onLeave={api.exit} />,
@@ -78,5 +85,9 @@ const styles = StyleSheet.create({
   choices: {
     alignItems: 'center',
     gap: space.x1,
+  },
+  stillness: {
+    marginTop: space.x4,
+    alignItems: 'center',
   },
 });
