@@ -99,6 +99,71 @@ export const READINGS: Reading[] = [
     ],
     closingQuestion: 'What did your hands once know that they would still remember?',
   },
+  {
+    id: 'reading.leisure',
+    title: 'Real leisure',
+    author: 'after Josef Pieper',
+    body: [
+      'A philosopher once argued that leisure is not the absence of work, and certainly not entertainment. It is a posture of the soul: receptive, unhurried, capable of festivity. A culture that loses it, he said, can only oscillate between toil and distraction.',
+      'Look at an ordinary evening and the diagnosis holds. The hours after work are not rest; they are a second shift in the attention fields, harder to leave than the office.',
+      'Real leisure does almost nothing, and is the opposite of doing nothing. Sitting with coffee while the light changes. A slow meal. Music listened to, not played underneath something else.',
+      'The feed cannot give this, because the feed cannot be still. Stillness is the one content it has no format for.',
+      'Tonight, when the urge to fill the evening comes, try the older thing instead: be somewhere, fully, without product.',
+    ],
+    closingQuestion: 'When were you last at rest without being entertained?',
+  },
+  {
+    id: 'reading.attention-love',
+    title: 'Attention is the rarest gift',
+    author: 'after Simone Weil',
+    body: [
+      'A young teacher in hard times wrote that attention is the rarest and purest form of generosity. She meant the whole of it: to attend to someone is to give them, for a moment, everything you have.',
+      'She would not have been surprised that an economy eventually formed to harvest it. What is most precious gets taken first.',
+      'Notice what her sentence implies about the people you love. To be half with them — eyes returning to the glass rectangle — is not partial generosity. Attention does not divide; it only leaves.',
+      'And notice the mercy in it too: you do not need money, talent, or strength to give the rarest gift. You need only to stay.',
+      'One person today deserves the whole of you for ten minutes. You already know who.',
+    ],
+    closingQuestion: 'Who received your undivided attention today — and who deserved it?',
+  },
+  {
+    id: 'reading.walking',
+    title: 'The pace of thought',
+    author: 'after Søren Kierkegaard',
+    body: [
+      'A restless thinker who walked his city daily claimed he had walked himself into his best thoughts, and away from every sickness he knew.',
+      'There is a pace at which the mind digests a life, and it is very near three kilometers an hour. Faster, and the world smears. Stationary — scrolling — and the mind chews without swallowing, the same worry around and around.',
+      'No one has ever scrolled themselves into clarity. Many have walked there.',
+      'The walk asks nothing: no gear, no goal, no route. Out the door, turn left or right, return when something has settled.',
+      'If a question is sitting on your chest tonight, take it outside. Let the feet have it for half an hour.',
+    ],
+    closingQuestion: 'What question of yours has been waiting for a walk?',
+  },
+  {
+    id: 'reading.enough',
+    title: 'The day you have',
+    author: 'after Marcus Aurelius, again',
+    body: [
+      'The emperor reminded himself, on waking, that he could leave life right now — and that this thought should change breakfast, not darken it.',
+      'The screen-merchants sell the opposite arithmetic: there will always be more — more episodes, more updates, more later. Infinity is their warehouse, and against infinity no single morning seems to matter.',
+      'But you do not live in their warehouse. You live in a day. One. This one. Its hours are countable and the count is not large.',
+      'This is not morbid. It is the only math that makes an afternoon precious enough to defend.',
+      'Held against one real, finite, never-again day — what could an infinite feed possibly weigh?',
+    ],
+    closingQuestion: 'If today were known to be singular — which it is — what would its afternoon hold?',
+  },
+  {
+    id: 'reading.gift-of-boredom',
+    title: 'In defense of the empty minute',
+    author: 'after Blaise Pascal',
+    body: [
+      'All of humanity’s problems, wrote a mathematician three centuries before the smartphone, stem from our inability to sit quietly in a room alone.',
+      'He understood the mechanism precisely: we flee the empty minute because in it, the big questions stir. So we invent diversions — he listed hunting, gaming, court gossip; the list has since been digitized.',
+      'The empty minute is not a malfunction. It is a door. Every idea you have ever been proud of walked through it. Every honest reckoning began there.',
+      'An industry now exists to board up that door, minute by minute, with something almost interesting.',
+      'Today, when a wait arrives — a queue, a kettle, a red light — do not reach. Stand in the open door a moment and see what comes through.',
+    ],
+    closingQuestion: 'What might be waiting in the minutes you keep boarding up?',
+  },
 ];
 
 export function readingById(id: string): Reading | undefined {
