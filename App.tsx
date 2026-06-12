@@ -27,6 +27,8 @@ import { BuildNameFlow } from './src/app/plan/BuildNameFlow';
 import { buildThing } from './src/app/plan/buildRepo';
 import { RedesignFlow } from './src/app/plan/RedesignFlow';
 import { redesignState } from './src/app/plan/redesignRepo';
+import { AskFlow } from './src/app/openhand/AskFlow';
+import { askAllowed, markAskShown, openHandState } from './src/app/openhand/openHandRepo';
 import { RealignFlow } from './src/app/realign/RealignFlow';
 import { realignmentDue } from './src/app/realign/realignRepo';
 import {
@@ -75,7 +77,8 @@ type Route =
   | 'path-day'
   | 'quizzes'
   | 'values-quiz'
-  | 'funnel-quiz';
+  | 'funnel-quiz'
+  | 'ask';
 
 const STILLNESS_LINE = 'Stillness, kept. The world can hold itself for an hour.';
 
@@ -132,6 +135,32 @@ function App(): React.JSX.Element {
       setRoute(onboarded ? 'threshold' : 'onboarding');
     })();
   }, []);
+
+  /**
+   * OPEN-02: a finished dare or reading is the only kind of moment that may
+   * carry the monthly ask — and only when every other rule agrees.
+   */
+  const releaseAfter = useCallback(
+    async (justCompleted: 'dare' | 'reading') => {
+      if (db) {
+        const quietNow =
+          (await isUnplugged(db, new Date())) || (await isStillnessNow(db, new Date()));
+        const allowed = askAllowed(
+          await openHandState(db),
+          { justCompleted, inCraving: false, inQuiet: quietNow, inOnboarding: false },
+          new Date(),
+        );
+        if (allowed) {
+          await markAskShown(db, new Date());
+          setRoute('ask');
+          return;
+        }
+      }
+      await release();
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [db],
+  );
 
   const release = useCallback(async () => {
     if (db) {
@@ -197,11 +226,11 @@ function App(): React.JSX.Element {
       ) : route === 'vow' ? (
         <VowWizardFlow db={db} onExit={release} />
       ) : route === 'opening' && thread ? (
-        <OpeningFlow db={db} thread={thread} onExit={release} />
+        <OpeningFlow db={db} thread={thread} onExit={() => releaseAfter('dare')} />
       ) : route === 'crave' ? (
         <CravingFlow db={db} thread={thread} onExit={release} />
       ) : route === 'reading' ? (
-        <ReadingFlow db={db} reading={todaysReading(new Date())} onExit={release} />
+        <ReadingFlow db={db} reading={todaysReading(new Date())} onExit={() => releaseAfter('reading')} />
       ) : route === 'realign' ? (
         <RealignFlow db={db} onExit={release} />
       ) : route === 'detox-start' ? (
@@ -240,6 +269,8 @@ function App(): React.JSX.Element {
         <ValuesQuizFlow db={db} onExit={release} />
       ) : route === 'funnel-quiz' ? (
         <FunnelQuizFlow onExit={release} />
+      ) : route === 'ask' ? (
+        <AskFlow db={db} onExit={release} />
       ) : route === 'veil' ? (
         <QuietVeil line={veilLine} onLeave={release} />
       ) : (

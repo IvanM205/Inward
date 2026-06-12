@@ -1,0 +1,8 @@
+{
+  "_covenant": "OPEN-03: the exact ask copy, public (NFR-P5). Shown at most once a month, only after a completed dare or reading, never during a craving, the Quiet, or onboarding. Declining is one tap, suppresses 30 days, and costs nothing — the app is identical for payers and non-payers (INV-8).",
+  "lead": "Inward is free, whole, for everyone — kept alive by the people it serves. If this month it served you, you can put a hand under it.",
+  "amounts": ["€3", "€8", "€15", "custom"],
+  "suggested": "€8",
+  "decline": "not this month",
+  "supporters": "supported by {n} people this month"
+}

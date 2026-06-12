@@ -298,6 +298,21 @@ export const FUNNEL_QUIZ_FLOW: FlowGraph = {
   edges: [{ from: 'questions', to: 'result' }],
 };
 
+/** OPEN-01..03: the monthly ask — one screen, two equal exits. */
+export const ASK_FLOW: FlowGraph = {
+  name: 'OPEN-01..03 the ask',
+  entry: 'ask',
+  screens: [
+    { id: 'ask', kind: 'screen' },
+    { id: 'given', kind: 'terminal' },
+    { id: 'kept', kind: 'terminal' },
+  ],
+  edges: [
+    { from: 'ask', to: 'given' },
+    { from: 'ask', to: 'kept' },
+  ],
+};
+
 /** JRN-03: one-line aliveness capture from the widget — in and back out. */
 export const WIDGET_CAPTURE_FLOW: FlowGraph = {
   name: 'JRN-03 widget capture',
@@ -382,6 +397,7 @@ export const primaryFlows: FlowGraph[] = [
   REALIGN_FLOW,
   REDESIGN_FLOW,
   BUILD_NAME_FLOW,
+  ASK_FLOW,
   MORNING_FLOW,
   EVENING_FLOW,
   WIDGET_CAPTURE_FLOW,

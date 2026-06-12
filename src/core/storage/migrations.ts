@@ -278,6 +278,21 @@ export const MIGRATIONS: Migration[] = [
       )`,
     ],
   },
+  {
+    version: 16,
+    statements: [
+      // OpenHandState (03 §OpenHandState): the three dates that ENFORCE the
+      // ask rules (OPEN-02) — nothing else about money lives on the device
+      // beyond receipts (OPEN-05).
+      `CREATE TABLE open_hand_state (
+        id INTEGER PRIMARY KEY CHECK (id = 1),
+        last_ask_shown_at TEXT,
+        last_contribution_at TEXT,
+        declined_until TEXT
+      )`,
+      `INSERT INTO open_hand_state (id) VALUES (1)`,
+    ],
+  },
 ];
 
 /** The twelve channels — canonical list, order fixed (01-product-overview). */
