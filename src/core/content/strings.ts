@@ -52,6 +52,27 @@ const en = {
   'evening.windDownFirst': 'wind down first',
   'evening.restTerminal': 'That is enough for today. Rest now.',
   'evening.sleepTerminal': 'The day is folded. Now sleep.',
+  'likert.never': 'never',
+  'likert.rarely': 'rarely',
+  'likert.sometimes': 'sometimes',
+  'likert.often': 'often',
+  'likert.always': 'always',
+  'intake.enoughForNow': 'enough for now',
+  'intake.casualtiesDone': 'that is what it touched',
+  'intake.doneTerminal': 'The Mirror has what it needs. Go live — it will be ready when you return.',
+  'intake.pausedTerminal': 'Nothing is lost. The Mirror waits as long as you need.',
+  'portrait.seen': 'i have seen it',
+  'portrait.measureAgain': 'measure again',
+  'portrait.mapTerminal': 'That is the shape of it — not a verdict, a map. Go live.',
+  'portrait.onbTerminal': 'That is enough for today. Go live.',
+  'portrait.firstThread': 'One channel per season — loosened slowly, never all at once. Which thread first?',
+  'portrait.beginWith': 'begin with',
+  'portrait.notYet': 'not yet',
+  'help.lead':
+    'Before anything else: what you carry sounds heavy, and it deserves a real person, not a screen.',
+  'help.footer':
+    'Inward is not therapy and holds no answers a doctor or a friend should hold. This page will step aside whenever you are ready.',
+  'help.continue': 'i have what i need — go on',
 } as const;
 
 export type StringKey = keyof typeof en;
@@ -102,6 +123,27 @@ const sk: Partial<Record<StringKey, string>> = {
   'evening.windDownFirst': 'najprv stíšenie',
   'evening.restTerminal': 'Na dnes to stačí. Teraz odpočívaj.',
   'evening.sleepTerminal': 'Deň je zložený. Teraz spi.',
+  'likert.never': 'nikdy',
+  'likert.rarely': 'zriedka',
+  'likert.sometimes': 'niekedy',
+  'likert.often': 'často',
+  'likert.always': 'vždy',
+  'intake.enoughForNow': 'nateraz stačí',
+  'intake.casualtiesDone': 'toho sa to dotklo',
+  'intake.doneTerminal': 'Zrkadlo má, čo potrebuje. Choď žiť — bude pripravené, keď sa vrátiš.',
+  'intake.pausedTerminal': 'Nič nie je stratené. Zrkadlo počká, ako dlho potrebuješ.',
+  'portrait.seen': 'videl som to',
+  'portrait.measureAgain': 'zmerať znova',
+  'portrait.mapTerminal': 'Taký je jeho tvar — nie rozsudok, mapa. Choď žiť.',
+  'portrait.onbTerminal': 'Na dnes to stačí. Choď žiť.',
+  'portrait.firstThread': 'Jeden kanál za sezónu — rozpletaný pomaly, nikdy všetko naraz. Ktorá niť ako prvá?',
+  'portrait.beginWith': 'začni s',
+  'portrait.notYet': 'ešte nie',
+  'help.lead':
+    'Skôr než čokoľvek iné: to, čo nesieš, znie ťažko — a zaslúži si skutočného človeka, nie obrazovku.',
+  'help.footer':
+    'Inward nie je terapia a nedrží odpovede, ktoré patria lekárovi alebo priateľovi. Táto stránka ustúpi, kedykoľvek budeš pripravený.',
+  'help.continue': 'mám, čo potrebujem — ďalej',
 };
 
 const CATALOGS: Record<string, Partial<Record<StringKey, string>>> = { en, sk };

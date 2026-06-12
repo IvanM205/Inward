@@ -16,6 +16,7 @@ import { Casualty } from '../../core/scoring/config';
 import { SqlDatabase } from '../../core/storage/ports';
 import { setOnboardingState } from '../../core/storage/repos/profileRepo';
 import { INTAKE_FLOW } from '../../flows/registry';
+import { t } from '../../core/content/strings';
 import { nextQuestion } from './adaptive';
 import { allResponses, IntakeAnswer, saveAnswer, seenQuestionIds, skipQuestion } from './intakeRepo';
 
@@ -23,10 +24,11 @@ export const LIKERT_LABELS = ['never', 'rarely', 'sometimes', 'often', 'always']
 
 export interface IntakeQuizFlowProps {
   db: SqlDatabase;
+  locale?: string;
   onExit: () => void;
 }
 
-export function IntakeQuizFlow({ db, onExit }: IntakeQuizFlowProps): React.JSX.Element {
+export function IntakeQuizFlow({ db, locale = 'en', onExit }: IntakeQuizFlowProps): React.JSX.Element {
   const [question, setQuestion] = useState<IntakeQuestion | null | undefined>(undefined);
   const [hoursText, setHoursText] = useState('');
   const [picked, setPicked] = useState<Casualty[]>([]);
@@ -89,7 +91,7 @@ export function IntakeQuizFlow({ db, onExit }: IntakeQuizFlowProps): React.JSX.E
                       accessibilityLabel={question.text}
                     />
                     <PrimaryAction
-                      label="go on"
+                      label={t('common.goOn', locale)}
                       disabled={Number.isNaN(Number(hoursText)) || hoursText.trim() === ''}
                       onPress={() =>
                         answer(api, { kind: 'hours', hoursPerWeek: Number(hoursText) })
@@ -101,7 +103,7 @@ export function IntakeQuizFlow({ db, onExit }: IntakeQuizFlowProps): React.JSX.E
                   LIKERT_LABELS.map((label, value) => (
                     <QuietAction
                       key={label}
-                      label={label}
+                      label={t(`likert.${label}` as never, locale)}
                       onPress={() => answer(api, { kind: 'likert', value })}
                     />
                   ))}
@@ -130,14 +132,14 @@ export function IntakeQuizFlow({ db, onExit }: IntakeQuizFlowProps): React.JSX.E
                       );
                     })}
                     <PrimaryAction
-                      label="that is what it touched"
+                      label={t('intake.casualtiesDone', locale)}
                       onPress={() => answer(api, { kind: 'casualties', casualties: picked })}
                     />
                   </>
                 )}
                 <View style={styles.quietRow}>
-                  <QuietAction label="skip" onPress={() => skip(api)} />
-                  <QuietAction label="enough for now" onPress={() => api.advance('paused')} />
+                  <QuietAction label={t('common.skip', locale)} onPress={() => skip(api)} />
+                  <QuietAction label={t('intake.enoughForNow', locale)} onPress={() => api.advance('paused')} />
                 </View>
               </>
             )}
@@ -145,13 +147,13 @@ export function IntakeQuizFlow({ db, onExit }: IntakeQuizFlowProps): React.JSX.E
         ),
         done: (api) => (
           <TerminalScreen
-            line="The Mirror has what it needs. Go live — it will be ready when you return."
+            line={t('intake.doneTerminal', locale)}
             onExit={api.exit}
           />
         ),
         paused: (api) => (
           <TerminalScreen
-            line="Nothing is lost. The Mirror waits as long as you need."
+            line={t('intake.pausedTerminal', locale)}
             onExit={api.exit}
           />
         ),

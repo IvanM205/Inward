@@ -8,6 +8,7 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { PrimaryAction } from '../../core/design/Buttons';
 import { color, space, type } from '../../core/design/tokens';
+import { t } from '../../core/content/strings';
 import { helpResources } from '../../core/safety/resources';
 
 export interface HelpFirstScreenProps {
@@ -20,8 +21,7 @@ export function HelpFirstScreen({ locale, onContinue }: HelpFirstScreenProps): R
   return (
     <View style={styles.screen}>
       <Text style={styles.lead} accessibilityRole="header">
-        Before anything else: what you carry sounds heavy, and it deserves a
-        real person, not a screen.
+        {t('help.lead', locale)}
       </Text>
       {helpResources(locale).map((r) => (
         <View key={r.name} style={styles.resource}>
@@ -31,11 +31,10 @@ export function HelpFirstScreen({ locale, onContinue }: HelpFirstScreenProps): R
         </View>
       ))}
       <Text style={styles.footer}>
-        Inward is not therapy and holds no answers a doctor or a friend should
-        hold. This page will step aside whenever you are ready.
+        {t('help.footer', locale)}
       </Text>
       <View style={styles.action}>
-        <PrimaryAction label="i have what i need — go on" onPress={onContinue} />
+        <PrimaryAction label={t('help.continue', locale)} onPress={onContinue} />
       </View>
     </View>
   );

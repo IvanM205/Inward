@@ -12,6 +12,7 @@ import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { LIKERT_LABELS } from './IntakeQuizFlow';
 import { mechanismLine } from '../../core/content/mechanisms';
+import { t } from '../../core/content/strings';
 import { CASUALTY_OPTIONS, questionById } from '../../core/content/questionBank';
 import { PrimaryAction, QuietAction } from '../../core/design/Buttons';
 import { BandRow } from '../../core/design/BandRow';
@@ -67,7 +68,7 @@ export function PortraitFlow({ db, onExit }: PortraitFlowProps): React.JSX.Eleme
   // ONB-06: the first viewing flows on into first-thread selection.
   const [firstRun, setFirstRun] = useState(false);
   const [closingLine, setClosingLine] = useState(
-    'That is the shape of it — not a verdict, a map. Go live.',
+    t('portrait.mapTerminal', 'en'),
   );
 
   useEffect(() => {
@@ -156,13 +157,13 @@ export function PortraitFlow({ db, onExit }: PortraitFlowProps): React.JSX.Eleme
               </ScrollView>
               <View style={styles.action}>
                 <PrimaryAction
-                  label="i have seen it"
+                  label={t('portrait.seen', locale)}
                   onPress={() => api.advance(firstRun ? 'first-thread' : 'seen')}
                 />
                 {/* MIR-05: re-measure on demand — recalc from today's answers
                     and evidence; the short re-intake arrives with threads (M3). */}
                 <QuietAction
-                  label="measure again"
+                  label={t('portrait.measureAgain', locale)}
                   onPress={async () => {
                     await weeklyRecalc(db, new Date());
                     setExpandedChannel(null);
@@ -182,18 +183,17 @@ export function PortraitFlow({ db, onExit }: PortraitFlowProps): React.JSX.Eleme
           const choose = async (channelKey: string) => {
             await startThread(db, channelKey as never, new Date());
             await setOnboardingState(db, 'thread_chosen');
-            setClosingLine('That is enough for today. Go live.'); // ONB-06
+            setClosingLine(t('portrait.onbTerminal', locale)); // ONB-06
             api.advance('seen');
           };
           return (
             <View style={[styles.screen, styles.firstThread]}>
               <Text style={styles.orientation}>
-                One channel per season — loosened slowly, never all at once.
-                Which thread first?
+                {t('portrait.firstThread', locale)}
               </Text>
               {suggested && (
                 <PrimaryAction
-                  label={`begin with ${channelName(suggested.channelKey).toLowerCase()}`}
+                  label={`${t('portrait.beginWith', locale)} ${channelName(suggested.channelKey).toLowerCase()}`}
                   onPress={() => choose(suggested.channelKey)}
                 />
               )}
@@ -205,9 +205,9 @@ export function PortraitFlow({ db, onExit }: PortraitFlowProps): React.JSX.Eleme
                 />
               ))}
               <QuietAction
-                label="not yet"
+                label={t('portrait.notYet', locale)}
                 onPress={() => {
-                  setClosingLine('That is enough for today. Go live.'); // ONB-06
+                  setClosingLine(t('portrait.onbTerminal', locale)); // ONB-06
                   api.advance('seen');
                 }}
               />
