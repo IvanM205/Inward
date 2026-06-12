@@ -20,6 +20,8 @@ export interface ThresholdScreenProps {
   onOpenQuiet: () => void;
   /** The Mirror door — shown while the intake is open or unfinished (ONB-04). */
   onOpenMirror?: () => void;
+  /** The Plan door — shown while the active thread's vow is unwritten (PLAN-02). */
+  onOpenVow?: () => void;
   onOpenSettings: () => void;
 }
 
@@ -30,6 +32,7 @@ export function ThresholdScreen({
   onOpenCompass,
   onOpenQuiet,
   onOpenMirror,
+  onOpenVow,
   onOpenSettings,
 }: ThresholdScreenProps): React.JSX.Element {
   return (
@@ -47,6 +50,7 @@ export function ThresholdScreen({
       )}
       <View style={styles.quietSwitch}>
         {onOpenMirror && <QuietAction label="the mirror" onPress={onOpenMirror} />}
+        {onOpenVow && <QuietAction label="the untangling" onPress={onOpenVow} />}
         <QuietAction label="unplug" onPress={onOpenQuiet} />
         <QuietAction label="settings" onPress={onOpenSettings} />
       </View>

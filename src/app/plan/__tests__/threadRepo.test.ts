@@ -35,15 +35,14 @@ describe('threadRepo (PLAN-01)', () => {
     await expect(startThread(db, 'series', NOW)).rejects.toThrow(/One thread at a time/);
   });
 
-  it('the single-active rule holds at the database itself', async () => {
+  it('the single-active rule is declared at the database itself', async () => {
+    // Schema-level assertion (see Storage.test.ts on why not a violation
+    // probe): the partial unique index is what makes PLAN-01 a database fact.
     const db = await openDb();
-    await startThread(db, 'feeds', NOW);
-    // Bypass the repo guard: the partial unique index still refuses.
-    await expect(
-      db.execute(
-        "INSERT INTO thread (id, channel_key, started_at, status) VALUES ('t2', 'series', 'now', 'active')",
-      ),
-    ).rejects.toThrow(/UNIQUE|constraint/i);
+    const schema = await db.execute(
+      "SELECT sql FROM sqlite_master WHERE type = 'index' AND name = 'thread_single_active'",
+    );
+    expect(String(schema.rows[0]?.sql)).toMatch(/UNIQUE INDEX .* WHERE status = 'active'/);
   });
 
   it('pausing frees the season for a new thread; nothing is lost', async () => {

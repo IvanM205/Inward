@@ -109,6 +109,27 @@ export const PORTRAIT_FLOW: FlowGraph = {
   ],
 };
 
+/** PLAN-02 vow wizard: the habit loop in the person's words, then the vow. */
+export const VOW_FLOW: FlowGraph = {
+  name: 'PLAN-02 vow wizard',
+  entry: 'cue',
+  screens: [
+    { id: 'cue', kind: 'screen' },
+    { id: 'routine', kind: 'screen' },
+    { id: 'what-it-gives', kind: 'screen' },
+    { id: 'vow', kind: 'screen' },
+    { id: 'micro-act', kind: 'screen' },
+    { id: 'held', kind: 'terminal' },
+  ],
+  edges: [
+    { from: 'cue', to: 'routine' },
+    { from: 'routine', to: 'what-it-gives' },
+    { from: 'what-it-gives', to: 'vow' },
+    { from: 'vow', to: 'micro-act' },
+    { from: 'micro-act', to: 'held' },
+  ],
+};
+
 /** JRN-03: one-line aliveness capture from the widget — in and back out. */
 export const WIDGET_CAPTURE_FLOW: FlowGraph = {
   name: 'JRN-03 widget capture',
@@ -135,6 +156,7 @@ export const primaryFlows: FlowGraph[] = [
   ONBOARDING_FLOW,
   INTAKE_FLOW,
   PORTRAIT_FLOW,
+  VOW_FLOW,
   MORNING_FLOW,
   EVENING_FLOW,
   WIDGET_CAPTURE_FLOW,
