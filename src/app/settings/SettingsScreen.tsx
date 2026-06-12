@@ -34,7 +34,7 @@ export function SettingsScreen({ locale = 'en', onEraseAll, onClose }: SettingsS
           onPress={() => setShowScore(!showScore)}
         />
         {showScore &&
-          scoreDisclosure().map((section) => (
+          scoreDisclosure(locale).map((section) => (
             <View key={section.title} style={styles.section}>
               <Text style={styles.sectionTitle}>{section.title}</Text>
               <Text style={styles.sectionBody}>{section.body}</Text>

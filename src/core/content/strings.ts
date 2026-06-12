@@ -169,6 +169,29 @@ const en = {
   'settings.erase': 'erase everything',
   'settings.eraseNow': 'erase it all now',
   'settings.keepThings': 'keep my things',
+  'disclosure.whatTitle': 'what the index is',
+  'disclosure.whatBody':
+    'Each channel gets a capture score from 0 to 100, built from three parts: time ({time}), pull ({pull}), and what it displaces ({displacement}). Nothing else feeds it. No score ever changes what the app offers you.',
+  'disclosure.timeTitle': 'time',
+  'disclosure.timeBody':
+    'Your weekly hours, from your own answer — or from measured screen time if you allowed it (the measurement wins over the guess). Each channel has its own thresholds; more hours, higher score.',
+  'disclosure.pullTitle': 'pull',
+  'disclosure.pullBody': 'Five plain questions per channel, each answered never to always:\n{items}',
+  'disclosure.displacementTitle': 'what it displaces',
+  'disclosure.displacementBody':
+    'Named casualties add fixed weights: sleep {sleep}, a close relationship {relationship}, money {finances}, a skill {skill}, your body {body}, meals with people {meals}.',
+  'disclosure.evidenceTitle': 'how living lowers it',
+  'disclosure.evidenceBody':
+    'Counted journal entries push a channel’s score down — kindness {kindness}, care {care}, aliveness {aliveness}, a finished dare {dare}, a decoded craving {craving}, gratitude {gratitude} — over the trailing {window} days, capped at {cap} points per channel. Entries about other channels count at {cross}.',
+  'disclosure.countingTitle': 'what counts',
+  'disclosure.countingBody':
+    'An entry counts when it is concrete — a named person, place, or thing, something that happened, at least {minWords} words. At most {dailyCap} entries count per day, one per kind for the ones you write by hand. Repeating yourself within {similarDays} days halves the weight each time (×{decay}). Entries that do not count are still kept — written for the soul, not the score.',
+  'disclosure.bandsTitle': 'smoothing and bands',
+  'disclosure.bandsBody':
+    'Scores are averaged over the last {weeks} weeks, so one loud week is not a verdict. Bands: free up to {free}, leaking up to {leaking}, caught above that. The headline level weighs the deepest captures most.',
+  'disclosure.neverTitle': 'what never happens',
+  'disclosure.neverBody':
+    'The index never leaves this device. It is never used to time, tempt, or sell anything. Erasing your data erases it entirely.',
 } as const;
 
 export type StringKey = keyof typeof en;
@@ -336,6 +359,29 @@ const sk: Partial<Record<StringKey, string>> = {
   'settings.erase': 'vymazať všetko',
   'settings.eraseNow': 'vymazať všetko teraz',
   'settings.keepThings': 'nechať si svoje veci',
+  'disclosure.whatTitle': 'čo je index',
+  'disclosure.whatBody':
+    'Každý kanál dostáva skóre zachytenia od 0 do 100, zložené z troch častí: čas ({time}), ťah ({pull}) a čo vytláča ({displacement}). Nič iné doň nevstupuje. Žiadne skóre nikdy nemení, čo ti aplikácia ponúka.',
+  'disclosure.timeTitle': 'čas',
+  'disclosure.timeBody':
+    'Tvoje týždenné hodiny, z tvojej vlastnej odpovede — alebo z nameraného času pri obrazovke, ak si to dovolil (meranie vyhráva nad odhadom). Každý kanál má vlastné prahy; viac hodín, vyššie skóre.',
+  'disclosure.pullTitle': 'ťah',
+  'disclosure.pullBody': 'Päť jednoduchých otázok na kanál, každá od nikdy po vždy:\n{items}',
+  'disclosure.displacementTitle': 'čo vytláča',
+  'disclosure.displacementBody':
+    'Pomenované straty pridávajú pevné váhy: spánok {sleep}, blízky vzťah {relationship}, peniaze {finances}, zručnosť {skill}, tvoje telo {body}, jedlá s ľuďmi {meals}.',
+  'disclosure.evidenceTitle': 'ako ho žitie znižuje',
+  'disclosure.evidenceBody':
+    'Započítané zápisy v denníku tlačia skóre kanála nadol — láskavosť {kindness}, starostlivosť {care}, živosť {aliveness}, dokončená výzva {dare}, rozlúštené nutkanie {craving}, vďačnosť {gratitude} — za posledných {window} dní, najviac {cap} bodov na kanál. Zápisy o iných kanáloch sa počítajú na {cross}.',
+  'disclosure.countingTitle': 'čo sa počíta',
+  'disclosure.countingBody':
+    'Zápis sa počíta, keď je konkrétny — pomenovaný človek, miesto alebo vec, niečo, čo sa stalo, aspoň {minWords} slová. Najviac {dailyCap} zápisy denne, jeden od každého ručne písaného druhu. Opakovanie do {similarDays} dní zakaždým zníži váhu na polovicu (×{decay}). Zápisy, ktoré sa nepočítajú, zostávajú — písané pre dušu, nie pre skóre.',
+  'disclosure.bandsTitle': 'vyhladzovanie a pásma',
+  'disclosure.bandsBody':
+    'Skóre sa priemeruje za posledné {weeks} týždne, takže jeden hlučný týždeň nie je rozsudok. Pásma: voľný do {free}, presakuje do {leaking}, chytený nad tým. Hlavná úroveň váži najhlbšie zachytenia najviac.',
+  'disclosure.neverTitle': 'čo sa nikdy nestane',
+  'disclosure.neverBody':
+    'Index nikdy neopustí toto zariadenie. Nikdy sa nepoužíva na časovanie, lákanie ani predávanie. Vymazanie tvojich dát ho vymaže celý.',
 };
 
 const CATALOGS: Record<string, Partial<Record<StringKey, string>>> = { en, sk };
@@ -344,4 +390,11 @@ const CATALOGS: Record<string, Partial<Record<StringKey, string>>> = { en, sk };
 export function t(key: StringKey, locale: string): string {
   const language = locale.toLowerCase().split(/[-_]/)[0];
   return CATALOGS[language]?.[key] ?? en[key];
+}
+
+/** Templated string: `{name}` tokens replaced from vars (disclosure pages). */
+export function tf(key: StringKey, locale: string, vars: Record<string, string | number>): string {
+  return t(key, locale).replace(/\{(\w+)\}/g, (match, name) =>
+    name in vars ? String(vars[name]) : match,
+  );
 }

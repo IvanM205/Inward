@@ -41,6 +41,15 @@ describe('scoreDisclosure (NFR-P5, JRN-04)', () => {
     expect(text).toContain('written for the soul, not the score');
     expect(text).not.toMatch(/!/); // no urgency, even in disclosure (06 §Copy)
   });
+
+  it('discloses the same numbers in Slovak (NFR-X2)', () => {
+    const sk = scoreDisclosure('sk').map((s) => `${s.title}\n${s.body}`).join('\n');
+    expect(sk).toContain('čo je index');
+    expect(sk).toContain('35%');
+    expect(sk).toContain(String(EVIDENCE_OFFSET_CAP));
+    expect(sk).toContain('písané pre dušu, nie pre skóre');
+    expect(sk).not.toMatch(/\{\w+\}/); // every placeholder resolved
+  });
 });
 
 describe('SettingsScreen (INV-6)', () => {
