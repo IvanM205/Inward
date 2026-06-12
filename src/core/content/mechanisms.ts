@@ -21,6 +21,23 @@ export const MECHANISM_LINES: Record<ChannelKey, string> = {
   relationships: 'The people closest to you receive what the screen leaves over.',
 };
 
-export function mechanismLine(channel: ChannelKey): string {
+export const MECHANISM_LINES_SK: Record<ChannelKey, string> = {
+  feeds: 'Feedy sú postavené tak, aby sa nikdy neskončili. Tvoja pozornosť je úroda.',
+  series: 'Ďalšia epizóda sa spúšťa sama. Tvoje večery sú tovar na sklade.',
+  games: 'Ďalšia výhra je načasovaná tak, aby si ťahal ďalej. Cenou za naháňačku je čas.',
+  betting: 'Tesná prehra je naprojektovaná. Dom v skutočnosti predáva nádej.',
+  porn: 'Nekonečná novosť si prenajíma časť teba určenú pre jedného skutočného človeka.',
+  substances: 'Úľava je požičaná od zajtrajška, aj s úrokmi.',
+  nightlife: 'Zábava je vyrobená tak, aby vrcholila tam, kde míňanie.',
+  shopping: 'Chcenie sa vyrába skôr než vec. Košíky sú navrhnuté tak, aby boleli.',
+  outsourced_thinking: 'Každá otázka, ktorú odovzdáš, je sval, ktorý prestaneš používať.',
+  abandoned_skills:
+    'Čo kedysi robili tvoje ruky, teraz prichádza hotové — a niečo v tebe beží naprázdno.',
+  spectator: 'Iní žijú v aréne; sedadlá sa predávajú za tvoje hodiny.',
+  relationships: 'Najbližší ľudia dostávajú to, čo obrazovka nechá tak.',
+};
+
+export function mechanismLine(channel: ChannelKey, locale = 'en'): string {
+  if (locale.toLowerCase().startsWith('sk')) return MECHANISM_LINES_SK[channel];
   return MECHANISM_LINES[channel];
 }

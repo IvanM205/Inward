@@ -41,8 +41,32 @@ const ACTIONS: Record<Hunger, { day: string; night: string }> = {
   },
 };
 
-export function suggestAction(hunger: Hunger, now: Date): string {
+const ACTIONS_SK: Record<Hunger, { day: string; night: string }> = {
+  connection: {
+    day: 'Zavolaj niekomu, koho poteší tvoj hlas. Nie správu — zavolaj.',
+    night: 'Napíš jednu vetu niekomu, kto ti chýba. Pošli ju ráno.',
+  },
+  rest: {
+    day: 'Desať minút naležato, oči zatvorené, telefón v inej izbe.',
+    night: 'Začni stíšenie hneď. Feed nikdy nebol odpočinok.',
+  },
+  meaning: {
+    day: 'Urob jednu malú vec rukami, od začiatku do konca.',
+    night: 'Prečítaj jednu stranu niečoho starého a pomalého, ak sa dá, na papieri.',
+  },
+  body: {
+    day: 'Choď von. Stačí okolo bloku.',
+    night: 'Pomaly sa dve minúty ponaťahuj a daj si pohár vody.',
+  },
+  unsure: {
+    day: 'Postav sa k oknu a pomenuj päť vecí, ktoré vidíš. Potom sa rozhodni.',
+    night: 'Pohár vody, ešte jeden pomalý nádych. Rozhodni sa potom.',
+  },
+};
+
+export function suggestAction(hunger: Hunger, now: Date, locale = 'en'): string {
   const hour = now.getHours();
   const night = hour >= NIGHT_FROM || hour < NIGHT_TO;
-  return ACTIONS[hunger][night ? 'night' : 'day'];
+  const table = locale.toLowerCase().startsWith('sk') ? ACTIONS_SK : ACTIONS;
+  return table[hunger][night ? 'night' : 'day'];
 }

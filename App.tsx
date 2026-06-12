@@ -289,7 +289,7 @@ function App(): React.JSX.Element {
       ) : route === 'values-quiz' ? (
         <ValuesQuizFlow db={db} locale={locale} onExit={release} />
       ) : route === 'funnel-quiz' ? (
-        <FunnelQuizFlow onExit={release} />
+        <FunnelQuizFlow locale={locale} onExit={release} />
       ) : route === 'ask' ? (
         <AskFlow db={db} onExit={release} />
       ) : route === 'journal' ? (

@@ -14,7 +14,7 @@ import { FlowHost } from '../../core/navigation/FlowHost';
 import { SqlDatabase } from '../../core/storage/ports';
 import { setChosenValues } from '../../core/storage/repos/profileRepo';
 import { FUNNEL_QUIZ_FLOW, VALUES_QUIZ_FLOW } from '../../flows/registry';
-import { FUNNEL_QUESTIONS, funnelResultCopy, funnelVerdict } from './funnel';
+import { FUNNEL_QUESTIONS, funnelQuestionText, funnelResultCopy, funnelVerdict } from './funnel';
 import { t } from '../../core/content/strings';
 
 /** The canonical values list (03 §Profile). */
@@ -138,10 +138,11 @@ export function ValuesQuizFlow({ db, locale = 'en', onExit }: ValuesQuizFlowProp
 }
 
 export interface FunnelQuizFlowProps {
+  locale?: string;
   onExit: () => void;
 }
 
-export function FunnelQuizFlow({ onExit }: FunnelQuizFlowProps): React.JSX.Element {
+export function FunnelQuizFlow({ locale = 'en', onExit }: FunnelQuizFlowProps): React.JSX.Element {
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState<number[]>([]);
 
@@ -152,11 +153,11 @@ export function FunnelQuizFlow({ onExit }: FunnelQuizFlowProps): React.JSX.Eleme
       renderers={{
         questions: (api) => (
           <View style={styles.screen}>
-            <Text style={styles.question}>{FUNNEL_QUESTIONS[index]}</Text>
+            <Text style={styles.question}>{funnelQuestionText(index, locale)}</Text>
             {LIKERT.map((label, value) => (
               <QuietAction
                 key={label}
-                label={label}
+                label={t(`likert.${label}` as never, locale)}
                 onPress={() => {
                   const next = [...answers, value];
                   if (next.length === FUNNEL_QUESTIONS.length) {
@@ -172,7 +173,7 @@ export function FunnelQuizFlow({ onExit }: FunnelQuizFlowProps): React.JSX.Eleme
           </View>
         ),
         result: (api) => {
-          const copy = funnelResultCopy(funnelVerdict(answers));
+          const copy = funnelResultCopy(funnelVerdict(answers), locale);
           return <TerminalScreen line={`${copy.line} ${copy.nextStep}`} onExit={api.exit} />;
         },
       }}

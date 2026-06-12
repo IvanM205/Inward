@@ -100,3 +100,27 @@ describe('FunnelQuizFlow (LIB-04)', () => {
     await ReactTestRenderer.act(async () => tree.unmount());
   });
 });
+
+describe('Slovak funnel and content (NFR-X2)', () => {
+  const { funnelQuestionText, FUNNEL_QUESTIONS_SK } = require('../funnel');
+  const { mechanismLine } = require('../../../core/content/mechanisms');
+  const { suggestAction } = require('../../crave/suggestions');
+
+  it('asks, answers, and shares in Slovak without losing the rules', () => {
+    expect(FUNNEL_QUESTIONS_SK).toHaveLength(5);
+    expect(funnelQuestionText(0, 'sk')).toContain('Telefón');
+    const copy = funnelResultCopy('being farmed', 'sk');
+    expect(copy.line).toContain('dizajn mierený na teba');
+    expect(copy.line).not.toMatch(/!/);
+    const share = funnelShareText('on loan', 'sk');
+    expect(share).toContain('požičaná');
+    expect(share).not.toMatch(/\d/);
+  });
+
+  it('mechanisms and suggestions translate; English stays canonical', () => {
+    expect(mechanismLine('feeds', 'sk')).toContain('úroda');
+    expect(mechanismLine('feeds', 'en')).toContain('harvest');
+    expect(suggestAction('rest', new Date(2026, 5, 12, 12, 0), 'sk')).toContain('telefón v inej izbe');
+    expect(suggestAction('rest', new Date(2026, 5, 12, 12, 0))).toContain('phone in another room');
+  });
+});

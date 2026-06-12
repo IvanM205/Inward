@@ -37,7 +37,7 @@ export function CravingFlow({ db, thread, locale = 'en', onExit }: CravingFlowPr
 
   const pickHunger = (api: FlowScreenApi) => (key: Hunger) => {
     setHunger(key);
-    setSuggested(suggestAction(key, new Date()));
+    setSuggested(suggestAction(key, new Date(), locale));
     api.advance();
   };
 

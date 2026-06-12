@@ -32,8 +32,50 @@ export function funnelVerdict(answers: number[]): FunnelVerdict {
   return 'being farmed';
 }
 
+export const FUNNEL_QUESTIONS_SK = [
+  'Telefón máš v ruke skôr, než si všimneš rozhodnutie.',
+  'Voľné minúty sa samy zaplnia obrazovkou.',
+  'Skúšal si obmedziť, a nevydržalo to.',
+  'Večery miznú rýchlejšie než kedysi.',
+  'Ticho je nepríjemné, keď nič nehrá.',
+] as const;
+
+const isSk = (locale: string) => locale.toLowerCase().startsWith('sk');
+
+export function funnelQuestionText(index: number, locale = 'en'): string {
+  return isSk(locale) ? FUNNEL_QUESTIONS_SK[index] : FUNNEL_QUESTIONS[index];
+}
+
+const VERDICT_SK: Record<FunnelVerdict, string> = {
+  'mostly yours': 'väčšinou tvoja',
+  'on loan': 'požičaná',
+  'being farmed': 'žne ju niekto iný',
+};
+
 /** Mercy framing per verdict, plus the one suggested next step (LIB-04). */
-export function funnelResultCopy(verdict: FunnelVerdict): { line: string; nextStep: string } {
+export function funnelResultCopy(
+  verdict: FunnelVerdict,
+  locale = 'en',
+): { line: string; nextStep: string } {
+  if (isSk(locale)) {
+    switch (verdict) {
+      case 'mostly yours':
+        return {
+          line: 'Tvoja pozornosť je väčšinou tvoja. To je vzácnejšie, než to znie.',
+          nextStep: 'Zajtra si naschvál nechaj jednu hodinu bez obrazovky, aby to tak ostalo.',
+        };
+      case 'on loan':
+        return {
+          line: 'Tvoja pozornosť je požičaná — časť sa vracia, časť nie.',
+          nextStep: 'Vyber appku, ktorá si necháva najviac, a dnes večer ju presuň z prvej obrazovky.',
+        };
+      case 'being farmed':
+        return {
+          line: 'Tvoju pozornosť žne niekto iný. Nie chyba v tebe — dizajn mierený na teba.',
+          nextStep: 'Zajtra ráno si nechaj prvú polhodinu pre seba. Začni tam.',
+        };
+    }
+  }
   switch (verdict) {
     case 'mostly yours':
       return {
@@ -54,6 +96,9 @@ export function funnelResultCopy(verdict: FunnelVerdict): { line: string; nextSt
 }
 
 /** The opt-in share text: coarse, channel-free, no numbers, no pitch. */
-export function funnelShareText(verdict: FunnelVerdict): string {
+export function funnelShareText(verdict: FunnelVerdict, locale = 'en'): string {
+  if (isSk(locale)) {
+    return `Sadol som si k piatim úprimným otázkam o svojej pozornosti. Odpoveď: ${VERDICT_SK[verdict]}.`;
+  }
   return `I sat with five honest questions about my attention. The answer: ${verdict}.`;
 }

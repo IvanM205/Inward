@@ -12,7 +12,7 @@ import { latestLevel, latestScores } from './recalc';
 const channelName = (key: string): string =>
   CHANNELS.find((c) => c.key === key)?.name.toLowerCase() ?? key;
 
-export async function exportPortrait(db: SqlDatabase): Promise<string> {
+export async function exportPortrait(db: SqlDatabase, locale = 'en'): Promise<string> {
   const scores = await latestScores(db);
   const level = await latestLevel(db);
   if (scores.length === 0 || level === null) {
@@ -31,7 +31,7 @@ export async function exportPortrait(db: SqlDatabase): Promise<string> {
     lines.push(band);
     for (const s of groups[band]) {
       lines.push(`  ${channelName(s.channelKey)}`);
-      if (band !== 'free') lines.push(`    ${mechanismLine(s.channelKey as never)}`);
+      if (band !== 'free') lines.push(`    ${mechanismLine(s.channelKey as never, locale)}`);
     }
     lines.push('');
   }

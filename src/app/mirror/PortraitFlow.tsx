@@ -125,7 +125,7 @@ export function PortraitFlow({ db, onExit }: PortraitFlowProps): React.JSX.Eleme
                       <View style={styles.explanation}>
                         {score.band !== 'free' && (
                           <Text style={styles.mechanism}>
-                            {mechanismLine(score.channelKey as never)}
+                            {mechanismLine(score.channelKey as never, locale)}
                           </Text>
                         )}
                         <Text style={styles.numbers}>
