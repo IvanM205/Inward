@@ -43,6 +43,8 @@ export interface ThresholdScreenProps {
   onOpenRedesign?: () => void;
   /** Build One Thing — shown until the season's thing is named (PLAN-05). */
   onOpenBuild?: () => void;
+  /** The Living Journal, read back (JRN-04/05). */
+  onOpenJournal: () => void;
   onOpenSettings: () => void;
 }
 
@@ -66,6 +68,7 @@ export function ThresholdScreen({
   onOpenVow,
   onOpenRedesign,
   onOpenBuild,
+  onOpenJournal,
   onOpenSettings,
 }: ThresholdScreenProps): React.JSX.Element {
   return (
@@ -100,6 +103,7 @@ export function ThresholdScreen({
         {onOpenDetox && (
           <QuietAction label={detoxDoorLabel ?? 'dopamine detox'} onPress={onOpenDetox} />
         )}
+        <QuietAction label="the journal" onPress={onOpenJournal} />
         <QuietAction label="settings" onPress={onOpenSettings} />
       </View>
     </View>

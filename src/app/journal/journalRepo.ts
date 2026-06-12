@@ -154,6 +154,12 @@ export async function searchEntries(db: SqlDatabase, query: string): Promise<Jou
   return result.rows.map(rowToEntry);
 }
 
+/** The whole journal, newest first — finite by nature: it is one life. */
+export async function recentEntries(db: SqlDatabase): Promise<JournalEntry[]> {
+  const result = await db.execute('SELECT * FROM journal_entry ORDER BY created_at DESC');
+  return result.rows.map(rowToEntry);
+}
+
 /** All entries written on one local date (evening fold review, export). */
 export async function entriesOn(db: SqlDatabase, date: string): Promise<JournalEntry[]> {
   const result = await db.execute(

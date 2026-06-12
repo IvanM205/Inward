@@ -16,6 +16,7 @@ import { IntakeQuizFlow } from './src/app/mirror/IntakeQuizFlow';
 import { PortraitFlow } from './src/app/mirror/PortraitFlow';
 import { OnboardingFlow } from './src/app/onboarding/OnboardingFlow';
 import { CravingFlow } from './src/app/crave/CravingFlow';
+import { JournalScreen } from './src/app/journal/JournalScreen';
 import { ReadingFlow } from './src/app/library/ReadingFlow';
 import { todaysReading } from './src/app/library/libraryRepo';
 import { PathDayFlow, PathStartFlow } from './src/app/library/PathFlows';
@@ -78,7 +79,8 @@ type Route =
   | 'quizzes'
   | 'values-quiz'
   | 'funnel-quiz'
-  | 'ask';
+  | 'ask'
+  | 'journal';
 
 const STILLNESS_LINE = 'Stillness, kept. The world can hold itself for an hour.';
 
@@ -271,6 +273,8 @@ function App(): React.JSX.Element {
         <FunnelQuizFlow onExit={release} />
       ) : route === 'ask' ? (
         <AskFlow db={db} onExit={release} />
+      ) : route === 'journal' ? (
+        <JournalScreen db={db} onClose={release} />
       ) : route === 'veil' ? (
         <QuietVeil line={veilLine} onLeave={release} />
       ) : (
@@ -306,6 +310,7 @@ function App(): React.JSX.Element {
           onOpenVow={vowOpen ? () => setRoute('vow') : undefined}
           onOpenRedesign={redesignOpen ? () => setRoute('redesign') : undefined}
           onOpenBuild={buildOpen ? () => setRoute('build-name') : undefined}
+          onOpenJournal={() => setRoute('journal')}
           onOpenSettings={() => setRoute('settings')}
         />
       )}
