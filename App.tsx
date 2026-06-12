@@ -10,7 +10,8 @@ import { BackHandler, Platform, StatusBar, StyleSheet, View } from 'react-native
 import { color } from './src/core/design/tokens';
 import { SqlDatabase } from './src/core/storage/ports';
 import { getProfile } from './src/core/storage/repos/profileRepo';
-import { permissionRequests, storage } from './src/app/bootstrap';
+import { permissionRequests, scheduler, storage } from './src/app/bootstrap';
+import { enableCompassLines } from './src/app/notificationsSetup';
 import { IntakeQuizFlow } from './src/app/mirror/IntakeQuizFlow';
 import { PortraitFlow } from './src/app/mirror/PortraitFlow';
 import { OnboardingFlow } from './src/app/onboarding/OnboardingFlow';
@@ -167,7 +168,12 @@ function App(): React.JSX.Element {
       {route === 'loading' || db === null ? (
         <View style={styles.blank} />
       ) : route === 'onboarding' ? (
-        <OnboardingFlow db={db} permissions={permissionRequests} onExit={release} />
+        <OnboardingFlow
+          db={db}
+          permissions={permissionRequests}
+          onNotificationsGranted={() => enableCompassLines(db, scheduler)}
+          onExit={release}
+        />
       ) : route === 'morning' ? (
         <MorningFlow db={db} opening={thread?.microAct} onExit={release} />
       ) : route === 'evening' ? (

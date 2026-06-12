@@ -17,11 +17,26 @@ import { SentenceScreen } from './SentenceScreen';
 export interface OnboardingFlowProps {
   db: SqlDatabase;
   permissions: PermissionRequests;
+  /** Runs once when the notification ask is granted — schedules the slots. */
+  onNotificationsGranted?: () => Promise<void>;
   /** The terminal screen released the user (INV-3). */
   onExit: () => void;
 }
 
-export function OnboardingFlow({ db, permissions, onExit }: OnboardingFlowProps): React.JSX.Element {
+export function OnboardingFlow({
+  db,
+  permissions,
+  onNotificationsGranted,
+  onExit,
+}: OnboardingFlowProps): React.JSX.Element {
+  const wiredPermissions: PermissionRequests = {
+    requestNotifications: async () => {
+      const granted = await permissions.requestNotifications();
+      if (granted) await onNotificationsGranted?.();
+      return granted;
+    },
+    requestScreenTime: () => permissions.requestScreenTime(),
+  };
   return (
     <FlowHost
       flow={ONBOARDING_FLOW}
@@ -45,7 +60,7 @@ export function OnboardingFlow({ db, permissions, onExit }: OnboardingFlowProps)
         ),
         permissions: (api) => (
           <PermissionsScreen
-            permissions={permissions}
+            permissions={wiredPermissions}
             onDone={async () => {
               await setOnboardingState(db, 'permissions_done');
               api.advance();
