@@ -59,6 +59,47 @@ export const PATHS: Path[] = [
       },
     ],
   },
+  {
+    id: 'path.empty-minute',
+    title: 'The Empty Minute — seven days of unhurried time',
+    days: [
+      {
+        readingId: 'reading.gift-of-boredom',
+        question: 'Which waits in your day do you reflexively board up?',
+        act: 'Stand in three waits today — kettle, queue, light — with empty hands.',
+      },
+      {
+        readingId: 'reading.leisure',
+        question: 'What would real rest look like tonight, if no one could see it?',
+        act: 'One evening hour of true leisure: present somewhere, producing nothing.',
+      },
+      {
+        readingId: 'reading.walking',
+        question: 'What has been circling your mind that never lands?',
+        act: 'Give it a thirty-minute walk, phone at home or silenced in a pocket.',
+      },
+      {
+        readingId: 'reading.attention-love',
+        question: 'Who gets your leftover attention that deserves the first of it?',
+        act: 'Ten undivided minutes with that person today — nothing else in hand.',
+      },
+      {
+        readingId: 'reading.morning',
+        question: 'What did the first hour of today actually serve?',
+        act: 'Tomorrow, point the first thirty minutes before any screen points you.',
+      },
+      {
+        readingId: 'reading.enough',
+        question: 'If this afternoon were singular — which it is — what would it hold?',
+        act: 'Defend one afternoon hour for the thing you keep postponing.',
+      },
+      {
+        readingId: 'reading.shortness',
+        question: 'After a week of empty minutes — where does your time actually want to go?',
+        act: 'Write one sentence of intent for next week and leave it on paper, not in the phone.',
+      },
+    ],
+  },
 ];
 
 export function pathById(id: string): Path | undefined {

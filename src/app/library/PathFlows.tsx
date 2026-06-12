@@ -23,7 +23,10 @@ export interface PathStartFlowProps {
 }
 
 export function PathStartFlow({ db, onExit }: PathStartFlowProps): React.JSX.Element {
-  const path: Path = PATHS[0]; // the fallback bundle's one path; more arrive OTA
+  const choose = (api: { advance: () => void }) => async (path: Path) => {
+    await startPath(db, path.id, new Date());
+    api.advance();
+  };
   return (
     <FlowHost
       flow={PATH_START_FLOW}
@@ -31,20 +34,17 @@ export function PathStartFlow({ db, onExit }: PathStartFlowProps): React.JSX.Ele
       renderers={{
         invite: (api) => (
           <View style={styles.screen}>
-            <Text style={styles.title}>{path.title}</Text>
             <Text style={styles.body}>
-              Seven days. Each day one short reading, one question, one act in
-              the world. One day at a time — the pace is the point.
+              Seven days each. One short reading a day, one question, one act
+              in the world. One day at a time — the pace is the point.
             </Text>
-            <View style={styles.action}>
-              <PrimaryAction
-                label="walk it"
-                onPress={async () => {
-                  await startPath(db, path.id, new Date());
-                  api.advance();
-                }}
-              />
-            </View>
+            {PATHS.map((path, i) =>
+              i === 0 ? (
+                <PrimaryAction key={path.id} label={path.title} onPress={() => choose(api)(path)} />
+              ) : (
+                <QuietAction key={path.id} label={path.title} onPress={() => choose(api)(path)} />
+              ),
+            )}
           </View>
         ),
         begun: (api) => (

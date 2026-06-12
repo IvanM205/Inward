@@ -91,15 +91,18 @@ describe('pathRepo (LIB-02)', () => {
 });
 
 describe('path flows (LIB-02)', () => {
-  it('starting opens day one on the threshold', async () => {
+  it('starting offers every path and opens day one of the chosen', async () => {
     const db = await openDb();
     let tree!: ReactTestRenderer.ReactTestRenderer;
     await ReactTestRenderer.act(async () => {
       tree = ReactTestRenderer.create(<PathStartFlow db={db} onExit={() => {}} />);
     });
-    await press(tree, 'walk it');
+    const json = JSON.stringify(tree.toJSON());
+    for (const p of PATHS) expect(json).toContain(p.title);
+
+    await press(tree, PATHS[1].title);
     expect(JSON.stringify(tree.toJSON())).toContain('Day one waits');
-    expect(await activePath(db, new Date())).not.toBeNull();
+    expect((await activePath(db, new Date()))!.path.id).toBe(PATHS[1].id);
     await ReactTestRenderer.act(async () => tree.unmount());
   });
 
