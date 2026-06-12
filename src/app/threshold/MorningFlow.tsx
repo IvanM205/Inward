@@ -22,10 +22,12 @@ export const MORNING_QUESTION = 'What will you give your attention to today?';
 
 export interface MorningFlowProps {
   db: SqlDatabase;
+  /** Today's Opening text, when the active thread offers one (THR-02/04). */
+  opening?: string | null;
   onExit: () => void;
 }
 
-export function MorningFlow({ db, onExit }: MorningFlowProps): React.JSX.Element {
+export function MorningFlow({ db, opening, onExit }: MorningFlowProps): React.JSX.Element {
   const [answer, setAnswer] = useState('');
   return (
     <FlowHost
@@ -49,8 +51,8 @@ export function MorningFlow({ db, onExit }: MorningFlowProps): React.JSX.Element
           <View style={styles.screen}>
             <Text style={styles.openingLabel}>today’s opening</Text>
             <Text style={styles.openingLine}>
-              No thread is being loosened yet. Today is open — give it to what
-              you just named.
+              {opening ??
+                'No thread is being loosened yet. Today is open — give it to what you just named.'}
             </Text>
             <View style={styles.action}>
               <PrimaryAction

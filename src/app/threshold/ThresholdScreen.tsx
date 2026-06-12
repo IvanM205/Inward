@@ -16,6 +16,9 @@ export interface ThresholdScreenProps {
   /** Which compass is due, if any — the dueCompass rule, applied by the host. */
   dueCompass: CompassSlot;
   onOpenCompass: (slot: 'morning' | 'evening') => void;
+  /** Today's Opening — the one act, if a thread offers one today (THR-04). */
+  opening?: string | null;
+  onOpenOpening?: () => void;
   /** The Quiet switch — a door (01 §IA chrome), not one of the 3 elements. */
   onOpenQuiet: () => void;
   /** The Mirror door — shown while the intake is open or unfinished (ONB-04). */
@@ -30,6 +33,8 @@ const QUIET_LINE = 'The day is on the other side of this screen.';
 export function ThresholdScreen({
   dueCompass,
   onOpenCompass,
+  opening,
+  onOpenOpening,
   onOpenQuiet,
   onOpenMirror,
   onOpenVow,
@@ -46,6 +51,11 @@ export function ThresholdScreen({
             label={dueCompass === 'morning' ? 'the morning compass' : 'the evening compass'}
             onPress={() => onOpenCompass(dueCompass)}
           />
+        </View>
+      )}
+      {opening != null && onOpenOpening && (
+        <View style={styles.compass}>
+          <QuietAction label={`today’s opening — ${opening}`} onPress={onOpenOpening} />
         </View>
       )}
       <View style={styles.quietSwitch}>

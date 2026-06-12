@@ -14,7 +14,8 @@ import { permissionRequests, storage } from './src/app/bootstrap';
 import { IntakeQuizFlow } from './src/app/mirror/IntakeQuizFlow';
 import { PortraitFlow } from './src/app/mirror/PortraitFlow';
 import { OnboardingFlow } from './src/app/onboarding/OnboardingFlow';
-import { activeThread } from './src/app/plan/threadRepo';
+import { OpeningFlow } from './src/app/plan/OpeningFlow';
+import { activeThread, Thread } from './src/app/plan/threadRepo';
 import { VowWizardFlow } from './src/app/plan/VowWizardFlow';
 import { SettingsScreen } from './src/app/settings/SettingsScreen';
 import { isUnplugged } from './src/app/quiet/quietRepo';
@@ -24,6 +25,7 @@ import { MorningFlow } from './src/app/threshold/MorningFlow';
 import { CompassSlot, dueCompassToday } from './src/app/threshold/dueCompass';
 import { ThresholdScreen } from './src/app/threshold/ThresholdScreen';
 import { QuietVeil } from './src/core/design/QuietVeil';
+import { localDateKey } from './src/core/storage/time';
 
 type Route =
   | 'loading'
@@ -36,7 +38,8 @@ type Route =
   | 'unplug'
   | 'veil'
   | 'settings'
-  | 'vow';
+  | 'vow'
+  | 'opening';
 
 /** Where the Mirror door leads: the quiz until intake_done, then the Portrait. */
 function mirrorRouteFor(state: string | undefined): 'intake' | 'portrait' | null {
@@ -53,6 +56,7 @@ function App(): React.JSX.Element {
   const [due, setDue] = useState<CompassSlot>(null);
   const [mirrorRoute, setMirrorRoute] = useState<'intake' | 'portrait' | null>(null);
   const [vowOpen, setVowOpen] = useState(false);
+  const [thread, setThread] = useState<Thread | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -61,8 +65,9 @@ function App(): React.JSX.Element {
       const existing = await getProfile(opened);
       if (existing) setDue(await dueCompassToday(opened, existing, new Date()));
       setMirrorRoute(mirrorRouteFor(existing?.onboardingState));
-      const thread = await activeThread(opened);
-      setVowOpen(thread !== null && thread.replacementHabit === null);
+      const current = await activeThread(opened);
+      setThread(current);
+      setVowOpen(current !== null && current.replacementHabit === null);
       if (await isUnplugged(opened, new Date())) {
         setRoute('veil'); // a running unplug window is defended (QUIET-01)
         return;
@@ -80,8 +85,9 @@ function App(): React.JSX.Element {
       const fresh = await getProfile(db);
       setDue(fresh ? await dueCompassToday(db, fresh, new Date()) : null);
       setMirrorRoute(mirrorRouteFor(fresh?.onboardingState));
-      const thread = await activeThread(db);
-      setVowOpen(thread !== null && thread.replacementHabit === null);
+      const current = await activeThread(db);
+      setThread(current);
+      setVowOpen(current !== null && current.replacementHabit === null);
     }
     if (Platform.OS === 'android') BackHandler.exitApp();
     setRoute(db && (await isUnplugged(db, new Date())) ? 'veil' : 'threshold');
@@ -95,7 +101,7 @@ function App(): React.JSX.Element {
       ) : route === 'onboarding' ? (
         <OnboardingFlow db={db} permissions={permissionRequests} onExit={release} />
       ) : route === 'morning' ? (
-        <MorningFlow db={db} onExit={release} />
+        <MorningFlow db={db} opening={thread?.microAct} onExit={release} />
       ) : route === 'evening' ? (
         <EveningFlow db={db} onExit={release} />
       ) : route === 'intake' ? (
@@ -116,6 +122,8 @@ function App(): React.JSX.Element {
         />
       ) : route === 'vow' ? (
         <VowWizardFlow db={db} onExit={release} />
+      ) : route === 'opening' && thread ? (
+        <OpeningFlow db={db} thread={thread} onExit={release} />
       ) : route === 'unplug' ? (
         <UnplugFlow db={db} onExit={release} />
       ) : route === 'veil' ? (
@@ -124,6 +132,12 @@ function App(): React.JSX.Element {
         <ThresholdScreen
           dueCompass={due}
           onOpenCompass={(slot) => setRoute(slot)}
+          opening={
+            thread?.microAct && thread.openingDoneOn !== localDateKey(new Date())
+              ? thread.microAct
+              : null
+          }
+          onOpenOpening={() => setRoute('opening')}
           onOpenQuiet={() => setRoute('unplug')}
           onOpenMirror={mirrorRoute ? () => setRoute(mirrorRoute) : undefined}
           onOpenVow={vowOpen ? () => setRoute('vow') : undefined}

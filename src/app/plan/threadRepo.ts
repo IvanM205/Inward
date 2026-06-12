@@ -26,6 +26,8 @@ export interface Thread {
   status: ThreadStatus;
   replacementHabit: ReplacementHabit | null;
   microAct: string | null;
+  /** Local date Today's Opening was last completed (THR-04 due state). */
+  openingDoneOn: string | null;
   weeksHeld: number;
 }
 
@@ -39,6 +41,7 @@ function rowToThread(row: Record<string, unknown>): Thread {
       ? (JSON.parse(String(row.replacement_habit)) as ReplacementHabit)
       : null,
     microAct: row.micro_act ? String(row.micro_act) : null,
+    openingDoneOn: row.opening_done_on ? String(row.opening_done_on) : null,
     weeksHeld: Number(row.weeks_held),
   };
 }
@@ -71,6 +74,7 @@ export async function startThread(
     status: 'active',
     replacementHabit: null,
     microAct: null,
+    openingDoneOn: null,
     weeksHeld: 0,
   };
   await db.execute(
@@ -107,4 +111,10 @@ export async function setReplacementHabit(
 export async function setMicroAct(db: SqlDatabase, microAct: string): Promise<void> {
   const thread = await requireActive(db);
   await db.execute('UPDATE thread SET micro_act = ? WHERE id = ?', [microAct, thread.id]);
+}
+
+/** Marks Today's Opening complete for a local date (THR-04). */
+export async function markOpeningDone(db: SqlDatabase, date: string): Promise<void> {
+  const thread = await requireActive(db);
+  await db.execute('UPDATE thread SET opening_done_on = ? WHERE id = ?', [date, thread.id]);
 }

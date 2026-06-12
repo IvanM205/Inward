@@ -161,6 +161,14 @@ export const MIGRATIONS: Migration[] = [
       `CREATE UNIQUE INDEX thread_single_active ON thread (status) WHERE status = 'active'`,
     ],
   },
+  {
+    version: 8,
+    statements: [
+      // THR-04: the local date Today's Opening was last completed — one
+      // overwritten value, no history, nothing countable (INV-2).
+      `ALTER TABLE thread ADD COLUMN opening_done_on TEXT`,
+    ],
+  },
 ];
 
 /** The twelve channels — canonical list, order fixed (01-product-overview). */

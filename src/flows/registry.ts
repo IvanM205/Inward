@@ -130,6 +130,24 @@ export const VOW_FLOW: FlowGraph = {
   ],
 };
 
+/**
+ * THR-04 Today's Opening: one act, finishable today. Completing writes
+ * Evidence; leaving it carries no penalty and no copy that says otherwise.
+ */
+export const OPENING_FLOW: FlowGraph = {
+  name: 'THR-04 opening',
+  entry: 'act',
+  screens: [
+    { id: 'act', kind: 'screen' },
+    { id: 'done', kind: 'terminal' },
+    { id: 'left', kind: 'terminal' },
+  ],
+  edges: [
+    { from: 'act', to: 'done' },
+    { from: 'act', to: 'left' },
+  ],
+};
+
 /** JRN-03: one-line aliveness capture from the widget — in and back out. */
 export const WIDGET_CAPTURE_FLOW: FlowGraph = {
   name: 'JRN-03 widget capture',
@@ -157,6 +175,7 @@ export const primaryFlows: FlowGraph[] = [
   INTAKE_FLOW,
   PORTRAIT_FLOW,
   VOW_FLOW,
+  OPENING_FLOW,
   MORNING_FLOW,
   EVENING_FLOW,
   WIDGET_CAPTURE_FLOW,
