@@ -14,6 +14,7 @@ import { color, space, type } from '../../core/design/tokens';
 import { FlowHost } from '../../core/navigation/FlowHost';
 import { SqlDatabase } from '../../core/storage/ports';
 import { localDateKey } from '../../core/storage/time';
+import { t } from '../../core/content/strings';
 import { OPENING_FLOW } from '../../flows/registry';
 import { addEntry } from '../journal/journalRepo';
 import { completeDare, Dare, dueDare, skipDare } from './dareRepo';
@@ -22,6 +23,7 @@ import { markOpeningDone, Thread } from './threadRepo';
 export interface OpeningFlowProps {
   db: SqlDatabase;
   thread: Thread;
+  locale?: string;
   /**
    * `completed` is true only when the act actually happened — the host's
    * ask rules depend on the difference (OPEN-02: a skipped opening is not
@@ -30,7 +32,7 @@ export interface OpeningFlowProps {
   onExit: (completed: boolean) => void;
 }
 
-export function OpeningFlow({ db, thread, onExit }: OpeningFlowProps): React.JSX.Element {
+export function OpeningFlow({ db, thread, locale = 'en', onExit }: OpeningFlowProps): React.JSX.Element {
   // THR-04: the one act is a dare when one is due (roughly weekly), else the
   // daily micro-act. undefined = still deciding.
   const [dare, setDare] = useState<Dare | null | undefined>(undefined);
@@ -52,6 +54,7 @@ export function OpeningFlow({ db, thread, onExit }: OpeningFlowProps): React.JSX
           ) : dare !== null ? (
             <View style={styles.screen}>
               <DareCard
+                locale={locale}
                 rung={dare.rung}
                 text={dare.text}
                 feeling={feeling}
@@ -71,11 +74,11 @@ export function OpeningFlow({ db, thread, onExit }: OpeningFlowProps): React.JSX
             </View>
           ) : (
             <View style={styles.screen}>
-              <Text style={styles.label}>today’s opening</Text>
+              <Text style={styles.label}>{t('morning.openingLabel', locale)}</Text>
               <Text style={styles.act}>{thread.microAct}</Text>
               <View style={styles.actions}>
                 <PrimaryAction
-                  label="done — it happened"
+                  label={t('opening.done', locale)}
                   onPress={async () => {
                     const now = new Date();
                     // Evidence: the act done instead of the old routine (04 §2.1).
@@ -94,15 +97,15 @@ export function OpeningFlow({ db, thread, onExit }: OpeningFlowProps): React.JSX
                     api.advance('done');
                   }}
                 />
-                <QuietAction label="not today" onPress={() => api.advance('left')} />
+                <QuietAction label={t('opening.notToday', locale)} onPress={() => api.advance('left')} />
               </View>
             </View>
           ),
         done: (api) => (
-          <TerminalScreen line="It counts because it happened. Go on with your day." onExit={api.exit} />
+          <TerminalScreen line={t('opening.doneTerminal', locale)} onExit={api.exit} />
         ),
         left: (api) => (
-          <TerminalScreen line="The opening waits, without keeping score." onExit={api.exit} />
+          <TerminalScreen line={t('opening.leftTerminal', locale)} onExit={api.exit} />
         ),
       }}
     />

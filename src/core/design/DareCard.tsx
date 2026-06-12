@@ -5,10 +5,12 @@
  */
 import React from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
+import { t } from '../content/strings';
 import { PrimaryAction, QuietAction } from './Buttons';
 import { color, space, type } from './tokens';
 
 export interface DareCardProps {
+  locale?: string;
   rung: number;
   text: string;
   feeling: string;
@@ -19,6 +21,7 @@ export interface DareCardProps {
 }
 
 export function DareCard({
+  locale = 'en',
   rung,
   text,
   feeling,
@@ -34,13 +37,13 @@ export function DareCard({
         style={styles.feeling}
         value={feeling}
         onChangeText={onFeelingChange}
-        placeholder="done — how did it feel?"
+        placeholder={t('dare.feelHint', locale)}
         placeholderTextColor={color.stone}
-        accessibilityLabel="done — how did it feel?"
+        accessibilityLabel={t('dare.feelHint', locale)}
       />
       <View style={styles.actions}>
-        <PrimaryAction label="it is done" onPress={onDone} />
-        <QuietAction label="not today" onPress={onNotToday} />
+        <PrimaryAction label={t('dare.itIsDone', locale)} onPress={onDone} />
+        <QuietAction label={t('opening.notToday', locale)} onPress={onNotToday} />
       </View>
     </View>
   );

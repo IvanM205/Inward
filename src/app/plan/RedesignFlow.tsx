@@ -8,6 +8,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { PrimaryAction } from '../../core/design/Buttons';
 import { TerminalScreen } from '../../core/design/TerminalScreen';
 import { color, space, touchTarget, type } from '../../core/design/tokens';
+import { t } from '../../core/content/strings';
 import { FlowHost } from '../../core/navigation/FlowHost';
 import { SqlDatabase } from '../../core/storage/ports';
 import { REDESIGN_FLOW } from '../../flows/registry';
@@ -21,10 +22,11 @@ import {
 
 export interface RedesignFlowProps {
   db: SqlDatabase;
+  locale?: string;
   onExit: () => void;
 }
 
-export function RedesignFlow({ db, onExit }: RedesignFlowProps): React.JSX.Element {
+export function RedesignFlow({ db, locale = 'en', onExit }: RedesignFlowProps): React.JSX.Element {
   const [done, setDone] = useState<Partial<Record<RedesignStepKey, boolean>>>({});
 
   useEffect(() => {
@@ -39,7 +41,7 @@ export function RedesignFlow({ db, onExit }: RedesignFlowProps): React.JSX.Eleme
         checklist: (api) => (
           <View style={styles.screen}>
             <Text style={styles.lead}>
-              The phone can be made quieter, once. Do any of these, or none.
+              {t('redesign.lead', locale)}
             </Text>
             {REDESIGN_STEPS.map((step) => {
               const checked = done[step.key] === true;
@@ -61,7 +63,7 @@ export function RedesignFlow({ db, onExit }: RedesignFlowProps): React.JSX.Eleme
             })}
             <View style={styles.action}>
               <PrimaryAction
-                label="that is enough"
+                label={t('redesign.enough', locale)}
                 onPress={async () => {
                   await retireRedesign(db);
                   api.advance();
@@ -72,7 +74,7 @@ export function RedesignFlow({ db, onExit }: RedesignFlowProps): React.JSX.Eleme
         ),
         enough: (api) => (
           <TerminalScreen
-            line="The phone is quieter now. It will not ask you about this again."
+            line={t('redesign.terminal', locale)}
             onExit={api.exit}
           />
         ),

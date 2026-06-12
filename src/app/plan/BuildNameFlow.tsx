@@ -11,15 +11,17 @@ import { TerminalScreen } from '../../core/design/TerminalScreen';
 import { color, space } from '../../core/design/tokens';
 import { FlowHost } from '../../core/navigation/FlowHost';
 import { SqlDatabase } from '../../core/storage/ports';
+import { t } from '../../core/content/strings';
 import { BUILD_NAME_FLOW } from '../../flows/registry';
 import { nameBuildThing } from './buildRepo';
 
 export interface BuildNameFlowProps {
   db: SqlDatabase;
+  locale?: string;
   onExit: () => void;
 }
 
-export function BuildNameFlow({ db, onExit }: BuildNameFlowProps): React.JSX.Element {
+export function BuildNameFlow({ db, locale = 'en', onExit }: BuildNameFlowProps): React.JSX.Element {
   const [name, setName] = useState('');
   return (
     <FlowHost
@@ -29,14 +31,14 @@ export function BuildNameFlow({ db, onExit }: BuildNameFlowProps): React.JSX.Ele
         name: (api) => (
           <View style={styles.screen}>
             <QuestionCard
-              question="One thing your hands will build this season. Name it."
+              question={t('build.question', locale)}
               value={name}
               onChange={setName}
-              placeholder="bread, a song, a bench, a garden bed…"
+              placeholder={t('build.hint', locale)}
             />
             <View style={styles.action}>
               <PrimaryAction
-                label="name it"
+                label={t('build.nameIt', locale)}
                 disabled={name.trim().length === 0}
                 onPress={async () => {
                   await nameBuildThing(db, name, new Date());
@@ -48,7 +50,7 @@ export function BuildNameFlow({ db, onExit }: BuildNameFlowProps): React.JSX.Ele
         ),
         named: (api) => (
           <TerminalScreen
-            line="Named. Once a week the question will come: did your hands learn something?"
+            line={t('build.terminal', locale)}
             onExit={api.exit}
           />
         ),

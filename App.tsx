@@ -51,6 +51,7 @@ import { CompassSlot, dueCompassToday } from './src/app/threshold/dueCompass';
 import { ThresholdScreen } from './src/app/threshold/ThresholdScreen';
 import { QuietVeil } from './src/core/design/QuietVeil';
 import { localDateKey } from './src/core/storage/time';
+import { t } from './src/core/content/strings';
 
 type Route =
   | 'loading'
@@ -238,11 +239,12 @@ function App(): React.JSX.Element {
           }}
         />
       ) : route === 'vow' ? (
-        <VowWizardFlow db={db} onExit={release} />
+        <VowWizardFlow db={db} locale={locale} onExit={release} />
       ) : route === 'opening' && thread ? (
         <OpeningFlow
           db={db}
           thread={thread}
+          locale={locale}
           // Only a COMPLETED act is a good moment (OPEN-02); a skipped
           // opening releases plainly, with no ask attached.
           onExit={(completed) => (completed ? releaseAfter('dare') : release())}
@@ -259,7 +261,7 @@ function App(): React.JSX.Element {
         <DetoxCheckinFlow db={db} onExit={release} />
       ) : route === 'graduated' && graduated ? (
         <TerminalScreen
-          line="Four weeks held. The thread is loosened — wear the season lightly."
+          line={t('graduation.line', locale)}
           onExit={async () => {
             await markGraduationCelebrated(db, graduated.id);
             setGraduated(null);
@@ -271,9 +273,9 @@ function App(): React.JSX.Element {
       ) : route === 'stillness' ? (
         <StillnessFlow db={db} onExit={release} />
       ) : route === 'redesign' ? (
-        <RedesignFlow db={db} onExit={release} />
+        <RedesignFlow db={db} locale={locale} onExit={release} />
       ) : route === 'build-name' ? (
-        <BuildNameFlow db={db} onExit={release} />
+        <BuildNameFlow db={db} locale={locale} onExit={release} />
       ) : route === 'path-start' ? (
         <PathStartFlow db={db} onExit={release} />
       ) : route === 'path-day' ? (

@@ -13,41 +13,28 @@ import { TerminalScreen } from '../../core/design/TerminalScreen';
 import { color, space, type } from '../../core/design/tokens';
 import { FlowHost, FlowScreenApi } from '../../core/navigation/FlowHost';
 import { SqlDatabase } from '../../core/storage/ports';
+import { t } from '../../core/content/strings';
 import { VOW_FLOW } from '../../flows/registry';
 import { seedLadder } from './dareRepo';
 import { activeThread, setMicroAct, setReplacementHabit } from './threadRepo';
 
 export interface VowWizardFlowProps {
   db: SqlDatabase;
+  locale?: string;
   onExit: () => void;
 }
 
 const STEPS = {
-  cue: {
-    question: 'When does the pull usually find you?',
-    placeholder: 'in bed, after dinner, the moment I wake…',
-  },
-  routine: {
-    question: 'And what happens then — the old routine?',
-    placeholder: 'I open the feed and an hour disappears…',
-  },
-  'what-it-gives': {
-    question: 'Be honest: what does it give you?',
-    placeholder: 'a rest from thinking, company, numbness…',
-  },
-  vow: {
-    question: 'Now the vow — when the cue comes, what will you do instead?',
-    placeholder: 'When I reach for my phone in bed, I will open the book on my nightstand.',
-  },
-  'micro-act': {
-    question: 'And the smallest daily act — under five minutes, doable on your worst day?',
-    placeholder: 'one page, one stretch, one message to a friend…',
-  },
+  cue: { question: 'vow.cue', placeholder: 'vow.cueHint' },
+  routine: { question: 'vow.routine', placeholder: 'vow.routineHint' },
+  'what-it-gives': { question: 'vow.gives', placeholder: 'vow.givesHint' },
+  vow: { question: 'vow.vow', placeholder: 'vow.vowHint' },
+  'micro-act': { question: 'vow.micro', placeholder: 'vow.microHint' },
 } as const;
 
 type StepId = keyof typeof STEPS;
 
-export function VowWizardFlow({ db, onExit }: VowWizardFlowProps): React.JSX.Element {
+export function VowWizardFlow({ db, locale = 'en', onExit }: VowWizardFlowProps): React.JSX.Element {
   const [answers, setAnswers] = useState<Record<StepId, string>>({
     cue: '',
     routine: '',
@@ -59,14 +46,14 @@ export function VowWizardFlow({ db, onExit }: VowWizardFlowProps): React.JSX.Ele
   const step = (id: StepId, api: FlowScreenApi, onDone?: () => Promise<void>) => (
     <View style={styles.screen}>
       <QuestionCard
-        question={STEPS[id].question}
+        question={t(STEPS[id].question as never, locale)}
         value={answers[id]}
         onChange={(text) => setAnswers({ ...answers, [id]: text })}
-        placeholder={STEPS[id].placeholder}
+        placeholder={t(STEPS[id].placeholder as never, locale)}
       />
       <View style={styles.action}>
         <PrimaryAction
-          label="go on"
+          label={t('common.goOn', locale)}
           disabled={answers[id].trim().length === 0}
           onPress={async () => {
             await onDone?.();
@@ -109,7 +96,7 @@ export function VowWizardFlow({ db, onExit }: VowWizardFlowProps): React.JSX.Ele
             if (thread) await seedLadder(db, thread);
           }),
         held: (api) => (
-          <TerminalScreen line="The vow is made. Go live it once, today." onExit={api.exit} />
+          <TerminalScreen line={t('vow.terminal', locale)} onExit={api.exit} />
         ),
       }}
     />
