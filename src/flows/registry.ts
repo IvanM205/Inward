@@ -171,6 +171,17 @@ export const CRAVING_FLOW: FlowGraph = {
   ],
 };
 
+/** LIB-01 One Deep Thing: today's reading, then go live it. */
+export const READING_FLOW: FlowGraph = {
+  name: 'LIB-01 one deep thing',
+  entry: 'reading',
+  screens: [
+    { id: 'reading', kind: 'screen' },
+    { id: 'live-it', kind: 'terminal' },
+  ],
+  edges: [{ from: 'reading', to: 'live-it' }],
+};
+
 /** JRN-03: one-line aliveness capture from the widget — in and back out. */
 export const WIDGET_CAPTURE_FLOW: FlowGraph = {
   name: 'JRN-03 widget capture',
@@ -200,6 +211,7 @@ export const primaryFlows: FlowGraph[] = [
   VOW_FLOW,
   OPENING_FLOW,
   CRAVING_FLOW,
+  READING_FLOW,
   MORNING_FLOW,
   EVENING_FLOW,
   WIDGET_CAPTURE_FLOW,

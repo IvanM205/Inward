@@ -15,6 +15,8 @@ import { IntakeQuizFlow } from './src/app/mirror/IntakeQuizFlow';
 import { PortraitFlow } from './src/app/mirror/PortraitFlow';
 import { OnboardingFlow } from './src/app/onboarding/OnboardingFlow';
 import { CravingFlow } from './src/app/crave/CravingFlow';
+import { ReadingFlow } from './src/app/library/ReadingFlow';
+import { todaysReading } from './src/app/library/libraryRepo';
 import { OpeningFlow } from './src/app/plan/OpeningFlow';
 import {
   activeThread,
@@ -48,7 +50,8 @@ type Route =
   | 'vow'
   | 'opening'
   | 'crave'
-  | 'graduated';
+  | 'graduated'
+  | 'reading';
 
 /** Where the Mirror door leads: the quiz until intake_done, then the Portrait. */
 function mirrorRouteFor(state: string | undefined): 'intake' | 'portrait' | null {
@@ -142,6 +145,8 @@ function App(): React.JSX.Element {
         <OpeningFlow db={db} thread={thread} onExit={release} />
       ) : route === 'crave' ? (
         <CravingFlow db={db} thread={thread} onExit={release} />
+      ) : route === 'reading' ? (
+        <ReadingFlow db={db} reading={todaysReading(new Date())} onExit={release} />
       ) : route === 'graduated' && graduated ? (
         <TerminalScreen
           line="Four weeks held. The thread is loosened — wear the season lightly."
@@ -167,6 +172,7 @@ function App(): React.JSX.Element {
           onOpenOpening={() => setRoute('opening')}
           onOpenQuiet={() => setRoute('unplug')}
           onOpenCraving={() => setRoute('crave')}
+          onOpenReading={() => setRoute('reading')}
           onOpenMirror={mirrorRoute ? () => setRoute(mirrorRoute) : undefined}
           onOpenVow={vowOpen ? () => setRoute('vow') : undefined}
           onOpenSettings={() => setRoute('settings')}

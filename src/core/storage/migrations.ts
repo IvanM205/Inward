@@ -216,6 +216,20 @@ export const MIGRATIONS: Migration[] = [
       `ALTER TABLE thread ADD COLUMN celebrate_pending INTEGER NOT NULL DEFAULT 0`,
     ],
   },
+  {
+    version: 12,
+    statements: [
+      // ReadingLog (03 §Reading, LIB-01): one row per reading per day read;
+      // revisits capped at one per day — the archive is not a feed (INV-1).
+      `CREATE TABLE reading_log (
+        id TEXT PRIMARY KEY,
+        reading_id TEXT NOT NULL,
+        read_on TEXT NOT NULL,
+        revisits INTEGER NOT NULL DEFAULT 0 CHECK (revisits <= 1),
+        UNIQUE (reading_id, read_on)
+      )`,
+    ],
+  },
 ];
 
 /** The twelve channels — canonical list, order fixed (01-product-overview). */
