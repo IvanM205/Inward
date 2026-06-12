@@ -38,7 +38,9 @@ type Route =
 /** Where the Mirror door leads: the quiz until intake_done, then the Portrait. */
 function mirrorRouteFor(state: string | undefined): 'intake' | 'portrait' | null {
   if (state === 'permissions_done' || state === 'intake_in_progress') return 'intake';
-  if (state === 'intake_done' || state === 'portrait_seen') return 'portrait';
+  if (state === 'intake_done' || state === 'portrait_seen' || state === 'thread_chosen' || state === 'complete') {
+    return 'portrait';
+  }
   return null;
 }
 

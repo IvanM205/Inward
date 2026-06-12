@@ -24,6 +24,7 @@ import { severityGate } from '../../core/safety/classifier';
 import { SqlDatabase } from '../../core/storage/ports';
 import { getProfile, setOnboardingState } from '../../core/storage/repos/profileRepo';
 import { PORTRAIT_FLOW } from '../../flows/registry';
+import { startThread } from '../plan/threadRepo';
 import { HelpFirstScreen } from '../safety/HelpFirstScreen';
 import { allResponses, IntakeAnswer, IntakeResponse, responsesByIds } from './intakeRepo';
 import { ChannelScoreRow, latestScores, weeklyRecalc } from './recalc';
@@ -63,12 +64,19 @@ export function PortraitFlow({ db, onExit }: PortraitFlowProps): React.JSX.Eleme
   // SAFE-03: severity patterns hand the person on BEFORE the Mirror speaks.
   const [helpFirst, setHelpFirst] = useState(false);
   const [locale, setLocale] = useState('en');
+  // ONB-06: the first viewing flows on into first-thread selection.
+  const [firstRun, setFirstRun] = useState(false);
+  const [closingLine, setClosingLine] = useState(
+    'That is the shape of it — not a verdict, a map. Go live.',
+  );
 
   useEffect(() => {
     (async () => {
       const responses = await allResponses(db);
       setHelpFirst(severityGate(responses).triggered);
-      setLocale((await getProfile(db))?.locale ?? 'en');
+      const profile = await getProfile(db);
+      setLocale(profile?.locale ?? 'en');
+      setFirstRun(profile?.onboardingState === 'intake_done');
       let latest = await latestScores(db);
       if (latest.length === 0) {
         await weeklyRecalc(db, new Date());
@@ -147,7 +155,10 @@ export function PortraitFlow({ db, onExit }: PortraitFlowProps): React.JSX.Eleme
                 </Text>
               </ScrollView>
               <View style={styles.action}>
-                <PrimaryAction label="i have seen it" onPress={() => api.advance()} />
+                <PrimaryAction
+                  label="i have seen it"
+                  onPress={() => api.advance(firstRun ? 'first-thread' : 'seen')}
+                />
                 {/* MIR-05: re-measure on demand — recalc from today's answers
                     and evidence; the short re-intake arrives with threads (M3). */}
                 <QuietAction
@@ -161,13 +172,57 @@ export function PortraitFlow({ db, onExit }: PortraitFlowProps): React.JSX.Eleme
               </View>
             </View>
           ),
+        'first-thread': (api) => {
+          const suggested = deepest ?? [...(scores ?? [])].sort(
+            (a, b) => b.effectiveScore - a.effectiveScore,
+          )[0];
+          const others = (scores ?? []).filter(
+            (s) => s.band !== 'free' && s.channelKey !== suggested?.channelKey,
+          );
+          const choose = async (channelKey: string) => {
+            await startThread(db, channelKey as never, new Date());
+            await setOnboardingState(db, 'thread_chosen');
+            setClosingLine('That is enough for today. Go live.'); // ONB-06
+            api.advance('seen');
+          };
+          return (
+            <View style={[styles.screen, styles.firstThread]}>
+              <Text style={styles.orientation}>
+                One channel per season — loosened slowly, never all at once.
+                Which thread first?
+              </Text>
+              {suggested && (
+                <PrimaryAction
+                  label={`begin with ${channelName(suggested.channelKey).toLowerCase()}`}
+                  onPress={() => choose(suggested.channelKey)}
+                />
+              )}
+              {others.map((s) => (
+                <QuietAction
+                  key={s.channelKey}
+                  label={channelName(s.channelKey).toLowerCase()}
+                  onPress={() => choose(s.channelKey)}
+                />
+              ))}
+              <QuietAction
+                label="not yet"
+                onPress={() => {
+                  setClosingLine('That is enough for today. Go live.'); // ONB-06
+                  api.advance('seen');
+                }}
+              />
+            </View>
+          );
+        },
         seen: (api) => (
           <TerminalScreen
-            line="That is the shape of it — not a verdict, a map. Go live."
+            line={closingLine}
             onExit={async () => {
               const profile = await getProfile(db);
               if (profile?.onboardingState === 'intake_done') {
                 await setOnboardingState(db, 'portrait_seen');
+              } else if (profile?.onboardingState === 'thread_chosen') {
+                await setOnboardingState(db, 'complete'); // onboarding ends (ONB-06)
               }
               api.exit();
             }}
@@ -212,6 +267,10 @@ const styles = StyleSheet.create({
     color: color.ink,
     marginTop: space.x4,
     marginBottom: space.x3,
+  },
+  firstThread: {
+    justifyContent: 'center',
+    paddingHorizontal: space.readingMargin,
   },
   action: {
     alignItems: 'center',

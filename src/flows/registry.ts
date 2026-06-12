@@ -93,13 +93,20 @@ export const INTAKE_FLOW: FlowGraph = {
  * (state, not navigation — no loops, only exits). Seeing it is the end.
  */
 export const PORTRAIT_FLOW: FlowGraph = {
-  name: 'MIR-01..03 portrait',
+  name: 'MIR-01..03 portrait (+ONB-06 first thread)',
   entry: 'portrait',
   screens: [
     { id: 'portrait', kind: 'screen' },
+    { id: 'first-thread', kind: 'screen' },
     { id: 'seen', kind: 'terminal' },
   ],
-  edges: [{ from: 'portrait', to: 'seen' }],
+  edges: [
+    // Onboarding passes through first-thread selection (ONB-06); later
+    // visits go straight to the exit.
+    { from: 'portrait', to: 'first-thread' },
+    { from: 'portrait', to: 'seen' },
+    { from: 'first-thread', to: 'seen' },
+  ],
 };
 
 /** JRN-03: one-line aliveness capture from the widget — in and back out. */

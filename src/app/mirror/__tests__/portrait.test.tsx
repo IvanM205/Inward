@@ -13,6 +13,8 @@ import {
   FakeNotifications,
   FakeWidgets,
 } from '../../../core/storage/testing/fakes';
+import { activeThread } from '../../plan/threadRepo';
+import { getProfile } from '../../../core/storage/repos/profileRepo';
 import { saveAnswer } from '../intakeRepo';
 import { describeAnswer, PortraitFlow } from '../PortraitFlow';
 import { latestScores } from '../recalc';
@@ -111,19 +113,41 @@ describe('PortraitFlow (MIR-01..03)', () => {
     await ReactTestRenderer.act(async () => tree.unmount());
   });
 
-  it('ends in a terminal screen and marks portrait_seen', async () => {
+  it('first viewing flows into first-thread selection (ONB-06, PLAN-01)', async () => {
+    const db = await openDb(); // state: intake_done — this IS the first viewing
+    await answerFeedsHot(db);
+    const tree = await mount(db);
+    await press(tree, 'i have seen it');
+
+    // The deepest capture is the suggested first thread (MIR-02).
+    expect(JSON.stringify(tree.toJSON())).toContain('begin with feeds & shorts');
+    await press(tree, 'begin with feeds & shorts');
+
+    const thread = await activeThread(db);
+    expect(thread!.channelKey).toBe('feeds');
+    expect((await getProfile(db))!.onboardingState).toBe('thread_chosen');
+    expect(JSON.stringify(tree.toJSON())).toContain('That is enough for today. Go live.');
+    await ReactTestRenderer.act(async () => tree.unmount());
+  });
+
+  it('"not yet" leaves the thread unchosen and still releases (ONB-06)', async () => {
     const db = await openDb();
     await answerFeedsHot(db);
     const tree = await mount(db);
     await press(tree, 'i have seen it');
-    expect(JSON.stringify(tree.toJSON())).toContain('not a verdict, a map');
+    await press(tree, 'not yet');
+    expect(await activeThread(db)).toBeNull();
+    expect(JSON.stringify(tree.toJSON())).toContain('That is enough for today. Go live.');
+    await ReactTestRenderer.act(async () => tree.unmount());
+  });
 
-    // The terminal's exit records the state (ONB-06 ordering).
-    const exitScreen = tree.root.findByProps({ accessibilityViewIsModal: true });
-    void exitScreen;
-    await ReactTestRenderer.act(async () => {
-      require('react-native').BackHandler.mockPressBack?.();
-    });
+  it('a later visit skips thread selection and ends in the map terminal', async () => {
+    const db = await openDb();
+    await setOnboardingState(db, 'portrait_seen'); // not the first viewing
+    await answerFeedsHot(db);
+    const tree = await mount(db);
+    await press(tree, 'i have seen it');
+    expect(JSON.stringify(tree.toJSON())).toContain('not a verdict, a map');
     await ReactTestRenderer.act(async () => tree.unmount());
   });
 });

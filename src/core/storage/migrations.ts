@@ -142,6 +142,25 @@ export const MIGRATIONS: Migration[] = [
       )`,
     ],
   },
+  {
+    version: 7,
+    statements: [
+      // Thread — the Liberation Plan (03 §Thread): one channel per season.
+      // The partial unique index makes "exactly one active thread" (PLAN-01)
+      // a database fact, not just repo discipline.
+      `CREATE TABLE thread (
+        id TEXT PRIMARY KEY,
+        channel_key TEXT NOT NULL REFERENCES channel(key),
+        started_at TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'active'
+          CHECK (status IN ('active','paused','graduated','abandoned')),
+        replacement_habit TEXT,
+        micro_act TEXT,
+        weeks_held INTEGER NOT NULL DEFAULT 0
+      )`,
+      `CREATE UNIQUE INDEX thread_single_active ON thread (status) WHERE status = 'active'`,
+    ],
+  },
 ];
 
 /** The twelve channels — canonical list, order fixed (01-product-overview). */
