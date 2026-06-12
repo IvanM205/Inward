@@ -20,6 +20,7 @@ import { FlowHost } from '../../core/navigation/FlowHost';
 import { SqlDatabase } from '../../core/storage/ports';
 import { needleDirection, saveReflection } from '../../core/storage/repos/reflectionRepo';
 import { localDateKey } from '../../core/storage/time';
+import { suggestedChannels } from '../journal/channelSuggestion';
 import { addEntry } from '../journal/journalRepo';
 import { BreathScreen } from '../onboarding/BreathScreen';
 import { EVENING_FLOW } from '../../flows/registry';
@@ -50,13 +51,23 @@ export function EveningFlow({ db, onExit }: EveningFlowProps): React.JSX.Element
       line: line.trim() || undefined,
       gratitudes: gratitudes.map((g) => g.trim()).filter((g) => g.length > 0),
     });
+    // Channels auto-suggested from the active thread (04 §2.1) — without
+    // them, lived evidence would never reach the score.
     for (const g of gratitudes.map((s) => s.trim()).filter((s) => s.length > 0)) {
-      await addEntry(db, { type: 'gratitude', text: g, channelKeys: [], origin: 'evening' }, now);
+      await addEntry(
+        db,
+        { type: 'gratitude', text: g, channelKeys: await suggestedChannels(db, 'gratitude'), origin: 'evening' },
+        now,
+      );
     }
     for (const { type } of FOLD_PROMPTS) {
       const text = fold[type].trim();
       if (text.length > 0) {
-        await addEntry(db, { type, text, channelKeys: [], origin: 'evening' }, now);
+        await addEntry(
+          db,
+          { type, text, channelKeys: await suggestedChannels(db, type), origin: 'evening' },
+          now,
+        );
       }
     }
     setNeedle(await needleDirection(db, now));

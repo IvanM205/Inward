@@ -13,6 +13,7 @@ import {
 } from '../../../core/storage/testing/fakes';
 import { localDateKey } from '../../../core/storage/time';
 import { entriesOn } from '../../journal/journalRepo';
+import { startThread } from '../../plan/threadRepo';
 import { BREATH_TOTAL_MS } from '../../onboarding/BreathScreen';
 import { EveningFlow } from '../EveningFlow';
 import { MorningFlow, MORNING_QUESTION } from '../MorningFlow';
@@ -124,6 +125,32 @@ describe('EveningFlow (THR-03, JRN-02)', () => {
 
     await press(tree, 'good night');
     expect(JSON.stringify(tree.toJSON())).toContain('That is enough for today. Rest now.');
+    await ReactTestRenderer.act(async () => tree.unmount());
+  });
+
+  it('with an active thread, fold entries carry suggested channels (04 §2.1)', async () => {
+    const db = await openDb();
+    await startThread(db, 'feeds', new Date(2026, 5, 10));
+    let tree!: ReactTestRenderer.ReactTestRenderer;
+    await ReactTestRenderer.act(async () => {
+      tree = ReactTestRenderer.create(<EveningFlow db={db} onExit={() => {}} />);
+    });
+    await press(tree, 'level — neither way');
+    await press(tree, 'go on');
+    typeInto(tree, 'Up to three things — or none.', 'Eva cooked for us');
+    await press(tree, 'go on');
+    typeInto(
+      tree,
+      'Was there a kindness in your day — given or received?',
+      'carried the neighbour’s groceries up the stairs',
+    );
+    await press(tree, 'fold the day');
+
+    const entries = await entriesOn(db, localDateKey(new Date()));
+    const kindness = entries.find((e) => e.type === 'kindness')!;
+    const gratitude = entries.find((e) => e.type === 'gratitude')!;
+    expect(kindness.channelKeys).toEqual(['relationships', 'feeds']);
+    expect(gratitude.channelKeys).toEqual(['feeds']); // evidence reaches the thread
     await ReactTestRenderer.act(async () => tree.unmount());
   });
 

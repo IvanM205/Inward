@@ -13,6 +13,7 @@ import { color, space } from '../../core/design/tokens';
 import { FlowHost } from '../../core/navigation/FlowHost';
 import { SqlDatabase } from '../../core/storage/ports';
 import { WIDGET_CAPTURE_FLOW } from '../../flows/registry';
+import { suggestedChannels } from './channelSuggestion';
 import { addEntry } from './journalRepo';
 
 export const CAPTURE_PROMPT = 'What is alive right now?';
@@ -40,7 +41,12 @@ export function WidgetCaptureFlow({ db, onExit }: WidgetCaptureFlowProps): React
                   if (line.length > 0) {
                     await addEntry(
                       db,
-                      { type: 'aliveness', text: line, channelKeys: [], origin: 'widget' },
+                      {
+                        type: 'aliveness',
+                        text: line,
+                        channelKeys: await suggestedChannels(db, 'aliveness'),
+                        origin: 'widget',
+                      },
                       new Date(),
                     );
                   }
