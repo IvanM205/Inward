@@ -3,6 +3,7 @@ import ReactTestRenderer from 'react-test-renderer';
 
 jest.useFakeTimers();
 import { Storage } from '../../../core/storage/Storage';
+import { ensureProfile, getProfile } from '../../../core/storage/repos/profileRepo';
 import { reflectionForDate } from '../../../core/storage/repos/reflectionRepo';
 import {
   FakeDatabaseProvider,
@@ -49,10 +50,12 @@ function typeInto(tree: ReactTestRenderer.ReactTestRenderer, label: string, text
 
 describe('MorningFlow (THR-02)', () => {
   it('asks the one question, reveals the opening, ends in a terminal screen', async () => {
+    const db = await openDb();
+    await ensureProfile(db, new Date());
     const onExit = jest.fn();
     let tree!: ReactTestRenderer.ReactTestRenderer;
     await ReactTestRenderer.act(async () => {
-      tree = ReactTestRenderer.create(<MorningFlow onExit={onExit} />);
+      tree = ReactTestRenderer.create(<MorningFlow db={db} onExit={onExit} />);
     });
     expect(JSON.stringify(tree.toJSON())).toContain(MORNING_QUESTION);
 
@@ -62,6 +65,18 @@ describe('MorningFlow (THR-02)', () => {
 
     await press(tree, 'i will');
     expect(JSON.stringify(tree.toJSON())).toContain('Now go give it your attention.');
+
+    // The morning leaves only today's date behind (ADR-004): the marker so
+    // the Threshold lets the compass rest — the answer itself stays unstored.
+    const profile = (await getProfile(db))!;
+    expect(profile.morningDoneDate).toBe(localDateKey(new Date()));
+    const everything = await db.execute(
+      "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'",
+    );
+    for (const row of everything.rows) {
+      const dump = await db.execute(`SELECT * FROM "${String(row.name)}"`);
+      expect(JSON.stringify(dump.rows)).not.toContain('my daughter');
+    }
     await ReactTestRenderer.act(async () => tree.unmount());
   });
 });

@@ -83,6 +83,16 @@ export const MIGRATIONS: Migration[] = [
       `INSERT INTO quiet_state (id, mode) VALUES (1, 'none')`,
     ],
   },
+  {
+    version: 4,
+    statements: [
+      // Morning-done marker (THR-01/02, ADR-004): the local date the morning
+      // compass was last completed — one overwritten value, no history, so
+      // nothing can ever be counted or chained (INV-2). The morning answer
+      // itself stays unstored (least data).
+      `ALTER TABLE profile ADD COLUMN morning_done_date TEXT`,
+    ],
+  },
 ];
 
 /** The twelve channels — canonical list, order fixed (01-product-overview). */

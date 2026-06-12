@@ -8,11 +8,12 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { PrimaryAction, QuietAction } from '../../core/design/Buttons';
 import { color, space, type } from '../../core/design/tokens';
+import { CompassSlot } from './dueCompass';
 
-export type CompassSlot = 'morning' | 'evening' | null;
+export type { CompassSlot };
 
 export interface ThresholdScreenProps {
-  /** Which compass is due, if any — derived from profile hours by the host. */
+  /** Which compass is due, if any — the dueCompass rule, applied by the host. */
   dueCompass: CompassSlot;
   onOpenCompass: (slot: 'morning' | 'evening') => void;
   /** The Quiet switch — a door (01 §IA chrome), not one of the 3 elements. */

@@ -31,6 +31,12 @@ export interface Profile {
   eveningHour: string;
   locale: string;
   onboardingState: OnboardingState;
+  /**
+   * Local date key of the last completed morning compass, or null. The only
+   * record the morning leaves (ADR-004): the answer itself is never stored,
+   * and no history accumulates.
+   */
+  morningDoneDate: string | null;
 }
 
 function rowToProfile(row: Record<string, unknown>): Profile {
@@ -43,6 +49,10 @@ function rowToProfile(row: Record<string, unknown>): Profile {
     eveningHour: String(row.evening_hour),
     locale: String(row.locale),
     onboardingState: String(row.onboarding_state) as OnboardingState,
+    morningDoneDate:
+      row.morning_done_date === null || row.morning_done_date === undefined
+        ? null
+        : String(row.morning_done_date),
   };
 }
 
@@ -89,4 +99,18 @@ export async function setCompassHours(
 
 export async function setChosenValues(db: SqlDatabase, values: string[]): Promise<void> {
   await db.execute('UPDATE profile SET chosen_values = ?', [JSON.stringify(values)]);
+}
+
+const DATE_KEY_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+
+/**
+ * Records that the morning compass was completed on `date` so the Threshold
+ * lets it rest for the day (THR-01/02). Overwrites the previous value —
+ * yesterday's mark simply expires, it is never counted (INV-2).
+ */
+export async function markMorningDone(db: SqlDatabase, date: string): Promise<void> {
+  if (!DATE_KEY_PATTERN.test(date)) {
+    throw new Error(`Invalid date key "${date}" — expected "YYYY-MM-DD".`);
+  }
+  await db.execute('UPDATE profile SET morning_done_date = ?', [date]);
 }

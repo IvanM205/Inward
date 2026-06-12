@@ -1,9 +1,10 @@
 /**
  * THR-02 — the morning compass: one question, Today's Opening, release.
  * Total target ≤ 60 s. The answer is an orientation, not a record — it is
- * deliberately not stored (least data, specs/README §3). Today's Opening
- * draws from the active thread once threads exist (THR-04, M3); until then
- * the morning offers the day itself.
+ * deliberately not stored (least data, specs/README §3); completing the flow
+ * leaves only today's date on the profile so the Threshold lets the morning
+ * rest (ADR-004). Today's Opening draws from the active thread once threads
+ * exist (THR-04, M3); until then the morning offers the day itself.
  */
 import React, { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
@@ -12,15 +13,19 @@ import { QuestionCard } from '../../core/design/QuestionCard';
 import { TerminalScreen } from '../../core/design/TerminalScreen';
 import { color, space, type } from '../../core/design/tokens';
 import { FlowHost } from '../../core/navigation/FlowHost';
+import { SqlDatabase } from '../../core/storage/ports';
+import { markMorningDone } from '../../core/storage/repos/profileRepo';
+import { localDateKey } from '../../core/storage/time';
 import { MORNING_FLOW } from '../../flows/registry';
 
 export const MORNING_QUESTION = 'What will you give your attention to today?';
 
 export interface MorningFlowProps {
+  db: SqlDatabase;
   onExit: () => void;
 }
 
-export function MorningFlow({ onExit }: MorningFlowProps): React.JSX.Element {
+export function MorningFlow({ db, onExit }: MorningFlowProps): React.JSX.Element {
   const [answer, setAnswer] = useState('');
   return (
     <FlowHost
@@ -48,7 +53,13 @@ export function MorningFlow({ onExit }: MorningFlowProps): React.JSX.Element {
               you just named.
             </Text>
             <View style={styles.action}>
-              <PrimaryAction label="i will" onPress={() => api.advance()} />
+              <PrimaryAction
+                label="i will"
+                onPress={async () => {
+                  await markMorningDone(db, localDateKey(new Date()));
+                  api.advance();
+                }}
+              />
             </View>
           </View>
         ),
