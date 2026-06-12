@@ -14,6 +14,7 @@ import { color, space, type } from '../../core/design/tokens';
 import { FlowHost } from '../../core/navigation/FlowHost';
 import { SqlDatabase } from '../../core/storage/ports';
 import { localDateKey } from '../../core/storage/time';
+import { localizedDareText } from '../../core/content/dareTemplates';
 import { t } from '../../core/content/strings';
 import { OPENING_FLOW } from '../../flows/registry';
 import { addEntry } from '../journal/journalRepo';
@@ -56,7 +57,7 @@ export function OpeningFlow({ db, thread, locale = 'en', onExit }: OpeningFlowPr
               <DareCard
                 locale={locale}
                 rung={dare.rung}
-                text={dare.text}
+                text={localizedDareText(thread.channelKey, dare.rung, dare.text, dare.source, locale)}
                 feeling={feeling}
                 onFeelingChange={setFeeling}
                 onDone={async () => {

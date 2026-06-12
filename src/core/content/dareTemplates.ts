@@ -120,3 +120,132 @@ export const DARE_TEMPLATES: Record<ChannelKey, [string, string, string, string,
 export function dareLadderFor(channel: ChannelKey): string[] {
   return [...DARE_TEMPLATES[channel]];
 }
+
+export const DARE_TEMPLATES_SK: Record<ChannelKey, [string, string, string, string, string, string, string]> = {
+  feeds: [
+    'Zjedz dnes jedno jedlo s telefónom v inej izbe.',
+    'Presuň feedové appky z domovskej obrazovky do jedného zastrčeného priečinka.',
+    'Prvých tridsať minút po prebudení prežis bez obrazovky.',
+    'Jeden celý večer offline — povedz to vopred niekomu, nech to drží.',
+    'Odhlás sa zo všetkých feedov; nech každá návšteva stojí heslo.',
+    'Vymaž na celý týždeň jednu feedovú appku, tú, ktorá berie najviac.',
+    'Celý víkendový deň bez feedov — naplánuj ho s niekým, koho máš rád.',
+  ],
+  series: [
+    'Dnes večer skonči na konci jednej epizódy — vstaň, keď bežia titulky.',
+    'Vypni automatické prehrávanie všade, kde sa dá.',
+    'Jeden večer v týždni s tmavou telkou, čokoľvek rukami.',
+    'Dopozeraj sezónu iba cez víkend — večery v týždni ostávajú tvoje.',
+    'Nahraď jednu epizódu jednou kapitolou, v posteli, na papieri.',
+    'Celý týždeň bez seriálov — všimni si, čím sa stanú večery.',
+    'Zruš na mesiac jednu streamovaciu službu a polož tie peniaze na viditeľné miesto.',
+  ],
+  games: [
+    'Nastav si časovač pred hraním; skonči, keď zazvoní, hoci aj uprostred zápasu.',
+    'Odinštaluj jednu hru, ktorá ti nedáva nič okrem ďalšieho ťahu.',
+    'Dva týždne žiadne nákupy v žiadnej hre — chcieť sa smie, kupovať nie.',
+    'Jeden celý večer hry nahradený niečím, čo si kedysi miloval.',
+    'Povedz kamarátovi svoje týždenné hodiny, nahlas, osobne.',
+    'Týždeň bez hlavnej hry — účet si nechaj, zvyk pusti.',
+    'Mesiac bez tej, ktorá ťa drží najpevnejšie. Ak pošmykneš, rebrík počká.',
+  ],
+  betting: [
+    'Dnes si zapíš každé nutkanie staviť a čo sa dialo tesne predtým.',
+    'Odstráň všetky stávkové appky; nech nutkanie prežije odinštalovanie.',
+    'Povedz jednému človeku, ktorému veríš, koľko minulý mesiac naozaj stál.',
+    'Zablokuj si karty na stávkových stránkach, ak to tvoja banka dovolí.',
+    'Týždeň bez jedinej stávky — vklady pošli niekomu, kto ich potrebuje.',
+    'Navštív raz gamblingovú poradňu alebo jej stránku, len čítať.',
+    'Celý čistý mesiac, s týždennou kontrolou u človeka z tretej priečky.',
+  ],
+  porn: [
+    'Dnes v noci nechaj telefón úplne mimo spálne.',
+    'Nainštaluj si blokovač — nie ako klietku, ako spomaľovač.',
+    'Všimni si raz ten podnet: zapíš, kedy ťah prichádza, nič viac.',
+    'Týždeň s obrazovkami vypnutými po desiatej večer.',
+    'Povedz to raz, jednoducho, jednému človeku, ktorému veríš.',
+    'Dva čisté týždne; každé nutkanie nech ide cez tlačidlo nutkania.',
+    'Sezónny cieľ napísaný vlastnými slovami, uložený tam, kde plánuješ alebo stíchaš.',
+  ],
+  substances: [
+    'Jeden úplne čistý deň, dnes, a poznámka, aký bol večer.',
+    'Odstráň z domu, čo presahuje dnešnú úprimnú potrebu.',
+    'Povedz jednému človeku, čo rozpletáš — nech sa ťa na to pýta.',
+    'Čistý víkend, naplánovaný vopred, s niečím dobrým v prázdnom mieste.',
+    'Jeden čistý týždeň; namiesto prvého siahnutia tlačidlo nutkania.',
+    'Porozprávaj sa raz s odborníkom — informácia, nie záväzok.',
+    'Mesiac, s pomocou; milosť, ak pošmykneš — rebrík jednoducho počká.',
+  ],
+  nightlife: [
+    'Odíď z jedného večera o hodinu skôr než všetci — spánok je tvoj.',
+    'Jeden víkendový večer celkom doma: navar, hosti, alebo oddychuj, podľa seba.',
+    'Urči si hranicu míňania pred odchodom; dodrž ju.',
+    'Naplánuj jedno denné stretnutie s priateľmi, ktorých vídaš len v noci.',
+    'Dva víkendy s jedným večerom vonku namiesto dvoch.',
+    'Povedz jedno úprimné nie večeru, ktorý v skutočnosti nechceš.',
+    'Mesiac večerov končiacich pred polnocou; spočítaj, čím sa stanú rána.',
+  ],
+  shopping: [
+    'Dnes večer vyprázdni všetky košíky bez nákupu — vyspi sa na to.',
+    'Odhlás sa dnes zo všetkých obchodných e-mailov.',
+    'Týždeň bez nákupov okrem jedla a potrieb.',
+    'Vráť alebo daruj jednu impulzívne kúpenú vec — precíť to odčinenie.',
+    'Vymaž uložené karty z obchodov; nech nákup stojí námahu.',
+    'Mesiac jedného zoznamu prianí: chcenia píš, kupuj len to, čo prežije.',
+    'Daj mesačný súčet impulzov niečomu s tvárou — človeku, veci, ktorá má zmysel.',
+  ],
+  outsourced_thinking: [
+    'Odpovedz dnes na jednu skutočnú otázku z vlastnej hlavy; over až potom.',
+    'Napíš jeden odsek — správu, myšlienku — úplne bez asistenta.',
+    'Deň rozhodnutí bez toho, aby si sa najprv pýtal stroja.',
+    'Urob jednu prácu od začiatku do konca vlastným uvažovaním; potom porovnaj.',
+    'Nauč sa naspamäť niečo, čo stojí za nosenie: báseň, verš, číslo.',
+    'Týždeň, v ktorom stroj nepíše nič osobné — ako ty hovoríš len ty.',
+    'Nauč niekoho niečo, čo vieš, spamäti, tvárou v tvár.',
+  ],
+  abandoned_skills: [
+    'Dotkni sa dnes starej zručnosti na päť minút — otvor puzdro, súbor, krabicu.',
+    'Uvoľni jej jedno miesto: roh stola, policu, hodinu.',
+    'Tridsať neprerušených minút cviku, telefón v inej izbe.',
+    'Ukáž zahrdzavenú prácu jednému láskavému človeku.',
+    'Týždeň s tromi krátkymi cvičeniami — malé, naplánované, dodržané.',
+    'Dokonči jeden malý kus, od začiatku do konca, hocijako nahrubo.',
+    'Jednu hotovú vec daruj, alebo ju raz predveď, niekomu skutočnému.',
+  ],
+  spectator: [
+    'Pozri tento týždeň o jeden zápas menej; čokoľvek si zahraj sám.',
+    'Stíš na deň komentátorské kanály — nechaj si to ticho.',
+    'Nahraď hodinu zostrihov jednou prechádzkou, behom alebo loptou.',
+    'Choď na jednu miestnu, živú, malú vec namiesto veľkej obrazovky.',
+    'Týždeň bez výsledkov v práci — tabuľka počká.',
+    'Pridaj sa k niečomu, čo smieš robiť zle a verejne — kurz, liga, zbor.',
+    'Mesiac, v ktorom viac hodín potíš než prizeráš.',
+  ],
+  relationships: [
+    'Pošli dnes jednu úprimnú správu niekomu, kto si zaslúži viac než tvoje ticho.',
+    'Jeden telefonát tento týždeň človeku, ktorému stále chceš zavolať.',
+    'Jedno jedlo s niekým, oba telefóny obrazovkou dole a ďaleko.',
+    'Polož jednu skutočnú otázku niekomu blízkemu a len počúvaj.',
+    'Navštív niekoho — bez príležitosti, bez dôvodu, len dvere.',
+    'Oprav jednu malú vec: ospravedlnenie, poďakovanie, dlhované slovo.',
+    'Naplánuj jeden stály čas s niekým, koho máš rád, týždenne, a drž ho mesiac.',
+  ],
+};
+
+/**
+ * Display text for a dare. Ladders are SEEDED with the canonical English
+ * text (locale changes never rewrite history); template dares render
+ * per-locale at display time, custom dares (M4) always show as written.
+ */
+export function localizedDareText(
+  channel: ChannelKey,
+  rung: number,
+  storedText: string,
+  source: 'template' | 'custom' | 'circle',
+  locale: string,
+): string {
+  if (source === 'template' && locale.toLowerCase().startsWith('sk')) {
+    return DARE_TEMPLATES_SK[channel][rung - 1] ?? storedText;
+  }
+  return storedText;
+}

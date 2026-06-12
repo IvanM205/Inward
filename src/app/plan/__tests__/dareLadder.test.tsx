@@ -130,3 +130,27 @@ describe('OpeningFlow with a due dare (THR-04)', () => {
     await ReactTestRenderer.act(async () => tree.unmount());
   });
 });
+
+describe('Slovak dares (NFR-X2)', () => {
+  const { DARE_TEMPLATES_SK, localizedDareText } = require('../../../core/content/dareTemplates');
+
+  it('offers seven Slovak rungs for every channel, same voice rules', () => {
+    for (const key of CHANNEL_KEYS) {
+      expect(DARE_TEMPLATES_SK[key]).toHaveLength(7);
+      for (const text of DARE_TEMPLATES_SK[key]) {
+        expect(text.length).toBeGreaterThan(15);
+        expect(text).not.toMatch(/!/);
+      }
+    }
+  });
+
+  it('template dares render per locale; custom dares stay as written', () => {
+    expect(localizedDareText('feeds', 1, DARE_TEMPLATES.feeds[0], 'template', 'sk')).toContain(
+      'telefónom v inej izbe',
+    );
+    expect(localizedDareText('feeds', 1, DARE_TEMPLATES.feeds[0], 'template', 'en')).toBe(
+      DARE_TEMPLATES.feeds[0],
+    );
+    expect(localizedDareText('feeds', 1, 'my own dare', 'custom', 'sk')).toBe('my own dare');
+  });
+});
