@@ -41,6 +41,13 @@ async function press(tree: ReactTestRenderer.ReactTestRenderer, label: string) {
   await ReactTestRenderer.act(async () => target.props.onPress());
 }
 
+async function exitTerminal(tree: ReactTestRenderer.ReactTestRenderer, line: string) {
+  const terminal = tree.root.find(
+    (n) => n.props.line === line && typeof n.props.onExit === 'function',
+  );
+  await ReactTestRenderer.act(async () => terminal.props.onExit());
+}
+
 describe('OpeningFlow (THR-04)', () => {
   it('completing the act writes Evidence on the thread channel and ends terminal', async () => {
     const db = await openDbWithThread();
@@ -61,6 +68,33 @@ describe('OpeningFlow (THR-04)', () => {
     expect(entries[0].origin).toBe('auto');
     expect(entries[0].channelKeys).toEqual(['feeds']); // Evidence reaches the thread
     expect((await activeThread(db))!.openingDoneOn).toBe(today);
+    await ReactTestRenderer.act(async () => tree.unmount());
+  });
+
+  it('tells the host whether the act actually happened (OPEN-02 gating)', async () => {
+    const db = await openDbWithThread();
+    const thread = (await activeThread(db))!;
+    const onExit = jest.fn();
+
+    // Completed path → exit(true): a good moment for the monthly ask.
+    let tree!: ReactTestRenderer.ReactTestRenderer;
+    await ReactTestRenderer.act(async () => {
+      tree = ReactTestRenderer.create(<OpeningFlow db={db} thread={thread} onExit={onExit} />);
+    });
+    await press(tree, 'done — it happened');
+    await exitTerminal(tree, 'It counts because it happened. Go on with your day.');
+    expect(onExit).toHaveBeenLastCalledWith(true);
+    await ReactTestRenderer.act(async () => tree.unmount());
+
+    // Skipped path → exit(false): never a good moment.
+    const db2 = await openDbWithThread();
+    const thread2 = (await activeThread(db2))!;
+    await ReactTestRenderer.act(async () => {
+      tree = ReactTestRenderer.create(<OpeningFlow db={db2} thread={thread2} onExit={onExit} />);
+    });
+    await press(tree, 'not today');
+    await exitTerminal(tree, 'The opening waits, without keeping score.');
+    expect(onExit).toHaveBeenLastCalledWith(false);
     await ReactTestRenderer.act(async () => tree.unmount());
   });
 

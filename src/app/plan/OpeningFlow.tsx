@@ -5,7 +5,7 @@
  * Completing writes Evidence (a care entry on the thread's channel) and ends
  * in a terminal screen. Leaving it costs nothing and is said kindly (INV-7).
  */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { PrimaryAction, QuietAction } from '../../core/design/Buttons';
 import { DareCard } from '../../core/design/DareCard';
@@ -22,7 +22,12 @@ import { markOpeningDone, Thread } from './threadRepo';
 export interface OpeningFlowProps {
   db: SqlDatabase;
   thread: Thread;
-  onExit: () => void;
+  /**
+   * `completed` is true only when the act actually happened — the host's
+   * ask rules depend on the difference (OPEN-02: a skipped opening is not
+   * a good moment).
+   */
+  onExit: (completed: boolean) => void;
 }
 
 export function OpeningFlow({ db, thread, onExit }: OpeningFlowProps): React.JSX.Element {
@@ -30,6 +35,7 @@ export function OpeningFlow({ db, thread, onExit }: OpeningFlowProps): React.JSX
   // daily micro-act. undefined = still deciding.
   const [dare, setDare] = useState<Dare | null | undefined>(undefined);
   const [feeling, setFeeling] = useState('');
+  const completed = useRef(false);
 
   useEffect(() => {
     dueDare(db, thread.id, new Date()).then(setDare);
@@ -38,7 +44,7 @@ export function OpeningFlow({ db, thread, onExit }: OpeningFlowProps): React.JSX
   return (
     <FlowHost
       flow={OPENING_FLOW}
-      onExit={onExit}
+      onExit={() => onExit(completed.current)}
       renderers={{
         act: (api) =>
           dare === undefined ? (
@@ -54,6 +60,7 @@ export function OpeningFlow({ db, thread, onExit }: OpeningFlowProps): React.JSX
                   const now = new Date();
                   await completeDare(db, dare, thread, feeling, now); // dare_done Evidence
                   await markOpeningDone(db, localDateKey(now));
+                  completed.current = true;
                   api.advance('done');
                 }}
                 onNotToday={async () => {
@@ -83,6 +90,7 @@ export function OpeningFlow({ db, thread, onExit }: OpeningFlowProps): React.JSX
                       now,
                     );
                     await markOpeningDone(db, localDateKey(now));
+                    completed.current = true;
                     api.advance('done');
                   }}
                 />

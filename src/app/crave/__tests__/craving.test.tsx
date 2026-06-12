@@ -77,6 +77,9 @@ describe('recordCraving (CRAVE-03, 04 §2.1)', () => {
 
 describe('CravingFlow (CRAVE-01..03)', () => {
   it('breath → hunger → action → note → terminal, everything recorded', async () => {
+    // The suggestion is time-of-day dependent (CRAVE-02); pin the clock to
+    // noon so the asserted copy is the daytime one regardless of when CI runs.
+    jest.setSystemTime(new Date(2026, 5, 12, 12, 0));
     const db = await openDb();
     await startThread(db, 'feeds', new Date(2026, 5, 10));
     const thread = await activeThread(db);

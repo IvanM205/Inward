@@ -217,18 +217,33 @@ function App(): React.JSX.Element {
         <SettingsScreen
           onClose={release}
           onEraseAll={async () => {
-            // INV-6: immediate, irrecoverable; re-launch equals true first run.
+            // INV-6: immediate, irrecoverable; re-launch equals true first run —
+            // including every piece of in-memory room state.
             await storage.eraseAll();
             setDb(await storage.open());
             setDue(null);
             setMirrorRoute(null);
+            setThread(null);
+            setVowOpen(false);
+            setGraduated(null);
+            setRealignDue(false);
+            setDetox(null);
+            setRedesignOpen(false);
+            setBuildOpen(false);
+            setPath(null);
             setRoute('onboarding');
           }}
         />
       ) : route === 'vow' ? (
         <VowWizardFlow db={db} onExit={release} />
       ) : route === 'opening' && thread ? (
-        <OpeningFlow db={db} thread={thread} onExit={() => releaseAfter('dare')} />
+        <OpeningFlow
+          db={db}
+          thread={thread}
+          // Only a COMPLETED act is a good moment (OPEN-02); a skipped
+          // opening releases plainly, with no ask attached.
+          onExit={(completed) => (completed ? releaseAfter('dare') : release())}
+        />
       ) : route === 'crave' ? (
         <CravingFlow db={db} thread={thread} onExit={release} />
       ) : route === 'reading' ? (
